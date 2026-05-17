@@ -1,4 +1,5 @@
 import type {
+  AuthUser,
   Booking,
   CrmClient,
   Plan,
@@ -10,6 +11,36 @@ import { PLANS } from "../plans";
 // Demo data — professional wellness / therapeutic massage only.
 export function seedPlans(): Plan[] {
   return [PLANS.free, PLANS.pro, PLANS.expert];
+}
+
+// Seed accounts use the `plain$` marker (see src/lib/auth/password.ts);
+// real signups are scrypt-hashed. `user-anna` matches the seeded
+// therapist profile so the demo dashboard shows Anna's profile.
+export function seedUsers(): AuthUser[] {
+  const at = "2026-01-01T00:00:00.000Z";
+  return [
+    {
+      id: "user-anna",
+      email: "demo@massage.ru",
+      password_hash: "plain$demo1234",
+      role: "therapist",
+      created_at: at,
+    },
+    {
+      id: "user-igor",
+      email: "igor@massage.ru",
+      password_hash: "plain$demo1234",
+      role: "therapist",
+      created_at: at,
+    },
+    {
+      id: "user-admin",
+      email: "admin@massage.ru",
+      password_hash: "plain$demo1234",
+      role: "admin",
+      created_at: at,
+    },
+  ];
 }
 
 export function seedProfiles(): Profile[] {

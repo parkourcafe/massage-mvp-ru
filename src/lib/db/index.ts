@@ -1,4 +1,5 @@
 import type {
+  AuthUser,
   Booking,
   BookingMessage,
   BookingOutcome,
@@ -16,11 +17,104 @@ import type {
   Subscription,
   TherapistPrivateNote,
 } from "../types";
+import type { UserRole } from "../types";
 import { PLANS } from "../plans";
-import { newId, nowIso, secureToken } from "../util";
+import { hashPassword } from "../auth/password";
+import { newId, nowIso, secureToken, slugify } from "../util";
 import { recomputeProfile, store, __resetStore } from "./store";
 
 export { __resetStore };
+
+// ---------- Auth users ----------
+// Resolver lets the data layer pick the dashboard "owner" from the
+// signed-in session without coupling to next/headers (registered by
+// src/lib/auth/session.ts). Unit tests never set it → pure fallback.
+let ownerResolver: () => string | undefined = () => undefined;
+export function __setOwnerResolver(fn: () => string | undefined): void {
+  ownerResolver = fn;
+}
+
+export function getUserById(id: string): AuthUser | null {
+  return store().users.find((u) => u.id === id) ?? null;
+}
+
+export function findUserByEmail(email: string): AuthUser | null {
+  const e = email.trim().toLowerCase();
+  return store().users.find((u) => u.email.toLowerCase() === e) ?? null;
+}
+
+function uniqueSlug(base: string): string {
+  let slug = slugify(base);
+  let n = 1;
+  while (store().profiles.some((p) => p.slug === slug)) {
+    slug = `${slugify(base)}-${++n}`;
+  }
+  return slug;
+}
+
+// Signup: creates a therapist user + an empty draft profile they own.
+export function createUser(
+  email: string,
+  password: string,
+  fullName: string
+): { user: AuthUser; profile: Profile } | { error: string } {
+  if (findUserByEmail(email)) {
+    return { error: "Пользователь с таким email уже существует" };
+  }
+  const userId = `user-${newId()}`;
+  const user: AuthUser = {
+    id: userId,
+    email: email.trim().toLowerCase(),
+    password_hash: hashPassword(password),
+    role: "therapist",
+    created_at: nowIso(),
+  };
+  store().users.push(user);
+
+  const profile: Profile = {
+    id: newId(),
+    user_id: userId,
+    slug: uniqueSlug(fullName || email.split("@")[0]),
+    full_name: fullName || "Новый специалист",
+    gender: null,
+    show_gender: false,
+    years_experience: 0,
+    headline: null,
+    professional_description: null,
+    safety_boundaries:
+      "Работаю строго в рамках профессионального оздоровительного массажа. Эротический и интимный контент недопустим.",
+    faq: [],
+    country: "Россия",
+    city: null,
+    district: null,
+    nearest_landmark: null,
+    therapist_address_private: null,
+    public_location_label: null,
+    works_at_own_place: false,
+    travels_to_client: false,
+    works_in_hotels: false,
+    works_in_villas: false,
+    works_in_salon: false,
+    travel_districts: [],
+    minimum_booking_price: null,
+    transport_fee: null,
+    timezone: "Europe/Moscow",
+    languages: ["Русский"],
+    price_from: null,
+    session_durations: [60, 90],
+    plan_id: "free",
+    is_published: false,
+    quality_score: 0,
+    moderation_status: "pending",
+    created_at: nowIso(),
+    updated_at: nowIso(),
+    services: [],
+    media: [],
+  };
+  store().profiles.push(profile);
+  recomputeProfile(profile);
+  return { user, profile };
+}
 
 // ---- Public-safe projection ----
 export function toPublicProfile(p: Profile): Profile {
@@ -102,9 +196,12 @@ export function getRawProfileById(id: string): Profile | null {
   return store().profiles.find((x) => x.id === id) ?? null;
 }
 
-// First profile owned by a user (dashboard owner context).
-export function getOwnerProfile(userId = "user-anna"): Profile {
-  const found = store().profiles.find((p) => p.user_id === userId);
+// Profile owned by a user (dashboard owner context). When no userId is
+// passed, resolves from the signed-in session via the registered
+// resolver; falls back to the demo profile (tests / no session).
+export function getOwnerProfile(userId?: string): Profile {
+  const uid = userId ?? ownerResolver() ?? "user-anna";
+  const found = store().profiles.find((p) => p.user_id === uid);
   return found ?? store().profiles[0];
 }
 

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { NOINDEX } from "@/lib/seo";
+import { requireAdmin } from "@/lib/auth/session";
+import { LogoutButton } from "@/components/LogoutButton";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Админ-панель",
@@ -22,6 +26,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  requireAdmin();
   return (
     <div className="container-px py-8 grid lg:grid-cols-[200px_1fr] gap-8">
       <aside>
@@ -36,6 +41,7 @@ export default function AdminLayout({
               {n.label}
             </Link>
           ))}
+          <LogoutButton />
         </nav>
       </aside>
       <section className="min-w-0">{children}</section>

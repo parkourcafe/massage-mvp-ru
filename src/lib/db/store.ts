@@ -1,4 +1,5 @@
 import type {
+  AuthUser,
   Booking,
   BookingEvent,
   BookingMessage,
@@ -27,9 +28,11 @@ import {
   seedPlans,
   seedProfiles,
   seedSupport,
+  seedUsers,
 } from "./seed";
 
 interface Store {
+  users: AuthUser[];
   plans: Plan[];
   profiles: Profile[];
   favorites: Favorite[];
@@ -54,6 +57,7 @@ function freshStore(): Store {
     quality_score: computeQualityScore(p).score,
   }));
   return {
+    users: seedUsers(),
     plans: seedPlans(),
     profiles,
     favorites: [],

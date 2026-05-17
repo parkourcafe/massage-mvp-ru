@@ -210,6 +210,16 @@ export interface CrmClient {
   sessions?: ClientSession[];
 }
 
+export type UserRole = "therapist" | "admin";
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  password_hash: string;
+  role: UserRole;
+  created_at: string;
+}
+
 export interface TherapistPrivateNote {
   id: string;
   profile_id: string;
