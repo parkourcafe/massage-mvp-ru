@@ -25,9 +25,9 @@ const NOINDEX = [
   "/dashboard/clients",
 ];
 
-export default function AdminSeoPage() {
-  const profiles = listAllProfiles();
-  const totals = getActivityTotals();
+export default async function AdminSeoPage() {
+  const profiles = await listAllProfiles();
+  const totals = await getActivityTotals();
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-slate-900">SEO и активность</h1>

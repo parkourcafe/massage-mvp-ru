@@ -3,7 +3,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { listPublicProfiles, type DirectoryFilter } from "@/lib/db";
 import { CITIES, MODALITIES, PLATFORM_NOTICE } from "@/lib/catalog";
 
-export function DirectoryView({
+export async function DirectoryView({
   title,
   subtitle,
   filter,
@@ -12,7 +12,7 @@ export function DirectoryView({
   subtitle?: string;
   filter: DirectoryFilter;
 }) {
-  const profiles = listPublicProfiles(filter);
+  const profiles = await listPublicProfiles(filter);
   return (
     <div className="container-px py-10">
       <h1 className="text-2xl font-bold text-slate-900">{title}</h1>

@@ -10,13 +10,13 @@ import { ClientDetail } from "@/components/ClientDetail";
 
 type Params = { params: { id: string } };
 
-export default function ClientDetailPage({ params }: Params) {
-  const owner = getOwnerProfile();
-  const client = getClient(params.id);
+export default async function ClientDetailPage({ params }: Params) {
+  const owner = await getOwnerProfile();
+  const client = await getClient(params.id);
   if (!client || client.profile_id !== owner.id) notFound();
 
-  const notes = listTherapistPrivateNotes(owner.id, client.id);
-  const feedback = listClientFeedbackForProfile(owner.id, client.id);
+  const notes = await listTherapistPrivateNotes(owner.id, client.id);
+  const feedback = await listClientFeedbackForProfile(owner.id, client.id);
 
   return (
     <div className="space-y-4">

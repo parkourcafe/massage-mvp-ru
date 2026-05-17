@@ -21,19 +21,19 @@ const patchSchema = z.object({
   favorite_duration: z.coerce.number().int().positive().max(360).optional(),
 });
 
-function owns(clientId: string): boolean {
-  const c = getClient(clientId);
-  return !!c && c.profile_id === getOwnerProfile().id;
+async function owns(clientId: string): Promise<boolean> {
+  const c = await getClient(clientId);
+  return !!c && c.profile_id === (await getOwnerProfile()).id;
 }
 
 export async function PATCH(req: Request) {
   const parsed = patchSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json({ error: "Некорректный запрос" }, { status: 400 });
-  if (!owns(parsed.data.id))
+  if (!(await owns(parsed.data.id)))
     return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
   const { id, ...patch } = parsed.data;
-  const c = updateClient(id, patch);
+  const c = await updateClient(id, patch);
   return NextResponse.json({ ok: true, client: c });
 }
 
@@ -52,8 +52,8 @@ export async function POST(req: Request) {
   const parsed = sessionSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json({ error: "Некорректный запрос" }, { status: 400 });
-  if (!owns(parsed.data.client_id))
+  if (!(await owns(parsed.data.client_id)))
     return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
-  const s = addClientSession(parsed.data.client_id, parsed.data);
+  const s = await addClientSession(parsed.data.client_id, parsed.data);
   return NextResponse.json({ ok: true, session: s });
 }

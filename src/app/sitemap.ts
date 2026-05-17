@@ -4,7 +4,7 @@ import { CITIES, MODALITIES } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
 import { isIndexable } from "@/lib/quality";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const urls: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, lastModified: now, priority: 1 },
@@ -36,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }
 
   // Only quality-gated profiles (score >= 70) are indexed.
-  for (const p of listPublicProfiles()) {
+  for (const p of await listPublicProfiles()) {
     if (isIndexable(p)) {
       urls.push({
         url: `${SITE_URL}/therapist/${p.slug}`,

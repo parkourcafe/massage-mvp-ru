@@ -5,8 +5,8 @@ import { modalityLabel } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
-export default function MatchesPage() {
-  const owner = getOwnerProfile();
+export default async function MatchesPage() {
+  const owner = await getOwnerProfile();
 
   if (!can(owner.plan_id, "canUseAiMatchVisibility")) {
     return (
@@ -22,7 +22,7 @@ export default function MatchesPage() {
     );
   }
 
-  const matches = listMatchesForProfile(owner.id);
+  const matches = await listMatchesForProfile(owner.id);
 
   return (
     <div className="space-y-4">

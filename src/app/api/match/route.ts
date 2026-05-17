@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   }
 
   // Only Pro/Expert profiles are visible in AI match results.
-  const profiles = listAllProfiles().filter((p) =>
+  const profiles = (await listAllProfiles()).filter((p) =>
     can(p.plan_id, "canUseAiMatchVisibility")
   );
 
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
   // Persist the request + results so therapists see incoming matches.
   if (results.length > 0) {
-    saveMatch(
+    await saveMatch(
       {
         massage_goal: q.massage_goal ?? null,
         pain_or_focus_area: q.pain_or_focus_area ?? null,

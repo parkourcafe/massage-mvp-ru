@@ -2,9 +2,9 @@ import Link from "next/link";
 import { getOwnerProfile, listBookingsForProfile } from "@/lib/db";
 import { modalityLabel } from "@/lib/catalog";
 
-export default function BookingsPage() {
-  const owner = getOwnerProfile();
-  const bookings = listBookingsForProfile(owner.id);
+export default async function BookingsPage() {
+  const owner = await getOwnerProfile();
+  const bookings = await listBookingsForProfile(owner.id);
 
   return (
     <div className="space-y-4">

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const schema = z.object({ text: z.string().min(10).max(8000) });
 
 export async function POST(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   if (!can(owner.plan_id, "canUseAiImport")) {
     return NextResponse.json(
       { error: "AI-импорт доступен на тарифе Pro" },

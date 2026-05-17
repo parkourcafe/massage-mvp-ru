@@ -1,8 +1,8 @@
 import { getOwnerProfile } from "@/lib/db";
 import { ProfileEditor } from "@/components/ProfileEditor";
 
-export default function DashboardProfilePage() {
-  const profile = getOwnerProfile();
+export default async function DashboardProfilePage() {
+  const profile = await getOwnerProfile();
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-slate-900">Профиль специалиста</h1>

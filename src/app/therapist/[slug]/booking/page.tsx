@@ -9,8 +9,10 @@ type Params = {
   searchParams: { intent?: string };
 };
 
-export function generateMetadata({ params }: Params): Metadata {
-  const p = getPublicProfileBySlug(params.slug);
+export async function generateMetadata({
+  params,
+}: Params): Promise<Metadata> {
+  const p = await getPublicProfileBySlug(params.slug);
   return pageMetadata({
     title: p ? `Запись к ${p.full_name}` : "Запись на сеанс",
     path: `/therapist/${params.slug}/booking`,
@@ -18,8 +20,8 @@ export function generateMetadata({ params }: Params): Metadata {
   });
 }
 
-export default function BookingPage({ params, searchParams }: Params) {
-  const p = getPublicProfileBySlug(params.slug);
+export default async function BookingPage({ params, searchParams }: Params) {
+  const p = await getPublicProfileBySlug(params.slug);
   if (!p) notFound();
 
   const services = (p.services ?? []).map((s) => ({

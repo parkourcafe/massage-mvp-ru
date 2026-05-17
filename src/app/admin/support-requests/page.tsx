@@ -1,8 +1,8 @@
 import { listSupportRequests } from "@/lib/db";
 import { AdminAction } from "@/components/AdminAction";
 
-export default function AdminSupportRequestsPage() {
-  const requests = listSupportRequests();
+export default async function AdminSupportRequestsPage() {
+  const requests = await listSupportRequests();
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-slate-900">Заявки в поддержку</h1>

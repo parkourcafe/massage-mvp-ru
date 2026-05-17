@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   }
   const data = parsed.data;
 
-  const profile = getRawProfileById(data.profile_id);
+  const profile = await getRawProfileById(data.profile_id);
   if (!profile || !profile.is_published) {
     return NextResponse.json(
       { error: "Специалист недоступен для записи" },
@@ -72,6 +72,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const booking = createBooking(data);
+  const booking = await createBooking(data);
   return NextResponse.json({ ok: true, token: booking.token, id: booking.id });
 }

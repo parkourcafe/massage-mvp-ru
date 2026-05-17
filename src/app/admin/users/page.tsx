@@ -1,7 +1,7 @@
 import { listAllProfiles } from "@/lib/db";
 
-export default function AdminUsersPage() {
-  const profiles = listAllProfiles();
+export default async function AdminUsersPage() {
+  const profiles = await listAllProfiles();
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-slate-900">Пользователи</h1>

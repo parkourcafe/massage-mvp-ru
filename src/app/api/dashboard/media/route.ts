@@ -29,12 +29,12 @@ const schema = z.object({
 });
 
 export async function GET() {
-  const owner = getOwnerProfile();
-  return NextResponse.json({ media: listMedia(owner.id) });
+  const owner = await getOwnerProfile();
+  return NextResponse.json({ media: await listMedia(owner.id) });
 }
 
 export async function POST(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json(
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
   // Free plan: limited media.
   if (!can(owner.plan_id, "canUseMediaFull")) {
-    const count = listMedia(owner.id).length;
+    const count = (await listMedia(owner.id)).length;
     if (count >= FREE_LIMITS.maxMedia) {
       return NextResponse.json(
         {
@@ -70,21 +70,21 @@ export async function POST(req: Request) {
     );
   }
 
-  const media = addMedia(owner.id, {
+  const media = await addMedia(owner.id, {
     ...parsed.data,
     title: parsed.data.title ?? null,
     description: parsed.data.description ?? null,
     alt_text: parsed.data.alt_text ?? null,
-    sort_order: listMedia(owner.id).length,
+    sort_order: (await listMedia(owner.id)).length,
     is_published: true,
   });
   return NextResponse.json({ ok: true, media });
 }
 
 export async function DELETE(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   const { id } = await req.json().catch(() => ({ id: null }));
   if (!id) return NextResponse.json({ error: "Нет id" }, { status: 400 });
-  deleteMedia(owner.id, id);
+  await deleteMedia(owner.id, id);
   return NextResponse.json({ ok: true });
 }

@@ -14,8 +14,10 @@ import type { ContactChannel } from "@/lib/types";
 
 type Params = { params: { slug: string } };
 
-export function generateMetadata({ params }: Params): Metadata {
-  const p = getPublicProfileBySlug(params.slug);
+export async function generateMetadata({
+  params,
+}: Params): Promise<Metadata> {
+  const p = await getPublicProfileBySlug(params.slug);
   if (!p) return pageMetadata({ title: "Профиль не найден", noindex: true });
   // Index only if profile quality score >= 70.
   return pageMetadata({
@@ -26,8 +28,8 @@ export function generateMetadata({ params }: Params): Metadata {
   });
 }
 
-export default function TherapistProfilePage({ params }: Params) {
-  const p = getPublicProfileBySlug(params.slug);
+export default async function TherapistProfilePage({ params }: Params) {
+  const p = await getPublicProfileBySlug(params.slug);
   if (!p) notFound();
 
   const media = p.media ?? [];

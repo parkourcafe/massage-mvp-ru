@@ -24,12 +24,12 @@ const NAV = [
   { href: "/dashboard/support", label: "Поддержка" },
 ];
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  requireUser();
+  await requireUser();
   return (
     <div className="container-px py-8 grid lg:grid-cols-[220px_1fr] gap-8">
       <aside>

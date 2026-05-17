@@ -10,10 +10,10 @@ export function generateMetadata(): Metadata {
   return pageMetadata({ title: "Обратная связь", noindex: true });
 }
 
-export default function ClientFeedbackPage({ params }: Params) {
-  const client = getClientByToken(params.token);
+export default async function ClientFeedbackPage({ params }: Params) {
+  const client = await getClientByToken(params.token);
   if (!client) notFound();
-  const therapist = getRawProfileById(client.profile_id);
+  const therapist = await getRawProfileById(client.profile_id);
 
   return (
     <div className="container-px py-10 max-w-2xl">

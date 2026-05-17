@@ -21,12 +21,12 @@ const NAV = [
   { href: "/admin/seo", label: "SEO" },
 ];
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  requireAdmin();
+  await requireAdmin();
   return (
     <div className="container-px py-8 grid lg:grid-cols-[200px_1fr] gap-8">
       <aside>

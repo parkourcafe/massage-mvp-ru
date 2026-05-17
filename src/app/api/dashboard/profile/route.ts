@@ -42,14 +42,14 @@ const profileSchema = z.object({
 });
 
 export async function PATCH(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   const parsed = profileSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json(
       { error: "Проверьте поля", details: parsed.error.flatten() },
       { status: 400 }
     );
-  const updated = updateProfile(owner.id, parsed.data);
+  const updated = await updateProfile(owner.id, parsed.data);
   return NextResponse.json({
     ok: true,
     quality_score: updated?.quality_score,
@@ -69,18 +69,18 @@ const serviceSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   const parsed = serviceSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json({ error: "Проверьте услугу" }, { status: 400 });
-  const svc = upsertService(owner.id, parsed.data);
+  const svc = await upsertService(owner.id, parsed.data);
   return NextResponse.json({ ok: true, service: svc });
 }
 
 export async function DELETE(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   const { id } = await req.json().catch(() => ({ id: null }));
   if (!id) return NextResponse.json({ error: "Нет id" }, { status: 400 });
-  deleteService(owner.id, id);
+  await deleteService(owner.id, id);
   return NextResponse.json({ ok: true });
 }

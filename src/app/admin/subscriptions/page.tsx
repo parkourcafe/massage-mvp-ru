@@ -1,8 +1,8 @@
 import { listAllProfiles, listSubscriptions } from "@/lib/db";
 
-export default function AdminSubscriptionsPage() {
-  const subs = listSubscriptions();
-  const profiles = listAllProfiles();
+export default async function AdminSubscriptionsPage() {
+  const subs = await listSubscriptions();
+  const profiles = await listAllProfiles();
   const name = (id: string) =>
     profiles.find((p) => p.id === id)?.full_name ?? id;
   return (
