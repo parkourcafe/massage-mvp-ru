@@ -23,8 +23,8 @@ import {
 beforeEach(() => __resetStore());
 
 describe("therapist profile & directory", () => {
-  it("exposes a public profile without the private address", () => {
-    const p = getPublicProfileBySlug("anna-kovaleva");
+  it("exposes a public profile without the private address", async () => {
+    const p = await getPublicProfileBySlug("anna-kovaleva");
     expect(p).not.toBeNull();
     expect(p!.full_name).toBe("Анна Ковалёва");
     expect(p!.therapist_address_private).toBeNull();
@@ -34,12 +34,12 @@ describe("therapist profile & directory", () => {
     expect((p!.media ?? []).some((m) => m.type === "document")).toBe(false);
   });
 
-  it("does not expose unpublished profiles publicly", () => {
-    expect(getPublicProfileBySlug("novyy-spetsialist")).toBeNull();
+  it("does not expose unpublished profiles publicly", async () => {
+    expect(await getPublicProfileBySlug("novyy-spetsialist")).toBeNull();
   });
 
-  it("exposes public contact channels but never the private address", () => {
-    const p = getPublicProfileBySlug("anna-kovaleva")!;
+  it("exposes public contact channels but never the private address", async () => {
+    const p = (await getPublicProfileBySlug("anna-kovaleva"))!;
     expect(p.whatsapp).toBe("+79991234567");
     expect(p.telegram_url).toContain("t.me/");
     expect(p.therapist_address_private).toBeNull();
@@ -47,16 +47,16 @@ describe("therapist profile & directory", () => {
 });
 
 describe("services & media management", () => {
-  it("adds a service and media to the owner profile", () => {
-    const owner = getOwnerProfile();
-    const svc = upsertService(owner.id, {
+  it("adds a service and media to the owner profile", async () => {
+    const owner = await getOwnerProfile();
+    const svc = await upsertService(owner.id, {
       modality: "foot",
       title: "Массаж стоп",
       duration: 30,
       price: 1500,
     });
     expect(svc?.id).toBeTruthy();
-    const m = addMedia(owner.id, {
+    const m = await addMedia(owner.id, {
       type: "gallery_photo",
       url: "https://example.com/x.jpg",
       title: null,
@@ -70,9 +70,9 @@ describe("services & media management", () => {
 });
 
 describe("unified booking inquiry flow", () => {
-  it("creates booking, therapist sees it, client replies, confirm, outcome, convert", () => {
-    const owner = getOwnerProfile();
-    const booking = createBooking({
+  it("creates booking, therapist sees it, client replies, confirm, outcome, convert", async () => {
+    const owner = await getOwnerProfile();
+    const booking = await createBooking({
       profile_id: owner.id,
       client_name: "Тест Клиент",
       service_type: "back",
@@ -82,64 +82,64 @@ describe("unified booking inquiry flow", () => {
     expect(booking.status).toBe("chat_started");
 
     // Therapist sees the booking in their list.
-    const list = listBookingsForProfile(owner.id);
+    const list = await listBookingsForProfile(owner.id);
     expect(list.find((b) => b.id === booking.id)).toBeTruthy();
 
     // Client can reply via token.
-    const viaToken = getBookingByToken(booking.token);
+    const viaToken = await getBookingByToken(booking.token);
     expect(viaToken?.id).toBe(booking.id);
 
     // Confirm time.
-    confirmBooking(booking.id, "2026-05-20 18:00");
-    expect(getBookingByToken(booking.token)!.status).toBe("confirmed");
+    await confirmBooking(booking.id, "2026-05-20 18:00");
+    expect((await getBookingByToken(booking.token))!.status).toBe("confirmed");
 
     // Mark completed.
-    setBookingOutcome(booking.id, "completed_good", "completed");
-    expect(getBookingByToken(booking.token)!.status).toBe("completed");
+    await setBookingOutcome(booking.id, "completed_good", "completed");
+    expect((await getBookingByToken(booking.token))!.status).toBe("completed");
 
     // Convert to CRM client.
-    const client = convertBookingToClient(booking.id);
+    const client = await convertBookingToClient(booking.id);
     expect(client?.name).toBe("Тест Клиент");
-    expect(listClients(owner.id).find((c) => c.id === client!.id)).toBeTruthy();
-    expect(getBookingByToken(booking.token)!.status).toBe(
+    expect((await listClients(owner.id)).find((c) => c.id === client!.id)).toBeTruthy();
+    expect((await getBookingByToken(booking.token))!.status).toBe(
       "converted_to_repeat_client"
     );
   });
 
-  it("supports no-show / cancelled / lost outcomes", () => {
-    const owner = getOwnerProfile();
-    const b1 = createBooking({
+  it("supports no-show / cancelled / lost outcomes", async () => {
+    const owner = await getOwnerProfile();
+    const b1 = await createBooking({
       profile_id: owner.id,
       client_name: "A",
       first_message: "hi",
     });
-    setBookingOutcome(b1.id, "no_show", "no_show");
-    expect(getBookingByToken(b1.token)!.status).toBe("no_show");
+    await setBookingOutcome(b1.id, "no_show", "no_show");
+    expect((await getBookingByToken(b1.token))!.status).toBe("no_show");
 
-    const b2 = createBooking({
+    const b2 = await createBooking({
       profile_id: owner.id,
       client_name: "B",
       first_message: "hi",
     });
-    setBookingOutcome(b2.id, "lost_no_reply", "lost");
-    expect(getBookingByToken(b2.token)!.status).toBe("lost");
+    await setBookingOutcome(b2.id, "lost_no_reply", "lost");
+    expect((await getBookingByToken(b2.token))!.status).toBe("lost");
   });
 });
 
 describe("favorites", () => {
-  it("adds, prevents duplicates, and removes", () => {
-    const owner = getOwnerProfile();
-    addFavorite("u1", owner.id, "directory");
-    addFavorite("u1", owner.id, "directory"); // duplicate ignored
-    expect(listFavorites("u1").length).toBe(1);
-    removeFavorite("u1", owner.id);
-    expect(listFavorites("u1").length).toBe(0);
+  it("adds, prevents duplicates, and removes", async () => {
+    const owner = await getOwnerProfile();
+    await addFavorite("u1", owner.id, "directory");
+    await addFavorite("u1", owner.id, "directory"); // duplicate ignored
+    expect((await listFavorites("u1")).length).toBe(1);
+    await removeFavorite("u1", owner.id);
+    expect((await listFavorites("u1")).length).toBe(0);
   });
 });
 
 describe("support requests", () => {
-  it("creates a support request", () => {
-    const sr = createSupportRequest({
+  it("creates a support request", async () => {
+    const sr = await createSupportRequest({
       user_id: null,
       profile_id: null,
       name: "Игорь",
@@ -155,13 +155,13 @@ describe("support requests", () => {
 });
 
 describe("billing webhook architecture", () => {
-  it("activates Pro ONLY via verified webhook, never on create alone", () => {
-    const owner = getOwnerProfile();
-    const payment = createPayment(owner.id, "pro");
+  it("activates Pro ONLY via verified webhook, never on create alone", async () => {
+    const owner = await getOwnerProfile();
+    const payment = await createPayment(owner.id, "pro");
     expect(payment.status).toBe("pending");
 
     // Webhook verifies and activates.
-    const sub = markPaymentSucceeded(payment.provider_payment_id!);
+    const sub = await markPaymentSucceeded(payment.provider_payment_id!);
     expect(sub?.status).toBe("active");
     expect(sub?.plan_id).toBe("pro");
     expect(new Date(sub!.expires_at!).getTime()).toBeGreaterThan(Date.now());

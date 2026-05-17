@@ -12,17 +12,17 @@ import {
 beforeEach(() => __resetStore());
 
 describe("analytics tracking", () => {
-  it("records views and clicks and aggregates them", () => {
-    const owner = getOwnerProfile();
-    const before = getAnalytics(owner.id);
+  it("records views and clicks and aggregates them", async () => {
+    const owner = await getOwnerProfile();
+    const before = await getAnalytics(owner.id);
 
-    recordProfileView(owner.id, "/therapist/x");
-    recordProfileView(owner.id, "/therapist/x");
-    recordContactClick(owner.id, "whatsapp");
-    recordContactClick(owner.id, "whatsapp");
-    recordContactClick(owner.id, "telegram");
+    await recordProfileView(owner.id, "/therapist/x");
+    await recordProfileView(owner.id, "/therapist/x");
+    await recordContactClick(owner.id, "whatsapp");
+    await recordContactClick(owner.id, "whatsapp");
+    await recordContactClick(owner.id, "telegram");
 
-    const a = getAnalytics(owner.id);
+    const a = await getAnalytics(owner.id);
     expect(a.totalViews).toBe(before.totalViews + 2);
     expect(a.totalClicks).toBe(before.totalClicks + 3);
     expect(a.clicksByChannel.whatsapp).toBeGreaterThanOrEqual(2);
@@ -31,16 +31,16 @@ describe("analytics tracking", () => {
     expect(a.viewsByDay.at(-1)!.count).toBeGreaterThanOrEqual(2);
   });
 
-  it("ignores tracking for unknown profiles", () => {
-    const t = getActivityTotals().totalViews;
-    recordProfileView("does-not-exist");
-    expect(getActivityTotals().totalViews).toBe(t);
+  it("ignores tracking for unknown profiles", async () => {
+    const t = (await getActivityTotals()).totalViews;
+    await recordProfileView("does-not-exist");
+    expect((await getActivityTotals()).totalViews).toBe(t);
   });
 
-  it("logs AI generations", () => {
-    const before = getActivityTotals().aiCalls;
-    logAiGeneration("explain_match", false);
-    logAiGeneration("import_profile", true);
-    expect(getActivityTotals().aiCalls).toBe(before + 2);
+  it("logs AI generations", async () => {
+    const before = (await getActivityTotals()).aiCalls;
+    await logAiGeneration("explain_match", false);
+    await logAiGeneration("import_profile", true);
+    expect((await getActivityTotals()).aiCalls).toBe(before + 2);
   });
 });
