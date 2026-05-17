@@ -4,6 +4,7 @@ import type {
   BookingMessage,
   BookingOutcome,
   BookingStatus,
+  ClientPrivateFeedback,
   CrmClient,
   ClientSession,
   Favorite,
@@ -15,6 +16,7 @@ import type {
   ProfileMedia,
   SupportRequest,
   Subscription,
+  TherapistPrivateNote,
 } from "../types";
 import { computeQualityScore } from "../quality";
 import { moderateProfilePayload } from "../moderation";
@@ -33,6 +35,8 @@ interface Store {
   favorites: Favorite[];
   bookings: Booking[];
   clients: CrmClient[];
+  therapistNotes: TherapistPrivateNote[];
+  clientFeedback: ClientPrivateFeedback[];
   support: SupportRequest[];
   subscriptions: Subscription[];
   payments: Payment[];
@@ -55,6 +59,8 @@ function freshStore(): Store {
     favorites: [],
     bookings: seedBookings(),
     clients: seedClients(),
+    therapistNotes: [],
+    clientFeedback: [],
     support: seedSupport(),
     subscriptions: [],
     payments: [],

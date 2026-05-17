@@ -3,6 +3,7 @@ import type {
   BookingMessage,
   BookingOutcome,
   BookingStatus,
+  ClientPrivateFeedback,
   CrmClient,
   ClientSession,
   Favorite,
@@ -13,6 +14,7 @@ import type {
   ServiceItem,
   SupportRequest,
   Subscription,
+  TherapistPrivateNote,
 } from "../types";
 import { PLANS } from "../plans";
 import { newId, nowIso, secureToken } from "../util";
@@ -459,6 +461,95 @@ export function addClientSession(
   c.sessions.push(s);
   c.updated_at = nowIso();
   return s;
+}
+
+export function getClientByToken(token: string): CrmClient | null {
+  if (!token) return null;
+  return store().clients.find((c) => c.token === token) ?? null;
+}
+
+// ---------- Private mutual feedback (never public) ----------
+export function addTherapistPrivateNote(
+  profileId: string,
+  data: Partial<TherapistPrivateNote>
+): TherapistPrivateNote | null {
+  const owner = getRawProfileById(profileId);
+  if (!owner) return null;
+  if (data.client_id) {
+    const c = getClient(data.client_id);
+    if (!c || c.profile_id !== profileId) return null;
+  }
+  const note: TherapistPrivateNote = {
+    id: newId(),
+    profile_id: profileId,
+    client_id: data.client_id ?? null,
+    booking_id: data.booking_id ?? null,
+    session_date: data.session_date ?? nowIso().slice(0, 10),
+    service_type: data.service_type ?? null,
+    duration: data.duration ?? null,
+    focus_area: data.focus_area ?? null,
+    pressure_used: data.pressure_used ?? null,
+    how_session_went: data.how_session_went ?? null,
+    what_to_repeat: data.what_to_repeat ?? null,
+    what_to_avoid: data.what_to_avoid ?? null,
+    next_step: data.next_step ?? null,
+    private_note: data.private_note ?? null,
+    created_at: nowIso(),
+  };
+  store().therapistNotes.push(note);
+  return note;
+}
+
+export function listTherapistPrivateNotes(
+  profileId: string,
+  clientId?: string
+): TherapistPrivateNote[] {
+  return store()
+    .therapistNotes.filter(
+      (n) =>
+        n.profile_id === profileId &&
+        (clientId ? n.client_id === clientId : true)
+    )
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+// Submitted by the client/patient via their unguessable token. Never public.
+export function submitClientFeedback(
+  token: string,
+  data: Partial<ClientPrivateFeedback>
+): ClientPrivateFeedback | null {
+  const client = getClientByToken(token);
+  if (!client) return null;
+  const fb: ClientPrivateFeedback = {
+    id: newId(),
+    booking_id: client.source_booking_id ?? null,
+    profile_id: client.profile_id,
+    client_id: client.id,
+    comfort_score: data.comfort_score ?? null,
+    professionalism_score: data.professionalism_score ?? null,
+    cleanliness_score: data.cleanliness_score ?? null,
+    punctuality_score: data.punctuality_score ?? null,
+    pressure_fit: data.pressure_fit ?? null,
+    comment: data.comment ?? null,
+    repeat_status: data.repeat_status ?? null,
+    created_at: nowIso(),
+  };
+  store().clientFeedback.push(fb);
+  return fb;
+}
+
+// Owner-only read of feedback received about their own profile/clients.
+export function listClientFeedbackForProfile(
+  profileId: string,
+  clientId?: string
+): ClientPrivateFeedback[] {
+  return store()
+    .clientFeedback.filter(
+      (f) =>
+        f.profile_id === profileId &&
+        (clientId ? f.client_id === clientId : true)
+    )
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
 }
 
 // ---------- Support ----------

@@ -25,6 +25,7 @@ describe("required routes exist", () => {
     "match/results",
     "favorites",
     "booking/[token]",
+    "client/[token]",
   ];
   const dashboardRoutes = [
     "dashboard",
@@ -55,6 +56,8 @@ describe("required routes exist", () => {
     "api/match",
     "api/support",
     "api/import",
+    "api/client-feedback",
+    "api/dashboard/private-note",
     "api/payments/create",
     "api/payments/webhook/yookassa",
     "api/subscriptions/cancel",

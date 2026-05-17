@@ -210,6 +210,42 @@ export interface CrmClient {
   sessions?: ClientSession[];
 }
 
+export interface TherapistPrivateNote {
+  id: string;
+  profile_id: string;
+  client_id?: string | null;
+  booking_id?: string | null;
+  session_date?: string | null;
+  service_type?: string | null;
+  duration?: number | null;
+  focus_area?: string | null;
+  pressure_used?: string | null;
+  how_session_went?: string | null;
+  what_to_repeat?: string | null;
+  what_to_avoid?: string | null;
+  next_step?: string | null;
+  private_note?: string | null;
+  created_at: string;
+}
+
+export type PressureFit = "too_soft" | "good" | "too_strong";
+export type FeedbackRepeat = "repeat" | "not_sure" | "no";
+
+export interface ClientPrivateFeedback {
+  id: string;
+  booking_id?: string | null;
+  profile_id: string;
+  client_id?: string | null;
+  comfort_score?: number | null;
+  professionalism_score?: number | null;
+  cleanliness_score?: number | null;
+  punctuality_score?: number | null;
+  pressure_fit?: PressureFit | null;
+  comment?: string | null;
+  repeat_status?: FeedbackRepeat | null;
+  created_at: string;
+}
+
 export interface SupportRequest {
   id: string;
   user_id?: string | null;
