@@ -4,7 +4,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { listPublicProfiles, type DirectoryFilter } from "@/lib/db";
 import { CITIES, MODALITIES, PLATFORM_NOTICE } from "@/lib/catalog";
 import { breadcrumbJsonLd, faqJsonLd, itemListJsonLd } from "@/lib/jsonld";
-import type { LandingContent } from "@/lib/landing-content";
+import type { LandingContent, RelatedGroup } from "@/lib/landing-content";
 
 export async function DirectoryView({
   title,
@@ -13,6 +13,8 @@ export async function DirectoryView({
   path,
   breadcrumb,
   content,
+  related,
+  extraSchema,
 }: {
   title: string;
   subtitle?: string;
@@ -20,6 +22,8 @@ export async function DirectoryView({
   path: string;
   breadcrumb?: { name: string; path: string }[];
   content?: LandingContent;
+  related?: RelatedGroup[];
+  extraSchema?: object[];
 }) {
   const profiles = await listPublicProfiles(filter);
   const crumbs = breadcrumb ?? [
@@ -36,6 +40,7 @@ export async function DirectoryView({
             ...(content && content.faq.length > 0
               ? [faqJsonLd(content.faq)]
               : []),
+            ...(extraSchema ?? []),
           ]}
         />
       )}
@@ -113,6 +118,32 @@ export async function DirectoryView({
             ))}
           </div>
         </section>
+      )}
+
+      {related && related.length > 0 && (
+        <nav
+          aria-label="Смотрите также"
+          className="mt-12 border-t pt-8 space-y-5"
+        >
+          {related.map((g) => (
+            <div key={g.title}>
+              <h2 className="text-sm font-semibold text-slate-900">
+                {g.title}
+              </h2>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {g.links.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className="chip hover:bg-brand-100"
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
       )}
     </div>
   );

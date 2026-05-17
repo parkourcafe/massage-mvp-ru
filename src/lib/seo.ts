@@ -61,6 +61,13 @@ export function pageMetadata(opts: {
       description: opts.description,
       url,
       siteName: SITE_NAME,
+      type: "website",
+      locale: "ru_RU",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: opts.title,
+      description: opts.description,
     },
   };
 }

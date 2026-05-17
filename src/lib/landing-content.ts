@@ -7,10 +7,17 @@
 // don't read as near-duplicates of each other. No medical claims — the
 // platform is professional wellness/therapeutic massage only.
 
+import { CITIES, MODALITIES, citySlug } from "./catalog";
+
 export interface LandingContent {
   heading: string;
   paragraphs: string[];
   faq: { q: string; a: string }[];
+}
+
+export interface RelatedGroup {
+  title: string;
+  links: { label: string; href: string }[];
 }
 
 type Family = "relax" | "recovery" | "sport" | "special" | "format" | "city";
@@ -244,4 +251,83 @@ export function landingContent(opts: {
   const faq = [...copy.faq(subject, cityLabel), SAFETY_FAQ];
 
   return { heading, paragraphs, faq };
+}
+
+// Internal-linking blocks for landing pages: strengthen crawl paths and
+// give users relevant next steps (same-family services, the service in
+// other cities, other services in the same city).
+export function relatedLinks(opts: {
+  modalityKey?: string;
+  cityLabel?: string;
+}): RelatedGroup[] {
+  const { modalityKey, cityLabel } = opts;
+  const cSlug = citySlug(cityLabel);
+  const self = modalityKey
+    ? MODALITIES.find((m) => m.key === modalityKey)
+    : undefined;
+  const family = modalityKey ? FAMILY_BY_KEY[modalityKey] : undefined;
+  const sameFamily = MODALITIES.filter(
+    (m) => m.key !== modalityKey && FAMILY_BY_KEY[m.key] === family
+  );
+  const others = MODALITIES.filter((m) => m.key !== modalityKey);
+  const groups: RelatedGroup[] = [];
+
+  if (self && cSlug && cityLabel) {
+    groups.push({
+      title: `${self.label} в других городах`,
+      links: CITIES.filter((c) => c.slug !== cSlug).map((c) => ({
+        label: c.label,
+        href: `/therapists/${self.slug}/${c.slug}`,
+      })),
+    });
+    groups.push({
+      title: `Другие услуги в городе ${cityLabel}`,
+      links: [...sameFamily, ...others]
+        .filter((m, i, a) => a.indexOf(m) === i)
+        .slice(0, 8)
+        .map((m) => ({
+          label: m.label,
+          href: `/therapists/${m.slug}/${cSlug}`,
+        })),
+    });
+    return groups;
+  }
+
+  if (self) {
+    groups.push({
+      title: `${self.label} по городам`,
+      links: CITIES.map((c) => ({
+        label: c.label,
+        href: `/therapists/${self.slug}/${c.slug}`,
+      })),
+    });
+    if (sameFamily.length) {
+      groups.push({
+        title: "Похожие виды массажа",
+        links: sameFamily.slice(0, 6).map((m) => ({
+          label: m.label,
+          href: `/therapists/${m.slug}`,
+        })),
+      });
+    }
+    return groups;
+  }
+
+  if (cSlug && cityLabel) {
+    groups.push({
+      title: `Виды массажа — ${cityLabel}`,
+      links: MODALITIES.slice(0, 10).map((m) => ({
+        label: m.label,
+        href: `/therapists/${m.slug}/${cSlug}`,
+      })),
+    });
+    groups.push({
+      title: "Другие города",
+      links: CITIES.filter((c) => c.slug !== cSlug).map((c) => ({
+        label: c.label,
+        href: `/therapists/${c.slug}`,
+      })),
+    });
+  }
+  return groups;
 }

@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { DirectoryView } from "@/components/DirectoryView";
 import { CITY_BY_SLUG, MODALITY_BY_SLUG } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
-import { landingContent } from "@/lib/landing-content";
+import { landingContent, relatedLinks } from "@/lib/landing-content";
+import { serviceJsonLd } from "@/lib/jsonld";
 import { MIN_INDEXABLE_RESULTS, pageMetadata } from "@/lib/seo";
 
 // /therapists/[service]/[city]
@@ -61,6 +62,18 @@ export default function TherapistsServiceCityPage({ params }: Params) {
         modalityLabel: r.modality.label,
         cityLabel: r.city.label,
       })}
+      related={relatedLinks({
+        modalityKey: r.modality.key,
+        cityLabel: r.city.label,
+      })}
+      extraSchema={[
+        serviceJsonLd({
+          serviceType: r.modality.label,
+          areaServed: r.city.label,
+          path: `/therapists/${params.seg1}/${params.seg2}`,
+          description: `${r.modality.label} в городе ${r.city.label}: профессиональные массажисты.`,
+        }),
+      ]}
     />
   );
 }

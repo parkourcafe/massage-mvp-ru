@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { DirectoryView } from "@/components/DirectoryView";
 import { CITY_BY_SLUG, MODALITY_BY_SLUG } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
-import { landingContent } from "@/lib/landing-content";
+import { landingContent, relatedLinks } from "@/lib/landing-content";
+import { serviceJsonLd } from "@/lib/jsonld";
 import { MIN_INDEXABLE_RESULTS, pageMetadata } from "@/lib/seo";
 
 // /therapists/[service]  OR  /therapists/[city]
@@ -74,6 +75,14 @@ export default function TherapistsFilterPage({ params }: Params) {
           modalityKey: r.modality.key,
           modalityLabel: r.modality.label,
         })}
+        related={relatedLinks({ modalityKey: r.modality.key })}
+        extraSchema={[
+          serviceJsonLd({
+            serviceType: r.modality.label,
+            path: `/therapists/${params.seg1}`,
+            description: `Профессиональные специалисты: ${r.modality.label}.`,
+          }),
+        ]}
       />
     );
   }
@@ -88,6 +97,7 @@ export default function TherapistsFilterPage({ params }: Params) {
         { name: r.city.label, path: `/therapists/${params.seg1}` },
       ]}
       content={landingContent({ cityLabel: r.city.label })}
+      related={relatedLinks({ cityLabel: r.city.label })}
     />
   );
 }

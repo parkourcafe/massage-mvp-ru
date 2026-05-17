@@ -87,6 +87,30 @@ export function therapistJsonLd(p: Profile): JsonLdObject {
   };
 }
 
+export function serviceJsonLd(opts: {
+  serviceType: string;
+  path: string;
+  areaServed?: string;
+  description?: string;
+}): JsonLdObject {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    serviceType: opts.serviceType,
+    name: opts.areaServed
+      ? `${opts.serviceType} — ${opts.areaServed}`
+      : opts.serviceType,
+    description: opts.description,
+    areaServed: opts.areaServed ?? "Россия",
+    url: abs(opts.path),
+    provider: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+  };
+}
+
 export function faqJsonLd(faq: { q: string; a: string }[]): JsonLdObject {
   return {
     "@context": "https://schema.org",
