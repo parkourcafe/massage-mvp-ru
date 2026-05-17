@@ -3,6 +3,8 @@ import "./globals.css";
 import { SafetyNotice, SiteFooter, SiteHeader } from "@/components/Chrome";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
+const yandexVerification = process.env.YANDEX_VERIFICATION;
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -11,6 +13,9 @@ export const metadata: Metadata = {
   },
   description:
     "AI-платформа для независимых профессиональных массажистов и клиентов. Только оздоровительный и лечебный массаж.",
+  ...(yandexVerification
+    ? { verification: { yandex: yandexVerification } }
+    : {}),
 };
 
 export default function RootLayout({

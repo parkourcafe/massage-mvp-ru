@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DirectoryView } from "@/components/DirectoryView";
 import { CITY_BY_SLUG, MODALITY_BY_SLUG } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
+import { landingContent } from "@/lib/landing-content";
 import { MIN_INDEXABLE_RESULTS, pageMetadata } from "@/lib/seo";
 
 // /therapists/[service]  OR  /therapists/[city]
@@ -69,6 +70,10 @@ export default function TherapistsFilterPage({ params }: Params) {
             path: `/therapists/${params.seg1}`,
           },
         ]}
+        content={landingContent({
+          modalityKey: r.modality.key,
+          modalityLabel: r.modality.label,
+        })}
       />
     );
   }
@@ -82,6 +87,7 @@ export default function TherapistsFilterPage({ params }: Params) {
         ...base,
         { name: r.city.label, path: `/therapists/${params.seg1}` },
       ]}
+      content={landingContent({ cityLabel: r.city.label })}
     />
   );
 }

@@ -3,7 +3,8 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { JsonLd } from "@/components/JsonLd";
 import { listPublicProfiles, type DirectoryFilter } from "@/lib/db";
 import { CITIES, MODALITIES, PLATFORM_NOTICE } from "@/lib/catalog";
-import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/jsonld";
+import { breadcrumbJsonLd, faqJsonLd, itemListJsonLd } from "@/lib/jsonld";
+import type { LandingContent } from "@/lib/landing-content";
 
 export async function DirectoryView({
   title,
@@ -11,12 +12,14 @@ export async function DirectoryView({
   filter,
   path,
   breadcrumb,
+  content,
 }: {
   title: string;
   subtitle?: string;
   filter: DirectoryFilter;
   path: string;
   breadcrumb?: { name: string; path: string }[];
+  content?: LandingContent;
 }) {
   const profiles = await listPublicProfiles(filter);
   const crumbs = breadcrumb ?? [
@@ -30,12 +33,28 @@ export async function DirectoryView({
           data={[
             breadcrumbJsonLd(crumbs),
             itemListJsonLd({ name: title, path, profiles }),
+            ...(content && content.faq.length > 0
+              ? [faqJsonLd(content.faq)]
+              : []),
           ]}
         />
       )}
       <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
       {subtitle && <p className="mt-1 text-slate-600">{subtitle}</p>}
       <p className="mt-2 text-sm text-brand-700">{PLATFORM_NOTICE}</p>
+
+      {content && (
+        <section className="mt-6 max-w-3xl space-y-3">
+          <h2 className="text-lg font-semibold text-slate-900">
+            {content.heading}
+          </h2>
+          {content.paragraphs.map((t, i) => (
+            <p key={i} className="text-slate-700">
+              {t}
+            </p>
+          ))}
+        </section>
+      )}
 
       <div className="mt-6 flex flex-wrap gap-2">
         <Link href="/therapists" className="chip hover:bg-brand-100">
@@ -78,6 +97,22 @@ export async function DirectoryView({
             <ProfileCard key={p.id} profile={p} source="directory" />
           ))}
         </div>
+      )}
+
+      {content && content.faq.length > 0 && (
+        <section className="mt-12 max-w-3xl">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Частые вопросы
+          </h2>
+          <div className="mt-3 space-y-3">
+            {content.faq.map((f, i) => (
+              <div key={i}>
+                <p className="font-medium text-slate-800">{f.q}</p>
+                <p className="text-sm text-slate-600">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );
