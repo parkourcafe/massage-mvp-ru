@@ -4,6 +4,8 @@ import type {
   Booking,
   BookingMessage,
   ContactChannel,
+  MatchRequestRecord,
+  MatchResultRecord,
   BookingOutcome,
   BookingStatus,
   ClientPrivateFeedback,
@@ -733,6 +735,52 @@ export function getActivityTotals(): {
     totalClicks: s.contactClicks.length,
     aiCalls: s.aiGenerations.length,
   };
+}
+
+// ---------- v1: AI match persistence ----------
+export function saveMatch(
+  request: Omit<MatchRequestRecord, "id" | "created_at">,
+  results: {
+    profile_id: string;
+    score: number;
+    service_recommendation: string;
+    reasons: string[];
+    risks: string[];
+  }[]
+): MatchRequestRecord {
+  const req: MatchRequestRecord = {
+    ...request,
+    id: newId(),
+    created_at: nowIso(),
+  };
+  store().matchRequests.push(req);
+  results.forEach((r, i) => {
+    store().matchResults.push({
+      id: newId(),
+      request_id: req.id,
+      profile_id: r.profile_id,
+      rank: i + 1,
+      score: r.score,
+      service_recommendation: r.service_recommendation,
+      reasons: r.reasons,
+      risks: r.risks,
+      created_at: nowIso(),
+    });
+  });
+  return req;
+}
+
+export function listMatchesForProfile(
+  profileId: string
+): (MatchResultRecord & { request: MatchRequestRecord | null })[] {
+  return store()
+    .matchResults.filter((r) => r.profile_id === profileId)
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+    .map((r) => ({
+      ...r,
+      request:
+        store().matchRequests.find((q) => q.id === r.request_id) ?? null,
+    }));
 }
 
 // ---------- Support ----------

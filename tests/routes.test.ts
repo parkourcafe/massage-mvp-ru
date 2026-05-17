@@ -42,6 +42,7 @@ describe("required routes exist", () => {
     "dashboard/bookings/[id]",
     "dashboard/clients",
     "dashboard/clients/[id]",
+    "dashboard/matches",
     "dashboard/analytics",
     "dashboard/billing",
     "dashboard/support",

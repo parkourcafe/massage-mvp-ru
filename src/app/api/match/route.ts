@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { listAllProfiles } from "@/lib/db";
+import { listAllProfiles, saveMatch } from "@/lib/db";
 import { runMatch, type MatchQuestionnaire } from "@/lib/matching";
 import { explainMatch } from "@/lib/ai";
 import { can } from "@/lib/plans";
@@ -57,6 +57,28 @@ export async function POST(req: Request) {
   );
 
   const results = runMatch(profiles, q, 3);
+
+  // Persist the request + results so therapists see incoming matches.
+  if (results.length > 0) {
+    saveMatch(
+      {
+        massage_goal: q.massage_goal ?? null,
+        pain_or_focus_area: q.pain_or_focus_area ?? null,
+        preferred_service_type: q.preferred_service_type ?? null,
+        city: q.city ?? null,
+        district: q.district ?? null,
+        budget: q.budget ?? null,
+      },
+      results.map((r) => ({
+        profile_id: r.profile.id,
+        score: r.score,
+        service_recommendation: r.serviceRecommendation,
+        reasons: r.reasons,
+        risks: r.risks,
+      }))
+    );
+  }
+
   const enriched = await Promise.all(
     results.map(async (r) => ({
       profileId: r.profile.id,

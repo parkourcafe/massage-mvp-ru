@@ -5,6 +5,8 @@ import type {
   BookingEvent,
   BookingMessage,
   ContactClick,
+  MatchRequestRecord,
+  MatchResultRecord,
   ProfileView,
   BookingOutcome,
   BookingStatus,
@@ -46,6 +48,8 @@ interface Store {
   profileViews: ProfileView[];
   contactClicks: ContactClick[];
   aiGenerations: AiGeneration[];
+  matchRequests: MatchRequestRecord[];
+  matchResults: MatchResultRecord[];
   support: SupportRequest[];
   subscriptions: Subscription[];
   payments: Payment[];
@@ -106,6 +110,8 @@ function freshStore(): Store {
     profileViews: demo.views,
     contactClicks: demo.clicks,
     aiGenerations: [],
+    matchRequests: [],
+    matchResults: [],
     support: seedSupport(),
     subscriptions: [],
     payments: [],

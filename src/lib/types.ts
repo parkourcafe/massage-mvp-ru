@@ -246,6 +246,29 @@ export interface AiGeneration {
   created_at: string;
 }
 
+export interface MatchRequestRecord {
+  id: string;
+  massage_goal?: string | null;
+  pain_or_focus_area?: string | null;
+  preferred_service_type?: string | null;
+  city?: string | null;
+  district?: string | null;
+  budget?: number | null;
+  created_at: string;
+}
+
+export interface MatchResultRecord {
+  id: string;
+  request_id: string;
+  profile_id: string;
+  rank: number;
+  score: number;
+  service_recommendation: string;
+  reasons: string[];
+  risks: string[];
+  created_at: string;
+}
+
 export type UserRole = "therapist" | "admin";
 
 export interface AuthUser {
