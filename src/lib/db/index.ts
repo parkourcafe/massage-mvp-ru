@@ -2,6 +2,7 @@ import type {
   AiGeneration,
   AuthUser,
   Booking,
+  BookingEventType,
   BookingMessage,
   ContactChannel,
   MatchRequestRecord,
@@ -410,6 +411,11 @@ export function addBookingMessage(
   b.messages = b.messages ?? [];
   b.messages.push(msg);
   b.updated_at = nowIso();
+  addBookingEvent(
+    bookingId,
+    "message",
+    `Сообщение от ${senderType === "therapist" ? "специалиста" : "клиента"}`
+  );
   if (b.status === "new") b.status = "chat_started";
   if (senderType === "client" && b.status !== "confirmed" && b.status !== "completed") {
     b.status = "waiting_therapist_reply";
@@ -422,7 +428,7 @@ export function addBookingMessage(
 
 export function addBookingEvent(
   bookingId: string,
-  eventType: string,
+  eventType: BookingEventType,
   eventText?: string
 ) {
   const b = getBookingById(bookingId);
@@ -447,7 +453,7 @@ export function setBookingStatus(
   if (!b) return null;
   b.status = status;
   b.updated_at = nowIso();
-  addBookingEvent(bookingId, `status:${status}`, eventText);
+  addBookingEvent(bookingId, "status_change", eventText ?? `Статус: ${status}`);
   return b;
 }
 

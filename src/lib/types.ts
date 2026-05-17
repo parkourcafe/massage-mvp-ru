@@ -144,10 +144,19 @@ export interface BookingMessage {
   read_at?: string | null;
 }
 
+export type BookingEventType =
+  | "created"
+  | "message"
+  | "status_change"
+  | "time_proposed"
+  | "confirmed"
+  | "outcome"
+  | "converted_to_client";
+
 export interface BookingEvent {
   id: string;
   booking_id: string;
-  event_type: string;
+  event_type: BookingEventType;
   event_text?: string | null;
   created_at: string;
 }

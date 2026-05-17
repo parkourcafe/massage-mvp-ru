@@ -2,8 +2,19 @@ import { notFound } from "next/navigation";
 import { getBookingById, getOwnerProfile } from "@/lib/db";
 import { BookingThread } from "@/components/BookingThread";
 import { modalityLabel } from "@/lib/catalog";
+import type { BookingEventType } from "@/lib/types";
 
 type Params = { params: { id: string } };
+
+const EVENT_LABEL: Record<BookingEventType, string> = {
+  created: "Заявка создана",
+  message: "Сообщение",
+  status_change: "Смена статуса",
+  time_proposed: "Предложено время",
+  confirmed: "Запись подтверждена",
+  outcome: "Итог",
+  converted_to_client: "Преобразовано в клиента",
+};
 
 export default function BookingDetailPage({ params }: Params) {
   const owner = getOwnerProfile();
@@ -72,7 +83,8 @@ export default function BookingDetailPage({ params }: Params) {
         <ul className="mt-2 text-xs text-slate-500 space-y-1">
           {(booking.events ?? []).map((e) => (
             <li key={e.id}>
-              {new Date(e.created_at).toLocaleString("ru-RU")} — {e.event_type}
+              {new Date(e.created_at).toLocaleString("ru-RU")} —{" "}
+              {EVENT_LABEL[e.event_type] ?? e.event_type}
               {e.event_text ? `: ${e.event_text}` : ""}
             </li>
           ))}
