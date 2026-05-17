@@ -105,6 +105,13 @@ export interface Profile {
   price_from?: number | null;
   session_durations: number[];
 
+  // Public contact channels (shown on the profile when filled).
+  whatsapp?: string | null;
+  telegram_url?: string | null;
+  vk_url?: string | null;
+  instagram_url?: string | null;
+  website_url?: string | null;
+
   plan_id: PlanId;
   is_published: boolean;
   quality_score: number;

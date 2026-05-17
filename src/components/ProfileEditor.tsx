@@ -31,6 +31,11 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
       price_from: fd.get("price_from"),
       minimum_booking_price: fd.get("minimum_booking_price"),
       transport_fee: fd.get("transport_fee"),
+      whatsapp: fd.get("whatsapp"),
+      telegram_url: fd.get("telegram_url"),
+      vk_url: fd.get("vk_url"),
+      instagram_url: fd.get("instagram_url"),
+      website_url: fd.get("website_url"),
       show_gender: fd.get("show_gender") === "on",
       works_at_own_place: fd.get("works_at_own_place") === "on",
       travels_to_client: fd.get("travels_to_client") === "on",
@@ -186,6 +191,41 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
             defaultValue={profile.safety_boundaries ?? ""}
           />
         </div>
+        <div>
+          <h3 className="font-medium text-slate-800">Контакты и соцсети</h3>
+          <p className="text-xs text-slate-500 mb-2">
+            Показываются на публичном профиле. Личный телефон и точный
+            адрес остаются приватными.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field
+              name="whatsapp"
+              label="WhatsApp (телефон в межд. формате)"
+              defaultValue={profile.whatsapp ?? ""}
+            />
+            <Field
+              name="telegram_url"
+              label="Telegram (ссылка)"
+              defaultValue={profile.telegram_url ?? ""}
+            />
+            <Field
+              name="vk_url"
+              label="VK (ссылка)"
+              defaultValue={profile.vk_url ?? ""}
+            />
+            <Field
+              name="instagram_url"
+              label="Instagram (ссылка)"
+              defaultValue={profile.instagram_url ?? ""}
+            />
+            <Field
+              name="website_url"
+              label="Личный сайт"
+              defaultValue={profile.website_url ?? ""}
+            />
+          </div>
+        </div>
+
         <div className="grid sm:grid-cols-3 gap-2 text-sm">
           <Check name="show_gender" label="Показывать пол" defaultChecked={profile.show_gender} />
           <Check name="works_at_own_place" label="Приём у себя" defaultChecked={profile.works_at_own_place} />

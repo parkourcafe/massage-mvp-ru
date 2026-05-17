@@ -37,6 +37,13 @@ describe("therapist profile & directory", () => {
   it("does not expose unpublished profiles publicly", () => {
     expect(getPublicProfileBySlug("novyy-spetsialist")).toBeNull();
   });
+
+  it("exposes public contact channels but never the private address", () => {
+    const p = getPublicProfileBySlug("anna-kovaleva")!;
+    expect(p.whatsapp).toBe("+79991234567");
+    expect(p.telegram_url).toContain("t.me/");
+    expect(p.therapist_address_private).toBeNull();
+  });
 });
 
 describe("services & media management", () => {

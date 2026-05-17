@@ -79,6 +79,11 @@ export function seedProfiles(): Profile[] {
     languages: over.languages ?? ["Русский"],
     price_from: over.price_from ?? null,
     session_durations: over.session_durations ?? [60, 90],
+    whatsapp: over.whatsapp ?? null,
+    telegram_url: over.telegram_url ?? null,
+    vk_url: over.vk_url ?? null,
+    instagram_url: over.instagram_url ?? null,
+    website_url: over.website_url ?? null,
     plan_id: over.plan_id ?? "pro",
     is_published: over.is_published ?? true,
     quality_score: over.quality_score ?? 0,
@@ -113,6 +118,11 @@ export function seedProfiles(): Profile[] {
     languages: ["Русский", "Английский"],
     price_from: 3000,
     session_durations: [60, 90, 120],
+    whatsapp: "+79991234567",
+    telegram_url: "https://t.me/anna_massage_demo",
+    vk_url: "https://vk.com/anna_massage_demo",
+    instagram_url: null,
+    website_url: "https://anna-massage.example",
     quality_score: 88,
     services: [
       {

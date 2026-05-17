@@ -33,6 +33,11 @@ const profileSchema = z.object({
   languages: z.array(z.string()).optional(),
   price_from: z.coerce.number().int().min(0).optional(),
   session_durations: z.array(z.coerce.number()).optional(),
+  whatsapp: z.string().max(40).optional(),
+  telegram_url: z.string().max(300).optional(),
+  vk_url: z.string().max(300).optional(),
+  instagram_url: z.string().max(300).optional(),
+  website_url: z.string().max(300).optional(),
   is_published: z.boolean().optional(),
 });
 
