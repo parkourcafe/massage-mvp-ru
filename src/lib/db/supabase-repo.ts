@@ -61,6 +61,7 @@ function publicProjection(p: Profile): Profile {
 }
 
 function sortJoins(p: Profile): Profile {
+  if (!p) return p;
   if (p.services)
     p.services = [...p.services].sort((a, b) => a.sort_order - b.sort_order);
   if (p.media)
@@ -353,6 +354,14 @@ export class SupabaseRepository implements DbRepository {
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle();
+    if (!first) {
+      // In-memory always has a seeded profile; an empty Supabase project
+      // does not. Fail fast with an actionable message instead of a
+      // cryptic null dereference downstream.
+      throw new Error(
+        "getOwnerProfile: no profile in the database. With DB_BACKEND=supabase the project must have data — sign up to create an owner profile (or seed the project) before opening owner/dashboard pages."
+      );
+    }
     return sortJoins(first as unknown as Profile);
   }
 
