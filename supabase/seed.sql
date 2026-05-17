@@ -9,12 +9,9 @@
 --    are required reference data (must be inserted before any profile).
 --  * service/media ids are real UUIDs (those columns are uuid); the
 --    in-memory store uses short ids which Postgres would reject.
---  * profiles.user_id / favorites.user_id / support_requests.user_id are
---    uuid, but users.id is text — so the owner link is left NULL here.
---    Linking the demo profile to user-anna (and the whole auth/owner/
---    favorites/support path on Supabase) requires migrating those
---    user_id columns to text. After that migration, set
---    profiles.user_id = 'user-anna'.
+--  * the user_id columns were migrated uuid -> text
+--    (supabase/migrations/20260517000000_user_id_columns_to_text.sql),
+--    so the demo profile is linked to user-anna below.
 
 begin;
 
@@ -46,7 +43,7 @@ insert into public.profiles (
   website_url, plan_id, is_published, quality_score, moderation_status,
   created_at, updated_at
 ) values (
-  '11111111-1111-1111-1111-111111111111', null, 'anna-kovaleva',
+  '11111111-1111-1111-1111-111111111111', 'user-anna', 'anna-kovaleva',
   'Анна Ковалёва', 'female', true, 9,
   'Лечебно-оздоровительный и расслабляющий массаж',
   'Дипломированный массажист. Специализируюсь на работе со спиной, шейно-воротниковой зоной и восстановлении после нагрузок. Спокойная атмосфера, индивидуальный подход.',
