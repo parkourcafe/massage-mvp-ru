@@ -9,25 +9,10 @@ import { pageMetadata, MEDICAL_DISCLAIMER, PLATFORM_NOTICE } from "@/lib/seo";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { Tracking } from "@/components/Tracking";
 import { ContactLinks } from "@/components/ContactLinks";
+import { videoEmbed } from "@/lib/video";
 import type { ContactChannel } from "@/lib/types";
 
 type Params = { params: { slug: string } };
-
-function videoEmbed(url: string): string | null {
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes("youtube.com")) {
-      const id = u.searchParams.get("v");
-      return id ? `https://www.youtube.com/embed/${id}` : null;
-    }
-    if (u.hostname.includes("youtu.be")) {
-      return `https://www.youtube.com/embed${u.pathname}`;
-    }
-    return url;
-  } catch {
-    return null;
-  }
-}
 
 export function generateMetadata({ params }: Params): Metadata {
   const p = getPublicProfileBySlug(params.slug);

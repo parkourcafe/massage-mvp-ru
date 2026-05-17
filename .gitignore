@@ -16,6 +16,10 @@ npm-debug.log*
 coverage
 .vitest
 
+# user uploads (MVP local storage; swap for Supabase Storage in prod)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # build / transfer artifacts
 massage-marketplace-mvp.tar.gz
 massage-mvp-ru-source.tar.gz

@@ -1,0 +1,2 @@
+# Local upload directory for the MVP. Files here are gitignored;
+# swap for Supabase Storage in production.

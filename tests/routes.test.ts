@@ -64,6 +64,7 @@ describe("required routes exist", () => {
     "api/import",
     "api/client-feedback",
     "api/dashboard/private-note",
+    "api/dashboard/upload",
     "api/auth/login",
     "api/auth/signup",
     "api/auth/logout",

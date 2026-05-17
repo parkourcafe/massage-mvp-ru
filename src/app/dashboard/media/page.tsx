@@ -17,9 +17,12 @@ const TYPES: { key: ProfileMedia["type"]; label: string }[] = [
   { key: "document", label: "Документ" },
 ];
 
+const VIDEO_TYPES = ["intro_video", "session_video"];
+
 export default function MediaPage() {
   const [media, setMedia] = useState<ProfileMedia[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   async function load() {
     const res = await fetch("/api/dashboard/media");
@@ -33,19 +36,57 @@ export default function MediaPage() {
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    const fd = new FormData(e.currentTarget);
-    const res = await fetch("/api/dashboard/media", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.fromEntries(fd.entries())),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Ошибка");
-      return;
+    const formEl = e.currentTarget;
+    const fd = new FormData(formEl);
+    const type = String(fd.get("type"));
+    const file = fd.get("file") as File | null;
+    let url = String(fd.get("url") || "").trim();
+
+    setBusy(true);
+    try {
+      // Image types: prefer an uploaded file when provided.
+      if (file && file.size > 0) {
+        if (VIDEO_TYPES.includes(type)) {
+          setError("Видео добавляется только по ссылке.");
+          return;
+        }
+        const up = new FormData();
+        up.append("file", file);
+        const ur = await fetch("/api/dashboard/upload", {
+          method: "POST",
+          body: up,
+        });
+        const ud = await ur.json();
+        if (!ur.ok) {
+          setError(ud.error || "Не удалось загрузить файл");
+          return;
+        }
+        url = ud.url;
+      }
+      if (!url) {
+        setError("Загрузите файл или укажите ссылку.");
+        return;
+      }
+      const res = await fetch("/api/dashboard/media", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          url,
+          title: fd.get("title") || undefined,
+          alt_text: fd.get("alt_text") || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Ошибка");
+        return;
+      }
+      formEl.reset();
+      load();
+    } finally {
+      setBusy(false);
     }
-    (e.target as HTMLFormElement).reset();
-    load();
   }
 
   async function remove(id: string) {
@@ -61,9 +102,16 @@ export default function MediaPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-slate-900">Медиа</h1>
       <p className="text-sm text-slate-600">
-        Видео добавляются по ссылке ({VIDEO_PROVIDERS.join(", ")}). Прямая
-        загрузка видео в MVP не поддерживается. Запрещены провокационные,
+        Фото загружаются файлом (JPG, PNG или WebP, до 5 МБ) либо по
+        ссылке. Видео добавляются только по ссылке (
+        {VIDEO_PROVIDERS.join(", ")}). Запрещены провокационные,
         обнажённые и интимные материалы.
+      </p>
+      <p className="rounded-lg bg-amber-50 text-amber-800 text-xs px-3 py-2">
+        Публикуя фото, вы подтверждаете, что имеете право на их
+        использование. Не загружайте фото клиентов без их письменного
+        согласия. Не размещайте чужие материалы и медицинские документы
+        третьих лиц.
       </p>
 
       {error && (
@@ -84,8 +132,17 @@ export default function MediaPage() {
           </select>
         </div>
         <div>
-          <label className="label">Ссылка (URL)</label>
-          <input name="url" className="input" placeholder="https://…" required />
+          <label className="label">Файл (фото: JPG/PNG/WebP, ≤5 МБ)</label>
+          <input
+            name="file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">или Ссылка (URL)</label>
+          <input name="url" className="input" placeholder="https://…" />
         </div>
         <div>
           <label className="label">Заголовок</label>
@@ -96,7 +153,9 @@ export default function MediaPage() {
           <input name="alt_text" className="input" />
         </div>
         <div className="sm:col-span-2">
-          <button className="btn-primary">Добавить</button>
+          <button className="btn-primary" disabled={busy}>
+            {busy ? "Загрузка…" : "Добавить"}
+          </button>
         </div>
       </form>
 
