@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SafetyNotice, SiteFooter, SiteHeader } from "@/components/Chrome";
+import { JsonLd } from "@/components/JsonLd";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const yandexVerification = process.env.YANDEX_VERIFICATION;
@@ -26,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className="min-h-screen flex flex-col">
+        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <SafetyNotice />
         <SiteHeader />
         <main className="flex-1">{children}</main>

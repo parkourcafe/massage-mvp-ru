@@ -261,6 +261,28 @@ export function relatedLinks(opts: {
   cityLabel?: string;
 }): RelatedGroup[] {
   const { modalityKey, cityLabel } = opts;
+
+  // Hub (/therapists): link out to every modality and city so crawlers
+  // reach all landing pages from the catalog root in one hop.
+  if (!modalityKey && !cityLabel) {
+    return [
+      {
+        title: "Виды массажа",
+        links: MODALITIES.map((m) => ({
+          label: m.label,
+          href: `/therapists/${m.slug}`,
+        })),
+      },
+      {
+        title: "Города",
+        links: CITIES.map((c) => ({
+          label: c.label,
+          href: `/therapists/${c.slug}`,
+        })),
+      },
+    ];
+  }
+
   const cSlug = citySlug(cityLabel);
   const self = modalityKey
     ? MODALITIES.find((m) => m.key === modalityKey)

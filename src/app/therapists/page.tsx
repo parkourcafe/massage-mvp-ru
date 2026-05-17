@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DirectoryView } from "@/components/DirectoryView";
+import { relatedLinks } from "@/lib/landing-content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -16,6 +17,7 @@ export default function TherapistsPage() {
       subtitle="Независимые профессиональные массажисты"
       filter={{}}
       path="/therapists"
+      related={relatedLinks({})}
     />
   );
 }

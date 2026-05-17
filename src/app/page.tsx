@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import { MODALITIES, PLATFORM_NOTICE, SAFETY_RULES } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
 import { ProfileCard } from "@/components/ProfileCard";
-import { JsonLd } from "@/components/JsonLd";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -18,7 +16,6 @@ export default async function HomePage() {
   const featured = (await listPublicProfiles()).slice(0, 3);
   return (
     <div>
-      <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       <section className="bg-gradient-to-b from-brand-50 to-slate-50">
         <div className="container-px py-16 text-center">
           <h1 className="text-3xl sm:text-5xl font-bold text-slate-900 max-w-3xl mx-auto">
