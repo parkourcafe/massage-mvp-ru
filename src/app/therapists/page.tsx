@@ -15,6 +15,7 @@ export default function TherapistsPage() {
       title="Каталог специалистов"
       subtitle="Независимые профессиональные массажисты"
       filter={{}}
+      path="/therapists"
     />
   );
 }

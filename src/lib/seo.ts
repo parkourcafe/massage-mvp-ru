@@ -38,6 +38,12 @@ export const INDEX: Metadata["robots"] = {
   follow: true,
 };
 
+// A directory/landing page (modality, city, modality×city) is only
+// indexed and listed in the sitemap when it has at least this many
+// public profiles. Empty/near-empty pages would be thin/doorway
+// content — especially penalised by Yandex.
+export const MIN_INDEXABLE_RESULTS = 1;
+
 export function pageMetadata(opts: {
   title: string;
   description?: string;

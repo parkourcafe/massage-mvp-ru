@@ -3,9 +3,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublicProfileBySlug } from "@/lib/db";
 import { isIndexable } from "@/lib/quality";
-import { modalityLabel } from "@/lib/catalog";
+import { modalityLabel, citySlug } from "@/lib/catalog";
 import { formatRub } from "@/lib/util";
 import { pageMetadata, MEDICAL_DISCLAIMER, PLATFORM_NOTICE } from "@/lib/seo";
+import {
+  breadcrumbJsonLd,
+  faqJsonLd,
+  therapistJsonLd,
+} from "@/lib/jsonld";
+import { JsonLd } from "@/components/JsonLd";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { Tracking } from "@/components/Tracking";
 import { ContactLinks } from "@/components/ContactLinks";
@@ -85,8 +91,27 @@ export default async function TherapistProfilePage({ params }: Params) {
     channel: ContactChannel;
   }[];
 
+  const cSlug = citySlug(p.city);
+  const breadcrumb = [
+    { name: "Главная", path: "/" },
+    { name: "Каталог", path: "/therapists" },
+    ...(p.city && cSlug
+      ? [{ name: p.city, path: `/therapists/${cSlug}` }]
+      : []),
+    { name: p.full_name, path: `/therapist/${p.slug}` },
+  ];
+
   return (
     <div className="container-px py-10 grid lg:grid-cols-3 gap-8">
+      {isIndexable(p) && (
+        <JsonLd
+          data={[
+            therapistJsonLd(p),
+            breadcrumbJsonLd(breadcrumb),
+            ...((p.faq ?? []).length > 0 ? [faqJsonLd(p.faq)] : []),
+          ]}
+        />
+      )}
       <Tracking profileId={p.id} path={`/therapist/${p.slug}`} />
       <div className="lg:col-span-2 space-y-8">
         <div className="flex gap-5 items-start">
