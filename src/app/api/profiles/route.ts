@@ -9,9 +9,11 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const ids = url.searchParams.get("ids");
   if (ids) {
-    const list = ids
-      .split(",")
-      .map((id) => getRawProfileById(id.trim()))
+    const list = (
+      await Promise.all(
+        ids.split(",").map((id) => getRawProfileById(id.trim()))
+      )
+    )
       .filter(
         (p): p is NonNullable<typeof p> =>
           !!p && p.is_published && p.moderation_status === "approved"
@@ -21,7 +23,7 @@ export async function GET(req: Request) {
   }
   const slug = url.searchParams.get("slug");
   if (slug) {
-    return NextResponse.json({ profile: getPublicProfileBySlug(slug) });
+    return NextResponse.json({ profile: await getPublicProfileBySlug(slug) });
   }
-  return NextResponse.json({ profiles: listPublicProfiles() });
+  return NextResponse.json({ profiles: await listPublicProfiles() });
 }
