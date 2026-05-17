@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import type {
   AiGeneration,
   AuthUser,
+  AvailabilitySlot,
   Booking,
   BookingEventType,
   BookingMessage,
@@ -28,7 +29,7 @@ import { PLANS } from "../plans";
 import { hashPassword } from "../auth/password";
 import { computeQualityScore } from "../quality";
 import { moderateProfilePayload } from "../moderation";
-import { newId, nowIso, secureToken, slugify } from "../util";
+import { isSameDay, newId, nowIso, secureToken, slugify } from "../util";
 import type {
   ActivityTotals,
   DbRepository,
@@ -303,6 +304,25 @@ export class SupabaseRepository implements DbRepository {
           (p.headline ?? "").toLowerCase().includes(q) ||
           (p.professional_description ?? "").toLowerCase().includes(q)
       );
+    }
+    if (filter.availableToday && list.length) {
+      const today = new Date();
+      const { data: slotRows } = await this.db
+        .from("availability_slots")
+        .select("profile_id, starts_at")
+        .in(
+          "profile_id",
+          list.map((p) => p.id)
+        )
+        .eq("status", "open")
+        .gt("starts_at", nowIso());
+      const todayProfiles = new Set(
+        ((slotRows as { profile_id: string; starts_at: string }[] | null) ??
+          [])
+          .filter((r) => isSameDay(new Date(r.starts_at), today))
+          .map((r) => r.profile_id)
+      );
+      list = list.filter((p) => todayProfiles.has(p.id));
     }
     return list
       .map(publicProjection)
@@ -782,6 +802,120 @@ export class SupabaseRepository implements DbRepository {
       .eq("id", bookingId);
     await this.addBookingEvent(bookingId, "outcome", `Итог: ${outcome}`);
     return this.loadBookingById(bookingId);
+  }
+
+  // ---------- Availability slots ----------
+  async listOpenSlots(profileId: string): Promise<AvailabilitySlot[]> {
+    const { data } = await this.db
+      .from("availability_slots")
+      .select("*")
+      .eq("profile_id", profileId)
+      .eq("status", "open")
+      .gt("starts_at", nowIso())
+      .order("starts_at", { ascending: true });
+    return (data as AvailabilitySlot[] | null) ?? [];
+  }
+
+  async listSlotsForProfile(
+    profileId: string
+  ): Promise<AvailabilitySlot[]> {
+    const { data } = await this.db
+      .from("availability_slots")
+      .select("*")
+      .eq("profile_id", profileId)
+      .gt("starts_at", nowIso())
+      .order("starts_at", { ascending: true });
+    return (data as AvailabilitySlot[] | null) ?? [];
+  }
+
+  async nextOpenSlot(profileId: string): Promise<AvailabilitySlot | null> {
+    const { data } = await this.db
+      .from("availability_slots")
+      .select("*")
+      .eq("profile_id", profileId)
+      .eq("status", "open")
+      .gt("starts_at", nowIso())
+      .order("starts_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    return (data as AvailabilitySlot) ?? null;
+  }
+
+  async profileHasOpenSlotToday(profileId: string): Promise<boolean> {
+    const today = new Date();
+    const slots = await this.listOpenSlots(profileId);
+    return slots.some((s) => isSameDay(new Date(s.starts_at), today));
+  }
+
+  async getOpenSlot(
+    slotId: string,
+    profileId: string
+  ): Promise<AvailabilitySlot | null> {
+    const { data } = await this.db
+      .from("availability_slots")
+      .select("*")
+      .eq("id", slotId)
+      .eq("profile_id", profileId)
+      .eq("status", "open")
+      .gt("starts_at", nowIso())
+      .maybeSingle();
+    return (data as AvailabilitySlot) ?? null;
+  }
+
+  async addAvailabilitySlot(
+    profileId: string,
+    startsAtIso: string,
+    duration: number
+  ): Promise<AvailabilitySlot | null> {
+    const t = new Date(startsAtIso).getTime();
+    if (Number.isNaN(t) || t <= Date.now()) return null;
+    const { data, error } = await this.db
+      .from("availability_slots")
+      .insert({
+        id: newId(),
+        profile_id: profileId,
+        starts_at: new Date(t).toISOString(),
+        duration,
+        status: "open",
+        booking_id: null,
+        created_at: nowIso(),
+      })
+      .select("*")
+      .maybeSingle();
+    if (error) return null; // unique(profile_id, starts_at) → duplicate
+    return (data as AvailabilitySlot) ?? null;
+  }
+
+  async deleteAvailabilitySlot(
+    profileId: string,
+    slotId: string
+  ): Promise<boolean> {
+    const { data } = await this.db
+      .from("availability_slots")
+      .delete()
+      .eq("id", slotId)
+      .eq("profile_id", profileId)
+      .eq("status", "open")
+      .select("id");
+    return Boolean(data && data.length > 0);
+  }
+
+  async bookSlot(
+    slotId: string,
+    profileId: string,
+    bookingId: string
+  ): Promise<AvailabilitySlot | null> {
+    // The status='open' predicate makes this an atomic claim: a second
+    // concurrent booking updates zero rows and returns null.
+    const { data } = await this.db
+      .from("availability_slots")
+      .update({ status: "booked", booking_id: bookingId })
+      .eq("id", slotId)
+      .eq("profile_id", profileId)
+      .eq("status", "open")
+      .select("*");
+    if (!data || data.length === 0) return null;
+    return data[0] as AvailabilitySlot;
   }
 
   // ---------- Clients CRM ----------

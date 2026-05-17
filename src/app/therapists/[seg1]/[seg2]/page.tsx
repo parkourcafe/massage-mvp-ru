@@ -8,7 +8,10 @@ import { serviceJsonLd } from "@/lib/jsonld";
 import { MIN_INDEXABLE_RESULTS, pageMetadata } from "@/lib/seo";
 
 // /therapists/[service]/[city]
-type Params = { params: { seg1: string; seg2: string } };
+type Params = {
+  params: { seg1: string; seg2: string };
+  searchParams: { today?: string };
+};
 
 function resolve(seg1: string, seg2: string) {
   const modality = MODALITY_BY_SLUG.get(seg1);
@@ -36,14 +39,21 @@ export async function generateMetadata({
   });
 }
 
-export default function TherapistsServiceCityPage({ params }: Params) {
+export default function TherapistsServiceCityPage({
+  params,
+  searchParams,
+}: Params) {
   const r = resolve(params.seg1, params.seg2);
   if (!r) notFound();
   return (
     <DirectoryView
       title={`${r.modality.label} — ${r.city.label}`}
       subtitle="Профессиональные специалисты данного направления в вашем городе"
-      filter={{ modality: r.modality.key, city: r.city.label }}
+      filter={{
+        modality: r.modality.key,
+        city: r.city.label,
+        availableToday: searchParams.today === "1",
+      }}
       path={`/therapists/${params.seg1}/${params.seg2}`}
       breadcrumb={[
         { name: "Главная", path: "/" },

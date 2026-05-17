@@ -11,7 +11,10 @@ import { MIN_INDEXABLE_RESULTS, pageMetadata } from "@/lib/seo";
 // A single dynamic segment is required because Next.js cannot have two
 // sibling dynamic segments ([service] and [city]); we resolve which one
 // it is from the catalog.
-type Params = { params: { seg1: string } };
+type Params = {
+  params: { seg1: string };
+  searchParams: { today?: string };
+};
 
 function resolve(seg1: string) {
   const modality = MODALITY_BY_SLUG.get(seg1);
@@ -48,10 +51,14 @@ export async function generateMetadata({
   });
 }
 
-export default function TherapistsFilterPage({ params }: Params) {
+export default function TherapistsFilterPage({
+  params,
+  searchParams,
+}: Params) {
   const r = resolve(params.seg1);
   if (!r) notFound();
 
+  const availableToday = searchParams.today === "1";
   const base = [
     { name: "Главная", path: "/" },
     { name: "Каталог специалистов", path: "/therapists" },
@@ -62,7 +69,7 @@ export default function TherapistsFilterPage({ params }: Params) {
       <DirectoryView
         title={`${r.modality.label}`}
         subtitle="Профессиональные специалисты данного направления"
-        filter={{ modality: r.modality.key }}
+        filter={{ modality: r.modality.key, availableToday }}
         path={`/therapists/${params.seg1}`}
         breadcrumb={[
           ...base,
@@ -90,7 +97,7 @@ export default function TherapistsFilterPage({ params }: Params) {
     <DirectoryView
       title={`Массажисты — ${r.city.label}`}
       subtitle="Профессиональные специалисты в вашем городе"
-      filter={{ city: r.city.label }}
+      filter={{ city: r.city.label, availableToday }}
       path={`/therapists/${params.seg1}`}
       breadcrumb={[
         ...base,

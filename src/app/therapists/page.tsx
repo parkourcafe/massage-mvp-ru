@@ -10,12 +10,16 @@ export const metadata: Metadata = pageMetadata({
   path: "/therapists",
 });
 
-export default function TherapistsPage() {
+export default function TherapistsPage({
+  searchParams,
+}: {
+  searchParams: { today?: string };
+}) {
   return (
     <DirectoryView
       title="Каталог специалистов"
       subtitle="Независимые профессиональные массажисты"
-      filter={{}}
+      filter={{ availableToday: searchParams.today === "1" }}
       path="/therapists"
       related={relatedLinks({})}
     />

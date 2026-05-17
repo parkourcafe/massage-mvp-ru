@@ -26,6 +26,8 @@ export async function DirectoryView({
   extraSchema?: object[];
 }) {
   const profiles = await listPublicProfiles(filter);
+  const todayActive = !!filter.availableToday;
+  const toggleHref = todayActive ? path : `${path}?today=1`;
   const crumbs = breadcrumb ?? [
     { name: "Главная", path: "/" },
     { name: "Каталог специалистов", path: "/therapists" },
@@ -47,6 +49,21 @@ export async function DirectoryView({
       <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
       {subtitle && <p className="mt-1 text-slate-600">{subtitle}</p>}
       <p className="mt-2 text-sm text-brand-700">{PLATFORM_NOTICE}</p>
+
+      <div className="mt-5">
+        <Link
+          href={toggleHref}
+          className={
+            todayActive
+              ? "badge bg-green-600 text-white px-3 py-1.5"
+              : "badge bg-green-100 text-green-800 px-3 py-1.5 hover:bg-green-200"
+          }
+        >
+          {todayActive
+            ? "✓ Доступны сегодня — показать всех"
+            : "Доступны сегодня"}
+        </Link>
+      </div>
 
       {content && (
         <section className="mt-6 max-w-3xl space-y-3">

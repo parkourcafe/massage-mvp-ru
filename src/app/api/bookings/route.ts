@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createBooking, getRawProfileById } from "@/lib/db";
+import {
+  bookSlot,
+  confirmBooking,
+  createBooking,
+  getOpenSlot,
+  getRawProfileById,
+} from "@/lib/db";
 import { moderateText } from "@/lib/moderation";
 import { can } from "@/lib/plans";
+import { formatSlot } from "@/lib/util";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +28,7 @@ const schema = z.object({
   city: z.string().max(120).optional(),
   district: z.string().max(120).optional(),
   address_or_landmark: z.string().max(300).optional(),
+  slot_id: z.string().min(1).max(120).optional(),
   preferred_time_slot_1: z.string().max(120).optional(),
   preferred_time_slot_2: z.string().max(120).optional(),
   preferred_time_slot_3: z.string().max(120).optional(),
@@ -72,6 +80,27 @@ export async function POST(req: Request) {
     );
   }
 
+  // If the client picked a concrete published slot, claim it before
+  // creating the booking so a taken slot fails fast.
+  let chosenSlot = null;
+  if (data.slot_id) {
+    chosenSlot = await getOpenSlot(data.slot_id, profile.id);
+    if (!chosenSlot) {
+      return NextResponse.json(
+        { error: "Это время уже заняли или оно недоступно. Выберите другое." },
+        { status: 409 }
+      );
+    }
+  }
+
   const booking = await createBooking(data);
+
+  if (chosenSlot) {
+    const claimed = await bookSlot(chosenSlot.id, profile.id, booking.id);
+    if (claimed) {
+      await confirmBooking(booking.id, formatSlot(chosenSlot.starts_at));
+    }
+  }
+
   return NextResponse.json({ ok: true, token: booking.token, id: booking.id });
 }

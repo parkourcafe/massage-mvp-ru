@@ -8,6 +8,7 @@
 import type {
   AiGeneration,
   AuthUser,
+  AvailabilitySlot,
   Booking,
   BookingEventType,
   BookingMessage,
@@ -35,6 +36,7 @@ export interface DirectoryFilter {
   city?: string;
   district?: string;
   q?: string;
+  availableToday?: boolean;
   includeUnindexable?: boolean;
 }
 
@@ -145,6 +147,30 @@ export interface DbRepository {
     outcome: BookingOutcome,
     status: BookingStatus
   ): Promise<Booking | null>;
+
+  // Availability slots
+  listOpenSlots(profileId: string): Promise<AvailabilitySlot[]>;
+  listSlotsForProfile(profileId: string): Promise<AvailabilitySlot[]>;
+  nextOpenSlot(profileId: string): Promise<AvailabilitySlot | null>;
+  profileHasOpenSlotToday(profileId: string): Promise<boolean>;
+  getOpenSlot(
+    slotId: string,
+    profileId: string
+  ): Promise<AvailabilitySlot | null>;
+  addAvailabilitySlot(
+    profileId: string,
+    startsAtIso: string,
+    duration: number
+  ): Promise<AvailabilitySlot | null>;
+  deleteAvailabilitySlot(
+    profileId: string,
+    slotId: string
+  ): Promise<boolean>;
+  bookSlot(
+    slotId: string,
+    profileId: string,
+    bookingId: string
+  ): Promise<AvailabilitySlot | null>;
 
   // Clients CRM
   convertBookingToClient(bookingId: string): Promise<CrmClient | null>;

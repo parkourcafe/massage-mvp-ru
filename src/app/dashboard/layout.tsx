@@ -17,6 +17,7 @@ const NAV = [
   { href: "/dashboard/import", label: "AI-импорт" },
   { href: "/dashboard/media", label: "Медиа" },
   { href: "/dashboard/bookings", label: "Заявки" },
+  { href: "/dashboard/schedule", label: "Расписание" },
   { href: "/dashboard/clients", label: "Клиенты (CRM)" },
   { href: "/dashboard/matches", label: "Подборы" },
   { href: "/dashboard/analytics", label: "Аналитика" },

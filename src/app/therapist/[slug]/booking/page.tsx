@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPublicProfileBySlug } from "@/lib/db";
+import { getPublicProfileBySlug, listOpenSlots } from "@/lib/db";
 import { pageMetadata } from "@/lib/seo";
+import { formatSlot } from "@/lib/util";
 import { BookingForm } from "@/components/BookingForm";
 
 type Params = {
   params: { slug: string };
-  searchParams: { intent?: string };
+  searchParams: { intent?: string; slot?: string };
 };
 
 export async function generateMetadata({
@@ -32,6 +33,14 @@ export default async function BookingPage({ params, searchParams }: Params) {
     services.push({ modality: "classic", title: "Массаж" });
 
   const isMessage = searchParams.intent === "message";
+  const slots = (await listOpenSlots(p.id)).map((s) => ({
+    id: s.id,
+    label: formatSlot(s.starts_at),
+  }));
+  const preselectedSlotId =
+    searchParams.slot && slots.some((s) => s.id === searchParams.slot)
+      ? searchParams.slot
+      : undefined;
 
   return (
     <div className="container-px py-10 max-w-3xl">
@@ -48,6 +57,8 @@ export default async function BookingPage({ params, searchParams }: Params) {
           profileId={p.id}
           slug={p.slug}
           services={services}
+          slots={slots}
+          preselectedSlotId={preselectedSlotId}
           defaultMessage={
             isMessage
               ? "Здравствуйте! У меня вопрос по вашим услугам."

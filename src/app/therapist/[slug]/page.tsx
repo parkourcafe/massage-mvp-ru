@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPublicProfileBySlug } from "@/lib/db";
+import { getPublicProfileBySlug, listOpenSlots } from "@/lib/db";
 import { isIndexable } from "@/lib/quality";
 import { modalityLabel, citySlug } from "@/lib/catalog";
-import { formatRub } from "@/lib/util";
+import { formatRub, formatSlot } from "@/lib/util";
 import { pageMetadata, MEDICAL_DISCLAIMER, PLATFORM_NOTICE } from "@/lib/seo";
 import {
   breadcrumbJsonLd,
@@ -51,6 +51,7 @@ export default async function TherapistProfilePage({ params }: Params) {
     ["intro_video", "session_video"].includes(m.type)
   );
   const services = (p.services ?? []).filter((s) => s.is_published);
+  const openSlots = (await listOpenSlots(p.id)).slice(0, 8);
 
   const waDigits = (p.whatsapp ?? "").replace(/[^\d]/g, "");
   const contacts = [
@@ -151,6 +152,28 @@ export default async function TherapistProfilePage({ params }: Params) {
             )}
           </div>
         </div>
+
+        {openSlots.length > 0 && (
+          <section className="card bg-brand-50 border-brand-100">
+            <h2 className="font-semibold text-slate-900">
+              Свободное время — бронь онлайн
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">
+              Выберите окно — запись подтвердится сразу, без ожидания ответа.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {openSlots.map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/therapist/${p.slug}/booking?slot=${s.id}`}
+                  className="chip bg-white hover:bg-brand-100 border border-brand-200"
+                >
+                  {formatSlot(s.starts_at)}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {p.professional_description && (
           <section>

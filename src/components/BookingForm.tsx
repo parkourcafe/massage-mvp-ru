@@ -12,11 +12,15 @@ export function BookingForm({
   profileId,
   slug,
   services,
+  slots = [],
+  preselectedSlotId,
   defaultMessage,
 }: {
   profileId: string;
   slug: string;
   services: { modality: string; title: string }[];
+  slots?: { id: string; label: string }[];
+  preselectedSlotId?: string;
   defaultMessage?: string;
 }) {
   const router = useRouter();
@@ -29,6 +33,7 @@ export function BookingForm({
     setError(null);
     const fd = new FormData(e.currentTarget);
     const payload = Object.fromEntries(fd.entries());
+    if (!payload.slot_id) delete payload.slot_id;
     try {
       const res = await fetch("/api/bookings", {
         method: "POST",
@@ -54,6 +59,29 @@ export function BookingForm({
         <p className="rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
           {error}
         </p>
+      )}
+      {slots.length > 0 && (
+        <div className="rounded-lg bg-brand-50 border border-brand-100 px-3 py-3">
+          <label className="label">Свободное время (бронь сразу)</label>
+          <select
+            name="slot_id"
+            className="input"
+            defaultValue={preselectedSlotId ?? ""}
+          >
+            <option value="">
+              Без конкретного времени — предложу удобные ниже
+            </option>
+            {slots.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-slate-500 mt-1">
+            Если выбрать слот, запись подтвердится сразу. Иначе специалист
+            ответит и согласует время.
+          </p>
+        </div>
       )}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>

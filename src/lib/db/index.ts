@@ -1,6 +1,7 @@
 import type {
   AiGeneration,
   AuthUser,
+  AvailabilitySlot,
   Booking,
   BookingEventType,
   BookingMessage,
@@ -24,7 +25,7 @@ import type {
 } from "../types";
 import { PLANS } from "../plans";
 import { hashPassword } from "../auth/password";
-import { newId, nowIso, secureToken, slugify } from "../util";
+import { isSameDay, newId, nowIso, secureToken, slugify } from "../util";
 import { recomputeProfile, store, __resetStore } from "./store";
 import { getRepo, isSupabaseBackend } from "./factory";
 import type {
@@ -195,6 +196,19 @@ export async function listPublicProfiles(
         p.full_name.toLowerCase().includes(q) ||
         (p.headline ?? "").toLowerCase().includes(q) ||
         (p.professional_description ?? "").toLowerCase().includes(q)
+    );
+  }
+  if (filter.availableToday) {
+    const today = new Date();
+    const nowMs = Date.now();
+    list = list.filter((p) =>
+      store().availabilitySlots.some(
+        (s) =>
+          s.profile_id === p.id &&
+          s.status === "open" &&
+          new Date(s.starts_at).getTime() > nowMs &&
+          isSameDay(new Date(s.starts_at), today)
+      )
     );
   }
   // Featured (expert) first, then quality score.
@@ -595,6 +609,118 @@ export async function setBookingOutcome(
   b.updated_at = nowIso();
   await addBookingEvent(bookingId, "outcome", `Итог: ${outcome}`);
   return b;
+}
+
+// ---------- Availability slots ----------
+function memSlots(profileId: string): AvailabilitySlot[] {
+  return store().availabilitySlots.filter((s) => s.profile_id === profileId);
+}
+
+export async function listOpenSlots(
+  profileId: string
+): Promise<AvailabilitySlot[]> {
+  if (useSupabase) return getRepo().listOpenSlots(profileId);
+  const now = Date.now();
+  return memSlots(profileId)
+    .filter(
+      (s) => s.status === "open" && new Date(s.starts_at).getTime() > now
+    )
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+}
+
+export async function listSlotsForProfile(
+  profileId: string
+): Promise<AvailabilitySlot[]> {
+  if (useSupabase) return getRepo().listSlotsForProfile(profileId);
+  const now = Date.now();
+  return memSlots(profileId)
+    .filter((s) => new Date(s.starts_at).getTime() > now)
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+}
+
+export async function nextOpenSlot(
+  profileId: string
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase) return getRepo().nextOpenSlot(profileId);
+  return (await listOpenSlots(profileId))[0] ?? null;
+}
+
+export async function profileHasOpenSlotToday(
+  profileId: string
+): Promise<boolean> {
+  if (useSupabase) return getRepo().profileHasOpenSlotToday(profileId);
+  const today = new Date();
+  return (await listOpenSlots(profileId)).some((s) =>
+    isSameDay(new Date(s.starts_at), today)
+  );
+}
+
+export async function getOpenSlot(
+  slotId: string,
+  profileId: string
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase) return getRepo().getOpenSlot(slotId, profileId);
+  const s = store().availabilitySlots.find(
+    (x) => x.id === slotId && x.profile_id === profileId
+  );
+  if (!s || s.status !== "open") return null;
+  if (new Date(s.starts_at).getTime() <= Date.now()) return null;
+  return s;
+}
+
+export async function addAvailabilitySlot(
+  profileId: string,
+  startsAtIso: string,
+  duration: number
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase)
+    return getRepo().addAvailabilitySlot(profileId, startsAtIso, duration);
+  const t = new Date(startsAtIso).getTime();
+  if (Number.isNaN(t) || t <= Date.now()) return null;
+  const startsAt = new Date(t).toISOString();
+  if (memSlots(profileId).some((s) => s.starts_at === startsAt)) return null;
+  const slot: AvailabilitySlot = {
+    id: newId(),
+    profile_id: profileId,
+    starts_at: startsAt,
+    duration,
+    status: "open",
+    booking_id: null,
+    created_at: nowIso(),
+  };
+  store().availabilitySlots.push(slot);
+  return slot;
+}
+
+export async function deleteAvailabilitySlot(
+  profileId: string,
+  slotId: string
+): Promise<boolean> {
+  if (useSupabase)
+    return getRepo().deleteAvailabilitySlot(profileId, slotId);
+  const slots = store().availabilitySlots;
+  const i = slots.findIndex(
+    (s) =>
+      s.id === slotId && s.profile_id === profileId && s.status === "open"
+  );
+  if (i === -1) return false;
+  slots.splice(i, 1);
+  return true;
+}
+
+export async function bookSlot(
+  slotId: string,
+  profileId: string,
+  bookingId: string
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase) return getRepo().bookSlot(slotId, profileId, bookingId);
+  const s = store().availabilitySlots.find(
+    (x) => x.id === slotId && x.profile_id === profileId
+  );
+  if (!s || s.status !== "open") return null;
+  s.status = "booked";
+  s.booking_id = bookingId;
+  return s;
 }
 
 // ---------- Clients CRM ----------

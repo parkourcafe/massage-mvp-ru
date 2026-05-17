@@ -1,5 +1,6 @@
 import type {
   AuthUser,
+  AvailabilitySlot,
   Booking,
   CrmClient,
   Plan,
@@ -506,4 +507,53 @@ export function seedSupport(): SupportRequest[] {
       updated_at: "2026-05-10T09:00:00.000Z",
     },
   ];
+}
+
+// Rolling demo schedule generated relative to "now" so the directory
+// always has therapists available today and over the coming week.
+export function seedAvailability(): AvailabilitySlot[] {
+  const slots: AvailabilitySlot[] = [];
+  const profileIds = [
+    "11111111-1111-1111-1111-111111111111",
+    "22222222-2222-2222-2222-222222222222",
+    "33333333-3333-3333-3333-333333333333",
+  ];
+  const now = new Date();
+  const createdAt = now.toISOString();
+  profileIds.forEach((pid, idx) => {
+    const tag = pid.slice(0, 4);
+    // Today: two near-future slots so "доступны сегодня" always has data.
+    for (const addH of [2 + idx, 4 + idx]) {
+      const s = new Date(now);
+      s.setMinutes(0, 0, 0);
+      s.setHours(s.getHours() + addH);
+      slots.push({
+        id: `slot-${tag}-t${addH}`,
+        profile_id: pid,
+        starts_at: s.toISOString(),
+        duration: 60,
+        status: "open",
+        booking_id: null,
+        created_at: createdAt,
+      });
+    }
+    // Next 6 days: morning / afternoon / evening.
+    for (let day = 1; day <= 6; day++) {
+      for (const hour of [10, 14, 18]) {
+        const s = new Date(now);
+        s.setDate(s.getDate() + day);
+        s.setHours(hour, 0, 0, 0);
+        slots.push({
+          id: `slot-${tag}-d${day}h${hour}`,
+          profile_id: pid,
+          starts_at: s.toISOString(),
+          duration: 60,
+          status: "open",
+          booking_id: null,
+          created_at: createdAt,
+        });
+      }
+    }
+  });
+  return slots;
 }
