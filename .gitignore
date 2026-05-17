@@ -1,0 +1,20 @@
+node_modules
+.next
+out
+dist
+build
+*.tsbuildinfo
+next-env.d.ts.timestamp
+
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+*.log
+npm-debug.log*
+coverage
+.vitest
+
+# build artifact produced by scripts/build-tarball.sh
+massage-marketplace-mvp.tar.gz
