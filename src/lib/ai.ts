@@ -1,5 +1,6 @@
 import type { MatchQuestionnaire, MatchResult } from "./matching";
 import { modalityLabel } from "./catalog";
+import { logAiGeneration } from "./db";
 
 const apiKey = process.env.OPENAI_API_KEY;
 const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
@@ -20,6 +21,7 @@ export async function explainMatch(
     )}.${r.risks.length ? ` Уточните: ${r.risks.join("; ")}.` : ""}`;
   };
 
+  logAiGeneration("explain_match", Boolean(apiKey));
   if (!apiKey) return fallback();
 
   try {
@@ -92,6 +94,7 @@ export async function importProfileDraft(rawText: string): Promise<{
     professional_description: rawText.slice(0, 800),
     suggested_modalities: suggested.length ? suggested : ["classic"],
   };
+  logAiGeneration("import_profile", Boolean(apiKey));
   if (!apiKey) return fallback;
   try {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {

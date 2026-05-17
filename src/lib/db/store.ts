@@ -1,8 +1,11 @@
 import type {
   AuthUser,
   Booking,
+  AiGeneration,
   BookingEvent,
   BookingMessage,
+  ContactClick,
+  ProfileView,
   BookingOutcome,
   BookingStatus,
   ClientPrivateFeedback,
@@ -40,6 +43,9 @@ interface Store {
   clients: CrmClient[];
   therapistNotes: TherapistPrivateNote[];
   clientFeedback: ClientPrivateFeedback[];
+  profileViews: ProfileView[];
+  contactClicks: ContactClick[];
+  aiGenerations: AiGeneration[];
   support: SupportRequest[];
   subscriptions: Subscription[];
   payments: Payment[];
@@ -51,11 +57,43 @@ interface Store {
 // see README for the Supabase production path.
 const g = globalThis as unknown as { __massageStore?: Store };
 
+function seedAnalytics(profileId: string): {
+  views: ProfileView[];
+  clicks: ContactClick[];
+} {
+  const views: ProfileView[] = [];
+  const clicks: ContactClick[] = [];
+  for (let day = 0; day < 12; day++) {
+    const count = 2 + ((day * 7) % 5);
+    for (let i = 0; i < count; i++) {
+      const d = new Date(Date.now() - day * 86400000 - i * 600000);
+      views.push({
+        id: crypto.randomUUID(),
+        profile_id: profileId,
+        path: `/therapist/anna-kovaleva`,
+        created_at: d.toISOString(),
+      });
+    }
+  }
+  (["whatsapp", "telegram", "booking", "vk"] as const).forEach((ch, i) => {
+    for (let n = 0; n < 4 - i; n++) {
+      clicks.push({
+        id: crypto.randomUUID(),
+        profile_id: profileId,
+        channel: ch,
+        created_at: new Date(Date.now() - n * 86400000).toISOString(),
+      });
+    }
+  });
+  return { views, clicks };
+}
+
 function freshStore(): Store {
   const profiles = seedProfiles().map((p) => ({
     ...p,
     quality_score: computeQualityScore(p).score,
   }));
+  const demo = seedAnalytics(profiles[0]?.id ?? "");
   return {
     users: seedUsers(),
     plans: seedPlans(),
@@ -65,6 +103,9 @@ function freshStore(): Store {
     clients: seedClients(),
     therapistNotes: [],
     clientFeedback: [],
+    profileViews: demo.views,
+    contactClicks: demo.clicks,
+    aiGenerations: [],
     support: seedSupport(),
     subscriptions: [],
     payments: [],

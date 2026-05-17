@@ -1,4 +1,4 @@
-import { listAllProfiles } from "@/lib/db";
+import { getActivityTotals, listAllProfiles } from "@/lib/db";
 import { computeQualityScore, isIndexable, QUALITY_INDEX_THRESHOLD } from "@/lib/quality";
 
 const INDEXED = [
@@ -27,9 +27,24 @@ const NOINDEX = [
 
 export default function AdminSeoPage() {
   const profiles = listAllProfiles();
+  const totals = getActivityTotals();
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">SEO</h1>
+      <h1 className="text-2xl font-bold text-slate-900">SEO и активность</h1>
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div className="card">
+          <p className="text-sm text-slate-500">Просмотры профилей</p>
+          <p className="text-xl font-semibold mt-1">{totals.totalViews}</p>
+        </div>
+        <div className="card">
+          <p className="text-sm text-slate-500">Клики по контактам</p>
+          <p className="text-xl font-semibold mt-1">{totals.totalClicks}</p>
+        </div>
+        <div className="card">
+          <p className="text-sm text-slate-500">AI-вызовы</p>
+          <p className="text-xl font-semibold mt-1">{totals.aiCalls}</p>
+        </div>
+      </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="card">
           <h2 className="font-semibold text-emerald-700">Индексируется</h2>

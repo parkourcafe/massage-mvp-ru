@@ -217,6 +217,35 @@ export interface CrmClient {
   sessions?: ClientSession[];
 }
 
+export type ContactChannel =
+  | "whatsapp"
+  | "telegram"
+  | "vk"
+  | "instagram"
+  | "website"
+  | "booking";
+
+export interface ProfileView {
+  id: string;
+  profile_id: string;
+  path?: string | null;
+  created_at: string;
+}
+
+export interface ContactClick {
+  id: string;
+  profile_id: string;
+  channel: ContactChannel;
+  created_at: string;
+}
+
+export interface AiGeneration {
+  id: string;
+  task: string;
+  used_openai: boolean;
+  created_at: string;
+}
+
 export type UserRole = "therapist" | "admin";
 
 export interface AuthUser {

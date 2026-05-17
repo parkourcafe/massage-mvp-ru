@@ -1,7 +1,9 @@
 import type {
+  AiGeneration,
   AuthUser,
   Booking,
   BookingMessage,
+  ContactChannel,
   BookingOutcome,
   BookingStatus,
   ClientPrivateFeedback,
@@ -647,6 +649,90 @@ export function listClientFeedbackForProfile(
         (clientId ? f.client_id === clientId : true)
     )
     .sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+// ---------- Analytics (no PII) ----------
+export function recordProfileView(profileId: string, path?: string): void {
+  if (!getRawProfileById(profileId)) return;
+  store().profileViews.push({
+    id: newId(),
+    profile_id: profileId,
+    path: path ?? null,
+    created_at: nowIso(),
+  });
+}
+
+export function recordContactClick(
+  profileId: string,
+  channel: ContactChannel
+): void {
+  if (!getRawProfileById(profileId)) return;
+  store().contactClicks.push({
+    id: newId(),
+    profile_id: profileId,
+    channel,
+    created_at: nowIso(),
+  });
+}
+
+export interface ProfileAnalytics {
+  totalViews: number;
+  totalClicks: number;
+  viewsByDay: { date: string; count: number }[]; // last 14 days, oldest→newest
+  clicksByChannel: Record<string, number>;
+}
+
+export function getAnalytics(profileId: string): ProfileAnalytics {
+  const views = store().profileViews.filter((v) => v.profile_id === profileId);
+  const clicks = store().contactClicks.filter(
+    (c) => c.profile_id === profileId
+  );
+  const viewsByDay: { date: string; count: number }[] = [];
+  for (let i = 13; i >= 0; i--) {
+    const day = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    viewsByDay.push({
+      date: day,
+      count: views.filter((v) => v.created_at.slice(0, 10) === day).length,
+    });
+  }
+  const clicksByChannel: Record<string, number> = {};
+  for (const c of clicks) {
+    clicksByChannel[c.channel] = (clicksByChannel[c.channel] ?? 0) + 1;
+  }
+  return {
+    totalViews: views.length,
+    totalClicks: clicks.length,
+    viewsByDay,
+    clicksByChannel,
+  };
+}
+
+export function logAiGeneration(task: string, usedOpenAI: boolean): void {
+  store().aiGenerations.push({
+    id: newId(),
+    task,
+    used_openai: usedOpenAI,
+    created_at: nowIso(),
+  });
+}
+
+export function listAiGenerations(): AiGeneration[] {
+  return store()
+    .aiGenerations.slice()
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+export function getActivityTotals(): {
+  totalViews: number;
+  totalClicks: number;
+  aiCalls: number;
+} {
+  const s = store();
+  return {
+    totalViews: s.profileViews.length,
+    totalClicks: s.contactClicks.length,
+    aiCalls: s.aiGenerations.length,
+  };
 }
 
 // ---------- Support ----------

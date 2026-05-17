@@ -7,6 +7,9 @@ import { modalityLabel } from "@/lib/catalog";
 import { formatRub } from "@/lib/util";
 import { pageMetadata, MEDICAL_DISCLAIMER, PLATFORM_NOTICE } from "@/lib/seo";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { Tracking } from "@/components/Tracking";
+import { ContactLinks } from "@/components/ContactLinks";
+import type { ContactChannel } from "@/lib/types";
 
 type Params = { params: { slug: string } };
 
@@ -59,16 +62,45 @@ export default function TherapistProfilePage({ params }: Params) {
   const waDigits = (p.whatsapp ?? "").replace(/[^\d]/g, "");
   const contacts = [
     waDigits
-      ? { label: "WhatsApp", href: `https://wa.me/${waDigits}` }
+      ? {
+          label: "WhatsApp",
+          href: `https://wa.me/${waDigits}`,
+          channel: "whatsapp" as ContactChannel,
+        }
       : null,
-    p.telegram_url ? { label: "Telegram", href: p.telegram_url } : null,
-    p.vk_url ? { label: "VK", href: p.vk_url } : null,
-    p.instagram_url ? { label: "Instagram", href: p.instagram_url } : null,
-    p.website_url ? { label: "Сайт", href: p.website_url } : null,
-  ].filter(Boolean) as { label: string; href: string }[];
+    p.telegram_url
+      ? {
+          label: "Telegram",
+          href: p.telegram_url,
+          channel: "telegram" as ContactChannel,
+        }
+      : null,
+    p.vk_url
+      ? { label: "VK", href: p.vk_url, channel: "vk" as ContactChannel }
+      : null,
+    p.instagram_url
+      ? {
+          label: "Instagram",
+          href: p.instagram_url,
+          channel: "instagram" as ContactChannel,
+        }
+      : null,
+    p.website_url
+      ? {
+          label: "Сайт",
+          href: p.website_url,
+          channel: "website" as ContactChannel,
+        }
+      : null,
+  ].filter(Boolean) as {
+    label: string;
+    href: string;
+    channel: ContactChannel;
+  }[];
 
   return (
     <div className="container-px py-10 grid lg:grid-cols-3 gap-8">
+      <Tracking profileId={p.id} path={`/therapist/${p.slug}`} />
       <div className="lg:col-span-2 space-y-8">
         <div className="flex gap-5 items-start">
           {photo ? (
@@ -316,19 +348,7 @@ export default function TherapistProfilePage({ params }: Params) {
         {contacts.length > 0 && (
           <div className="card space-y-2">
             <p className="text-sm font-semibold text-slate-900">Связаться</p>
-            <div className="flex flex-wrap gap-2">
-              {contacts.map((c) => (
-                <a
-                  key={c.label}
-                  href={c.href}
-                  target="_blank"
-                  rel="nofollow noopener noreferrer"
-                  className="btn-secondary text-sm"
-                >
-                  {c.label}
-                </a>
-              ))}
-            </div>
+            <ContactLinks profileId={p.id} contacts={contacts} />
             <p className="text-xs text-slate-500">
               Личный телефон и точный адрес не публикуются.
             </p>

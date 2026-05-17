@@ -67,6 +67,7 @@ describe("required routes exist", () => {
     "api/auth/login",
     "api/auth/signup",
     "api/auth/logout",
+    "api/track",
     "api/payments/create",
     "api/payments/webhook/yookassa",
     "api/subscriptions/cancel",
