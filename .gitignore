@@ -16,5 +16,7 @@ npm-debug.log*
 coverage
 .vitest
 
-# build artifact produced by scripts/build-tarball.sh
+# build / transfer artifacts
 massage-marketplace-mvp.tar.gz
+massage-mvp-ru-source.tar.gz
+massage-mvp-ru.bundle
