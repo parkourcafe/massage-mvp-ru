@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type BillingState = {
@@ -14,6 +15,7 @@ export default function BillingPage() {
   const [state, setState] = useState<BillingState | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [offerAccepted, setOfferAccepted] = useState(false);
 
   async function load() {
     const res = await fetch("/api/billing/state");
@@ -24,12 +26,16 @@ export default function BillingPage() {
   }, []);
 
   async function pay(plan: "pro" | "expert") {
+    if (!offerAccepted) {
+      setMsg("Подтвердите согласие с офертой и условиями подписки.");
+      return;
+    }
     setBusy(true);
     setMsg(null);
     const res = await fetch("/api/payments/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, offerAccepted }),
     });
     const data = await res.json();
     setBusy(false);
@@ -80,6 +86,34 @@ export default function BillingPage() {
         )}
       </div>
 
+      <label className="card flex items-start gap-3 text-sm text-slate-700">
+        <input
+          type="checkbox"
+          className="mt-1"
+          checked={offerAccepted}
+          onChange={(e) => setOfferAccepted(e.target.checked)}
+        />
+        <span>
+          Я принимаю{" "}
+          <Link className="text-brand-700 underline" href="/offer" target="_blank">
+            публичную оферту
+          </Link>
+          ,{" "}
+          <Link
+            className="text-brand-700 underline"
+            href="/subscription-terms"
+            target="_blank"
+          >
+            условия подписки
+          </Link>{" "}
+          и{" "}
+          <Link className="text-brand-700 underline" href="/terms" target="_blank">
+            пользовательское соглашение
+          </Link>
+          .
+        </span>
+      </label>
+
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="card">
           <h2 className="font-semibold">Pro — {state?.proPrice ?? 490} ₽/мес</h2>
@@ -89,7 +123,7 @@ export default function BillingPage() {
           </p>
           <button
             className="btn-primary mt-4"
-            disabled={busy}
+            disabled={busy || !offerAccepted}
             onClick={() => pay("pro")}
           >
             Оплатить Pro
@@ -103,7 +137,7 @@ export default function BillingPage() {
           </p>
           <button
             className="btn-secondary mt-4"
-            disabled={busy}
+            disabled={busy || !offerAccepted}
             onClick={() => pay("expert")}
           >
             Оплатить Expert

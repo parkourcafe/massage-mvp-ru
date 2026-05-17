@@ -6,13 +6,22 @@ import { SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-const schema = z.object({ plan: z.enum(["pro", "expert"]) });
+const schema = z.object({
+  plan: z.enum(["pro", "expert"]),
+  offerAccepted: z.boolean().optional(),
+});
 
 export async function POST(req: Request) {
   const owner = getOwnerProfile();
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json({ error: "Выберите тариф" }, { status: 400 });
+  if (parsed.data.offerAccepted !== true) {
+    return NextResponse.json(
+      { error: "Подтвердите согласие с офертой и условиями подписки" },
+      { status: 400 }
+    );
+  }
 
   const payment = createPayment(owner.id, parsed.data.plan);
 

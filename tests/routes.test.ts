@@ -28,6 +28,10 @@ describe("required routes exist", () => {
     "client/[token]",
     "login",
     "signup",
+    "terms",
+    "privacy",
+    "offer",
+    "subscription-terms",
   ];
   const dashboardRoutes = [
     "dashboard",
