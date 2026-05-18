@@ -344,7 +344,7 @@ export function ClientDetail({
 
         <form
           onSubmit={addSession}
-          className="grid sm:grid-cols-2 gap-3 pt-2 border-t"
+          className="grid sm:grid-cols-2 gap-3 pt-4 border-t border-line"
         >
           <div>
             <label className="label">Дата</label>
