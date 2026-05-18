@@ -3,38 +3,43 @@ import { PLATFORM_NOTICE, SITE_NAME } from "@/lib/seo";
 
 export function SafetyNotice() {
   return (
-    <div className="bg-brand-700 text-white text-center text-xs sm:text-sm py-2 px-4">
+    <div className="bg-brand-50 text-brand-800 text-center text-xs sm:text-sm py-2 px-4 border-b border-brand-100">
       {PLATFORM_NOTICE}
     </div>
   );
 }
 
+const NAV = [
+  { href: "/therapists", label: "Специалисты" },
+  { href: "/match", label: "AI-подбор" },
+  { href: "/examples", label: "Примеры" },
+  { href: "/pricing", label: "Тарифы" },
+  { href: "/favorites", label: "Избранное" },
+];
+
 export function SiteHeader() {
   return (
-    <header className="border-b border-slate-200 bg-white">
+    <header className="sticky top-0 z-40 border-b border-sand-200 bg-sand-50/85 backdrop-blur-md">
       <div className="container-px flex h-16 items-center justify-between">
-        <Link href="/" className="text-lg font-bold text-brand-700">
+        <Link
+          href="/"
+          className="font-serif text-xl font-bold tracking-tight text-brand-800"
+        >
           {SITE_NAME}
         </Link>
-        <nav className="hidden md:flex items-center gap-5 text-sm text-slate-600">
-          <Link href="/therapists" className="hover:text-brand-700">
-            Специалисты
-          </Link>
-          <Link href="/match" className="hover:text-brand-700">
-            AI-подбор
-          </Link>
-          <Link href="/examples" className="hover:text-brand-700">
-            Примеры
-          </Link>
-          <Link href="/pricing" className="hover:text-brand-700">
-            Тарифы
-          </Link>
-          <Link href="/favorites" className="hover:text-brand-700">
-            Избранное
-          </Link>
+        <nav className="hidden md:flex items-center gap-7 text-sm text-ink-soft">
+          {NAV.map((n) => (
+            <Link
+              key={n.href}
+              href={n.href}
+              className="transition-colors hover:text-brand-700"
+            >
+              {n.label}
+            </Link>
+          ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="btn-ghost">
+          <Link href="/dashboard" className="btn-ghost hidden sm:inline-flex">
             Кабинет
           </Link>
           <Link href="/dashboard/profile" className="btn-primary">
@@ -48,18 +53,34 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-slate-200 bg-white">
-      <div className="container-px py-8 text-sm text-slate-500">
-        <p className="font-medium text-slate-700">{SITE_NAME}</p>
-        <p className="mt-1 max-w-2xl">{PLATFORM_NOTICE}</p>
-        <div className="mt-4 flex flex-wrap gap-4">
-          <Link href="/therapists">Специалисты</Link>
-          <Link href="/pricing">Тарифы</Link>
-          <Link href="/examples">Примеры</Link>
-          <Link href="/match">AI-подбор</Link>
-          <Link href="/dashboard/support">Поддержка</Link>
+    <footer className="mt-20 border-t border-sand-200 bg-sand-100">
+      <div className="container-px py-12 text-sm text-ink-muted">
+        <div className="flex flex-col gap-8 sm:flex-row sm:justify-between">
+          <div className="max-w-md">
+            <p className="font-serif text-lg font-semibold text-ink">
+              {SITE_NAME}
+            </p>
+            <p className="mt-2 leading-relaxed">{PLATFORM_NOTICE}</p>
+          </div>
+          <nav className="flex flex-wrap gap-x-8 gap-y-2 text-ink-soft">
+            <Link href="/therapists" className="hover:text-brand-700">
+              Специалисты
+            </Link>
+            <Link href="/pricing" className="hover:text-brand-700">
+              Тарифы
+            </Link>
+            <Link href="/examples" className="hover:text-brand-700">
+              Примеры
+            </Link>
+            <Link href="/match" className="hover:text-brand-700">
+              AI-подбор
+            </Link>
+            <Link href="/dashboard/support" className="hover:text-brand-700">
+              Поддержка
+            </Link>
+          </nav>
         </div>
-        <p className="mt-4 text-xs">
+        <p className="mt-8 border-t border-sand-200 pt-6 text-xs leading-relaxed">
           Платформа предоставляет только профессиональные оздоровительные и
           лечебные массажные услуги. Запрещён эротический, интимный и любой
           «специальный» контент.
