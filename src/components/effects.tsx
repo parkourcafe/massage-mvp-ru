@@ -219,6 +219,163 @@ export function Magnetic({
   );
 }
 
+/* Organically morphing ambient blob. Decorative, sits behind content.
+   Static SVG on the server / when reduced motion; animates via rAF otherwise. */
+const BLOB_STATIC =
+  "M 90 50 C 90 72, 72 90, 50 90 C 28 90, 10 72, 10 50 C 10 28, 28 10, 50 10 C 72 10, 90 28, 90 50 Z";
+
+export function MeshBlob({
+  color = "var(--accent)",
+  secondary = "var(--plum, #7d3a78)",
+  size = 600,
+  className,
+  style,
+}: {
+  color?: string;
+  secondary?: string;
+  size?: number;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const gradId = useRef(
+    `blob-grad-${Math.random().toString(36).slice(2, 9)}`
+  ).current;
+
+  useEffect(() => {
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    let raf = 0;
+    const start = performance.now();
+    const segs = 8;
+    const animate = (now: number) => {
+      const t = (now - start) / 1000;
+      const pts: [number, number][] = [];
+      for (let i = 0; i < segs; i++) {
+        const angle = (i / segs) * Math.PI * 2;
+        const noise =
+          Math.sin(t * 0.5 + i * 1.3) * 0.15 +
+          Math.cos(t * 0.7 + i * 2.1) * 0.1;
+        const r = 0.85 + noise;
+        pts.push([
+          50 + Math.cos(angle) * 40 * r,
+          50 + Math.sin(angle) * 40 * r,
+        ]);
+      }
+      let d = `M ${pts[0][0]} ${pts[0][1]}`;
+      for (let i = 0; i < segs; i++) {
+        const p0 = pts[(i - 1 + segs) % segs];
+        const p1 = pts[i];
+        const p2 = pts[(i + 1) % segs];
+        const p3 = pts[(i + 2) % segs];
+        const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+        const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+        const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+        const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+        d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2[0]} ${p2[1]}`;
+      }
+      d += " Z";
+      pathRef.current?.setAttribute("d", d);
+      raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 100 100"
+      className={className}
+      style={{
+        width: size,
+        height: size,
+        filter: "blur(20px)",
+        opacity: 0.55,
+        pointerEvents: "none",
+        ...style,
+      }}
+    >
+      <defs>
+        <radialGradient id={gradId} cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor={color} stopOpacity="0.95" />
+          <stop offset="60%" stopColor={secondary} stopOpacity="0.7" />
+          <stop offset="100%" stopColor={secondary} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <path ref={pathRef} fill={`url(#${gradId})`} d={BLOB_STATIC} />
+    </svg>
+  );
+}
+
+/* Heading whose weight + tracking tighten as it scrolls through the
+   viewport. Renders its class style untouched on the server and when
+   reduced motion is requested (no inline override → no hydration shift). */
+export function ScrollBoldHeading({
+  children,
+  className,
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [dyn, setDyn] = useState<CSSProperties | undefined>(undefined);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return;
+    const onScroll = () => {
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 800;
+      const center = r.top + r.height / 2;
+      const t = 1 - Math.min(1, Math.max(0, center / vh));
+      setDyn({
+        fontWeight: 400 + Math.round(t * 300),
+        letterSpacing: `${-0.02 - t * 0.015}em`,
+        transition:
+          "font-weight 0.3s ease, letter-spacing 0.3s ease",
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <h2 ref={ref} className={className} style={{ ...style, ...dyn }}>
+      {children}
+    </h2>
+  );
+}
+
+/* Small pulsing dot signalling real-time / live data. */
+export function LivePulse({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <span
+      aria-hidden
+      className={`inline-block rounded-full bg-accent animate-live-pulse motion-reduce:animate-none ${className ?? ""}`}
+      style={{
+        width: 8,
+        height: 8,
+        boxShadow: "0 0 8px var(--accent)",
+        ...style,
+      }}
+    />
+  );
+}
+
 /* Custom magenta pill cursor while hovering a region. */
 export function HoverCursor({
   children,

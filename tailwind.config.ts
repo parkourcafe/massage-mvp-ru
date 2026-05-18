@@ -164,9 +164,19 @@ const config: Config = {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
         },
+        shimmer: {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
+        },
+        "live-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.35" },
+        },
       },
       animation: {
         marquee: "marquee 40s linear infinite",
+        shimmer: "shimmer 4s ease infinite",
+        "live-pulse": "live-pulse 1.6s ease infinite",
       },
     },
   },

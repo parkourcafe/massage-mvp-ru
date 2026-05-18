@@ -7,7 +7,10 @@ import {
   Counter,
   CursorGlow,
   HoverCursor,
+  LivePulse,
   Magnetic,
+  MeshBlob,
+  ScrollBoldHeading,
   Tilt,
 } from "@/components/effects";
 import { pageMetadata } from "@/lib/seo";
@@ -118,6 +121,12 @@ export default async function HomePage() {
 
           {/* Photo cluster + floating cards */}
           <div className="relative hidden h-[560px] lg:block">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute right-[18%] top-[26%] z-0"
+            >
+              <MeshBlob size={560} />
+            </div>
             <div className="img-ph absolute right-10 top-0 h-[440px] w-[300px] rounded-xl2 shadow-lift">
               портрет / руки
             </div>
@@ -125,7 +134,7 @@ export default async function HomePage() {
               кабинет
             </div>
             {featured[0] && (
-              <div className="absolute left-[-16px] top-14 flex w-[250px] items-center gap-3 rounded-xl2 border border-line-strong bg-card p-4 shadow-lift">
+              <div className="absolute left-[-16px] top-14 z-10 flex w-[250px] items-center gap-3 rounded-xl2 border border-line-strong bg-card p-4 shadow-lift">
                 <div className="img-ph h-12 w-12 shrink-0 rounded-full text-[8px]">
                   {featured[0].full_name.charAt(0)}
                 </div>
@@ -142,12 +151,35 @@ export default async function HomePage() {
             )}
             <Link
               href="/match"
-              className="absolute bottom-10 right-[-16px] block w-[300px] rounded-xl2 border border-line-strong bg-card/80 p-5 shadow-lift backdrop-blur-md transition-transform hover:-translate-y-1"
+              className="group absolute bottom-10 right-[-16px] z-10 block w-[300px] overflow-hidden rounded-xl2 border border-line-strong bg-card/80 p-5 shadow-lift backdrop-blur-md transition-transform hover:-translate-y-1"
             >
-              <span className="eyebrow !text-accent">AI-подбор</span>
-              <p className="mt-2 font-serif text-[17px] leading-snug text-heading">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 animate-shimmer motion-reduce:hidden"
+                style={{
+                  background:
+                    "linear-gradient(120deg, transparent 35%, rgba(236,72,137,0.18) 50%, transparent 65%)",
+                  backgroundSize: "200% 100%",
+                }}
+              />
+              <span className="relative z-10 flex items-center gap-2">
+                <span aria-hidden className="hot text-xs">
+                  ✦
+                </span>
+                <span className="eyebrow !text-accent">Massaje AI</span>
+              </span>
+              <p className="relative z-10 mt-2 font-serif text-[17px] leading-snug text-heading">
                 Опишите задачу — подберём специалистов и техники под вас.
               </p>
+              <span className="relative z-10 mt-3 flex items-center gap-1.5 text-xs text-accent">
+                Подобрать с AI{" "}
+                <span
+                  aria-hidden
+                  className="transition-transform group-hover:translate-x-0.5"
+                >
+                  →
+                </span>
+              </span>
             </Link>
           </div>
         </div>
@@ -166,7 +198,15 @@ export default async function HomePage() {
                 l: "специалистов в каталоге",
               },
               { v: "0 ₽", l: "комиссия для клиента · оплата только мастеру" },
-              { v: "Онлайн", l: "бронь свободных окон без перезвонов" },
+              {
+                v: (
+                  <span className="inline-flex items-center gap-3">
+                    <LivePulse />
+                    Онлайн
+                  </span>
+                ),
+                l: "бронь свободных окон без перезвонов",
+              },
               { v: "AI", l: "подбор специалиста под вашу задачу" },
             ].map((s) => (
               <div key={s.l}>
@@ -215,11 +255,11 @@ export default async function HomePage() {
             <span className="eyebrow">
               <span className="num-label">01</span> Как это работает
             </span>
-            <h2 className="h1 mt-6">
+            <ScrollBoldHeading className="h1 mt-6">
               Три шага.
               <br />
               Без перезвонов.
-            </h2>
+            </ScrollBoldHeading>
           </div>
           <p className="body-lg max-w-lg lg:justify-self-end">
             Мы не записываем «на услугу в студию». Мы соединяем вас с конкретным
@@ -280,11 +320,11 @@ export default async function HomePage() {
             <span className="eyebrow">
               <span className="num-label">02</span> Выбор по запросу
             </span>
-            <h2 className="h1 mt-6 mb-6">
+            <ScrollBoldHeading className="h1 mt-6 mb-6">
               Скажите телу,
               <br />
               где болит.
-            </h2>
+            </ScrollBoldHeading>
             <p className="body-lg mb-8 max-w-md">
               Выберите зону или задачу — увидите специалистов, которые работают
               именно с этим. Можно сразу уточнить технику, формат и район.
@@ -321,11 +361,11 @@ export default async function HomePage() {
             <span className="eyebrow">
               <span className="num-label">03</span> Рекомендуем
             </span>
-            <h2 className="h1 mt-6">
+            <ScrollBoldHeading className="h1 mt-6">
               Мастера, которым
               <br />
               <span className="italic hot">возвращаются.</span>
-            </h2>
+            </ScrollBoldHeading>
           </div>
           <Link href="/therapists" className="btn-secondary btn-sm">
             Весь каталог →
@@ -362,10 +402,10 @@ export default async function HomePage() {
         <span className="eyebrow">
           <span className="num-label">04</span> Принципы платформы
         </span>
-        <h2 className="h1 mt-6 mb-14 max-w-3xl">
+        <ScrollBoldHeading className="h1 mt-6 mb-14 max-w-3xl">
           <span className="italic hot">Только профессиональный</span>{" "}
           оздоровительный и лечебный массаж.
-        </h2>
+        </ScrollBoldHeading>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {SAFETY_RULES.slice(0, 6).map((r, i) => (
             <figure
