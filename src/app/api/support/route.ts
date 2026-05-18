@@ -16,7 +16,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json({ error: "Заполните форму" }, { status: 400 });
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const sr = createSupportRequest({
+  const sr = await createSupportRequest({
     user_id: owner.user_id ?? null,
     profile_id: owner.id,
     name: parsed.data.name,

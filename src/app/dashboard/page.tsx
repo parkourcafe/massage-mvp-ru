@@ -8,12 +8,12 @@ import {
 import { computeQualityScore, QUALITY_INDEX_THRESHOLD } from "@/lib/quality";
 import { planFor } from "@/lib/plans";
 
-export default function DashboardHome() {
-  const profile = getOwnerProfile();
-  const bookings = listBookingsForProfile(profile.id);
-  const clients = listClients(profile.id);
+export default async function DashboardHome() {
+  const profile = await getOwnerProfile();
+  const bookings = await listBookingsForProfile(profile.id);
+  const clients = await listClients(profile.id);
   const q = computeQualityScore(profile);
-  const sub = getSubscription(profile.id);
+  const sub = await getSubscription(profile.id);
   const plan = planFor(profile.plan_id);
 
   const newBookings = bookings.filter((b) =>

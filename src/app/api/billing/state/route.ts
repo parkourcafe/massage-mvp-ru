@@ -5,8 +5,8 @@ import { PLANS } from "@/lib/plans";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const owner = getOwnerProfile();
-  const sub = getSubscription(owner.id);
+  const owner = await getOwnerProfile();
+  const sub = await getSubscription(owner.id);
   return NextResponse.json({
     plan: owner.plan_id,
     subscription: sub

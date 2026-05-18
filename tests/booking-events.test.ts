@@ -24,19 +24,19 @@ const ALLOWED: BookingEventType[] = [
 beforeEach(() => __resetStore());
 
 describe("typed booking events", () => {
-  it("emits a typed, complete event history", () => {
-    const owner = getOwnerProfile();
-    const b = createBooking({
+  it("emits a typed, complete event history", async () => {
+    const owner = await getOwnerProfile();
+    const b = await createBooking({
       profile_id: owner.id,
       client_name: "Тест",
       first_message: "Здравствуйте",
     });
-    addBookingMessage(b.id, "therapist", "Специалист", "Здравствуйте, отвечаю");
-    confirmBooking(b.id, "2026-05-22 12:00");
-    setBookingOutcome(b.id, "completed_good", "completed");
-    convertBookingToClient(b.id);
+    await addBookingMessage(b.id, "therapist", "Специалист", "Здравствуйте, отвечаю");
+    await confirmBooking(b.id, "2026-05-22 12:00");
+    await setBookingOutcome(b.id, "completed_good", "completed");
+    await convertBookingToClient(b.id);
 
-    const events = getBookingById(b.id)!.events ?? [];
+    const events = (await getBookingById(b.id))!.events ?? [];
     const types = events.map((e) => e.event_type);
 
     expect(types.every((t) => ALLOWED.includes(t))).toBe(true);

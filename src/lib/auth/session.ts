@@ -41,7 +41,7 @@ export function getSessionUserId(): string | null {
   }
 }
 
-export function getCurrentUser(): AuthUser | null {
+export async function getCurrentUser(): Promise<AuthUser | null> {
   const uid = getSessionUserId();
   return uid ? getUserById(uid) : null;
 }
@@ -61,14 +61,14 @@ export function clearSessionCookie(): void {
 }
 
 // Server-component guards.
-export function requireUser(): AuthUser {
-  const user = getCurrentUser();
+export async function requireUser(): Promise<AuthUser> {
+  const user = await getCurrentUser();
   if (!user) redirect("/login");
   return user;
 }
 
-export function requireAdmin(): AuthUser {
-  const user = getCurrentUser();
+export async function requireAdmin(): Promise<AuthUser> {
+  const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (user.role !== "admin") redirect("/dashboard");
   return user;

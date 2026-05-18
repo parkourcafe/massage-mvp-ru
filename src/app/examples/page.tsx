@@ -11,8 +11,8 @@ export const metadata: Metadata = pageMetadata({
   path: "/examples",
 });
 
-export default function ExamplesPage() {
-  const profiles = listPublicProfiles().slice(0, 4);
+export default async function ExamplesPage() {
+  const profiles = (await listPublicProfiles()).slice(0, 4);
   return (
     <div className="container-px py-10">
       <h1 className="text-2xl font-bold text-slate-900">Примеры профилей</h1>

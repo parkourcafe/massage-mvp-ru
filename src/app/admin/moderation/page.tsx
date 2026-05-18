@@ -1,8 +1,8 @@
 import { listModerationFlags } from "@/lib/db";
 import { AdminAction } from "@/components/AdminAction";
 
-export default function AdminModerationPage() {
-  const flags = listModerationFlags();
+export default async function AdminModerationPage() {
+  const flags = await listModerationFlags();
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-slate-900">Модерация</h1>

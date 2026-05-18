@@ -45,3 +45,24 @@ export function formatRub(value: number | null | undefined): string {
 export function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));
 }
+
+// Human-readable slot time, e.g. "пн, 18 мая, 18:00".
+export function formatSlot(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("ru-RU", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(d);
+}
+
+export function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}

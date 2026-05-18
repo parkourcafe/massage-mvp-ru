@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const payment = getPaymentByProviderId(providerId);
+  const payment = await getPaymentByProviderId(providerId);
   if (!payment) {
     return NextResponse.json({ error: "Платёж не найден" }, { status: 404 });
   }
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const sub = markPaymentSucceeded(providerId);
+  const sub = await markPaymentSucceeded(providerId);
   return NextResponse.json({
     ok: true,
     subscription: sub

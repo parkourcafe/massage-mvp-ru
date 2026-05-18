@@ -2,13 +2,19 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DirectoryView } from "@/components/DirectoryView";
 import { CITY_BY_SLUG, MODALITY_BY_SLUG } from "@/lib/catalog";
-import { pageMetadata } from "@/lib/seo";
+import { listPublicProfiles } from "@/lib/db";
+import { landingContent, relatedLinks } from "@/lib/landing-content";
+import { serviceJsonLd } from "@/lib/jsonld";
+import { MIN_INDEXABLE_RESULTS, pageMetadata } from "@/lib/seo";
 
 // /therapists/[service]  OR  /therapists/[city]
 // A single dynamic segment is required because Next.js cannot have two
 // sibling dynamic segments ([service] and [city]); we resolve which one
 // it is from the catalog.
-type Params = { params: { seg1: string } };
+type Params = {
+  params: { seg1: string };
+  searchParams: { today?: string };
+};
 
 function resolve(seg1: string) {
   const modality = MODALITY_BY_SLUG.get(seg1);
@@ -18,33 +24,72 @@ function resolve(seg1: string) {
   return null;
 }
 
-export function generateMetadata({ params }: Params): Metadata {
+export async function generateMetadata({
+  params,
+}: Params): Promise<Metadata> {
   const r = resolve(params.seg1);
   if (!r) return pageMetadata({ title: "Не найдено", noindex: true });
+  const filter =
+    r.kind === "modality"
+      ? { modality: r.modality.key }
+      : { city: r.city.label };
+  const count = (await listPublicProfiles(filter)).length;
+  const noindex = count < MIN_INDEXABLE_RESULTS;
   if (r.kind === "modality") {
     return pageMetadata({
       title: `${r.modality.label} — массажисты`,
       description: `Профессиональные специалисты: ${r.modality.label}.`,
       path: `/therapists/${params.seg1}`,
+      noindex,
     });
   }
   return pageMetadata({
     title: `Массажисты — ${r.city.label}`,
     description: `Профессиональные массажисты в городе ${r.city.label}.`,
     path: `/therapists/${params.seg1}`,
+    noindex,
   });
 }
 
-export default function TherapistsFilterPage({ params }: Params) {
+export default function TherapistsFilterPage({
+  params,
+  searchParams,
+}: Params) {
   const r = resolve(params.seg1);
   if (!r) notFound();
+
+  const availableToday = searchParams.today === "1";
+  const base = [
+    { name: "Главная", path: "/" },
+    { name: "Каталог специалистов", path: "/therapists" },
+  ];
 
   if (r.kind === "modality") {
     return (
       <DirectoryView
         title={`${r.modality.label}`}
         subtitle="Профессиональные специалисты данного направления"
-        filter={{ modality: r.modality.key }}
+        filter={{ modality: r.modality.key, availableToday }}
+        path={`/therapists/${params.seg1}`}
+        breadcrumb={[
+          ...base,
+          {
+            name: r.modality.label,
+            path: `/therapists/${params.seg1}`,
+          },
+        ]}
+        content={landingContent({
+          modalityKey: r.modality.key,
+          modalityLabel: r.modality.label,
+        })}
+        related={relatedLinks({ modalityKey: r.modality.key })}
+        extraSchema={[
+          serviceJsonLd({
+            serviceType: r.modality.label,
+            path: `/therapists/${params.seg1}`,
+            description: `Профессиональные специалисты: ${r.modality.label}.`,
+          }),
+        ]}
       />
     );
   }
@@ -52,7 +97,14 @@ export default function TherapistsFilterPage({ params }: Params) {
     <DirectoryView
       title={`Массажисты — ${r.city.label}`}
       subtitle="Профессиональные специалисты в вашем городе"
-      filter={{ city: r.city.label }}
+      filter={{ city: r.city.label, availableToday }}
+      path={`/therapists/${params.seg1}`}
+      breadcrumb={[
+        ...base,
+        { name: r.city.label, path: `/therapists/${params.seg1}` },
+      ]}
+      content={landingContent({ cityLabel: r.city.label })}
+      related={relatedLinks({ cityLabel: r.city.label })}
     />
   );
 }

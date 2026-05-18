@@ -1,10 +1,11 @@
 import Link from "next/link";
 import type { Profile } from "@/lib/types";
 import { modalityLabel } from "@/lib/catalog";
-import { formatRub } from "@/lib/util";
+import { formatRub, formatSlot, isSameDay } from "@/lib/util";
+import { listOpenSlots } from "@/lib/db";
 import { FavoriteButton } from "./FavoriteButton";
 
-export function ProfileCard({
+export async function ProfileCard({
   profile,
   source = "directory",
   matchScore,
@@ -14,6 +15,11 @@ export function ProfileCard({
   matchScore?: number;
 }) {
   const photo = (profile.media ?? []).find((m) => m.type === "profile_photo");
+  const openSlots = await listOpenSlots(profile.id);
+  const upcomingSlot = openSlots[0] ?? null;
+  const availableToday = openSlots.some((s) =>
+    isSameDay(new Date(s.starts_at), new Date())
+  );
   const services = (profile.services ?? []).slice(0, 4);
   const priceFrom =
     profile.price_from ??
@@ -54,6 +60,11 @@ export function ProfileCard({
                 Совпадение {matchScore}%
               </span>
             )}
+            {availableToday && (
+              <span className="badge bg-green-100 text-green-800">
+                Свободно сегодня
+              </span>
+            )}
           </div>
           <p className="text-sm text-slate-500">
             {[profile.city, profile.district].filter(Boolean).join(", ")}
@@ -64,6 +75,11 @@ export function ProfileCard({
           {profile.headline && (
             <p className="text-sm text-slate-600 mt-1 line-clamp-2">
               {profile.headline}
+            </p>
+          )}
+          {upcomingSlot && (
+            <p className="text-xs text-brand-700 mt-1">
+              Ближайшее окно: {formatSlot(upcomingSlot.starts_at)}
             </p>
           )}
         </div>

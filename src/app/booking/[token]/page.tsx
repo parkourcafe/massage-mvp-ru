@@ -11,10 +11,10 @@ export function generateMetadata(): Metadata {
   return pageMetadata({ title: "Ваша запись", noindex: true });
 }
 
-export default function ClientBookingPage({ params }: Params) {
-  const booking = getBookingByToken(params.token);
+export default async function ClientBookingPage({ params }: Params) {
+  const booking = await getBookingByToken(params.token);
   if (!booking) notFound();
-  const therapist = getRawProfileById(booking.profile_id);
+  const therapist = await getRawProfileById(booking.profile_id);
 
   return (
     <div className="container-px py-10 max-w-3xl">

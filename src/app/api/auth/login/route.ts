@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Некорректный запрос" }, { status: 400 });
   }
-  const user = findUserByEmail(parsed.data.email);
+  const user = await findUserByEmail(parsed.data.email);
   if (!user || !verifyPassword(parsed.data.password, user.password_hash)) {
     return NextResponse.json(
       { error: "Неверный email или пароль" },

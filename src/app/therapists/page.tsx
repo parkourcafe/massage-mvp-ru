@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DirectoryView } from "@/components/DirectoryView";
+import { relatedLinks } from "@/lib/landing-content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -9,12 +10,18 @@ export const metadata: Metadata = pageMetadata({
   path: "/therapists",
 });
 
-export default function TherapistsPage() {
+export default function TherapistsPage({
+  searchParams,
+}: {
+  searchParams: { today?: string };
+}) {
   return (
     <DirectoryView
       title="Каталог специалистов"
       subtitle="Независимые профессиональные массажисты"
-      filter={{}}
+      filter={{ availableToday: searchParams.today === "1" }}
+      path="/therapists"
+      related={relatedLinks({})}
     />
   );
 }

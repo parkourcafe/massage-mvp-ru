@@ -23,11 +23,11 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Некорректный запрос" }, { status: 400 });
   }
-  const owner = getOwnerProfile();
-  const client = getClient(parsed.data.client_id);
+  const owner = await getOwnerProfile();
+  const client = await getClient(parsed.data.client_id);
   if (!client || client.profile_id !== owner.id) {
     return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
   }
-  const note = addTherapistPrivateNote(owner.id, parsed.data);
+  const note = await addTherapistPrivateNote(owner.id, parsed.data);
   return NextResponse.json({ ok: true, note });
 }

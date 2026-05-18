@@ -1,9 +1,9 @@
 import { listAllProfiles, listPayments } from "@/lib/db";
 import { formatRub } from "@/lib/util";
 
-export default function AdminPaymentsPage() {
-  const payments = listPayments();
-  const profiles = listAllProfiles();
+export default async function AdminPaymentsPage() {
+  const payments = await listPayments();
+  const profiles = await listAllProfiles();
   const name = (id: string) =>
     profiles.find((p) => p.id === id)?.full_name ?? id;
   return (

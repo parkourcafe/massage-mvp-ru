@@ -161,6 +161,19 @@ export interface BookingEvent {
   created_at: string;
 }
 
+// A concrete bookable time slot a therapist publishes. When a client
+// books it, status flips to "booked" and booking_id is set — this is
+// what prevents double-booking.
+export interface AvailabilitySlot {
+  id: string;
+  profile_id: string;
+  starts_at: string; // ISO datetime
+  duration: number; // minutes
+  status: "open" | "booked";
+  booking_id?: string | null;
+  created_at: string;
+}
+
 export interface Booking {
   id: string;
   profile_id: string;

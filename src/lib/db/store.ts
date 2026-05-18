@@ -1,5 +1,6 @@
 import type {
   AuthUser,
+  AvailabilitySlot,
   Booking,
   AiGeneration,
   BookingEvent,
@@ -28,6 +29,7 @@ import { computeQualityScore } from "../quality";
 import { moderateProfilePayload } from "../moderation";
 import { newId, nowIso, secureToken } from "../util";
 import {
+  seedAvailability,
   seedBookings,
   seedClients,
   seedPlans,
@@ -42,6 +44,7 @@ interface Store {
   profiles: Profile[];
   favorites: Favorite[];
   bookings: Booking[];
+  availabilitySlots: AvailabilitySlot[];
   clients: CrmClient[];
   therapistNotes: TherapistPrivateNote[];
   clientFeedback: ClientPrivateFeedback[];
@@ -104,6 +107,7 @@ function freshStore(): Store {
     profiles,
     favorites: [],
     bookings: seedBookings(),
+    availabilitySlots: seedAvailability(),
     clients: seedClients(),
     therapistNotes: [],
     clientFeedback: [],

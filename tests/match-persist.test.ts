@@ -9,9 +9,9 @@ import {
 beforeEach(() => __resetStore());
 
 describe("v1 match persistence", () => {
-  it("saves a request with ranked results visible to the matched profile", () => {
-    const owner = getOwnerProfile();
-    const req = saveMatch(
+  it("saves a request with ranked results visible to the matched profile", async () => {
+    const owner = await getOwnerProfile();
+    const req = await saveMatch(
       {
         massage_goal: "Снять напряжение в шее",
         pain_or_focus_area: "шея",
@@ -32,12 +32,12 @@ describe("v1 match persistence", () => {
     );
     expect(req.id).toBeTruthy();
 
-    const incoming = listMatchesForProfile(owner.id);
+    const incoming = await listMatchesForProfile(owner.id);
     expect(incoming.length).toBe(1);
     expect(incoming[0].rank).toBe(1);
     expect(incoming[0].score).toBe(87);
     expect(incoming[0].request?.massage_goal).toContain("напряжение");
     // Another profile sees nothing.
-    expect(listMatchesForProfile("other-profile").length).toBe(0);
+    expect((await listMatchesForProfile("other-profile")).length).toBe(0);
   });
 });

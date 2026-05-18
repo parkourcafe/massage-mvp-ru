@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       { status: 422 }
     );
   }
-  const res = createUser(
+  const res = await createUser(
     parsed.data.email,
     parsed.data.password,
     parsed.data.full_name

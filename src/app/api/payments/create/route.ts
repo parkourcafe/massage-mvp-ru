@@ -12,7 +12,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const owner = getOwnerProfile();
+  const owner = await getOwnerProfile();
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json({ error: "Выберите тариф" }, { status: 400 });
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const payment = createPayment(owner.id, parsed.data.plan);
+  const payment = await createPayment(owner.id, parsed.data.plan);
 
   const created = await createYooKassaPayment({
     amountRub: payment.amount_rub,

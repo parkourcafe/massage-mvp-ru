@@ -16,9 +16,9 @@ const EVENT_LABEL: Record<BookingEventType, string> = {
   converted_to_client: "Преобразовано в клиента",
 };
 
-export default function BookingDetailPage({ params }: Params) {
-  const owner = getOwnerProfile();
-  const booking = getBookingById(params.id);
+export default async function BookingDetailPage({ params }: Params) {
+  const owner = await getOwnerProfile();
+  const booking = await getBookingById(params.id);
   if (!booking || booking.profile_id !== owner.id) notFound();
 
   return (

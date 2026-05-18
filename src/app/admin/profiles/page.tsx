@@ -3,8 +3,8 @@ import { listAllProfiles } from "@/lib/db";
 import { computeQualityScore } from "@/lib/quality";
 import { AdminAction } from "@/components/AdminAction";
 
-export default function AdminProfilesPage() {
-  const profiles = listAllProfiles();
+export default async function AdminProfilesPage() {
+  const profiles = await listAllProfiles();
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-slate-900">Профили</h1>

@@ -8,8 +8,8 @@ import {
 import { can } from "@/lib/plans";
 import { computeQualityScore } from "@/lib/quality";
 
-export default function AnalyticsPage() {
-  const owner = getOwnerProfile();
+export default async function AnalyticsPage() {
+  const owner = await getOwnerProfile();
   if (!can(owner.plan_id, "canUseAnalytics")) {
     return (
       <div className="card">
@@ -24,10 +24,10 @@ export default function AnalyticsPage() {
     );
   }
 
-  const a = getAnalytics(owner.id);
+  const a = await getAnalytics(owner.id);
   const maxDay = Math.max(1, ...a.viewsByDay.map((d) => d.count));
-  const bookings = listBookingsForProfile(owner.id);
-  const clients = listClients(owner.id);
+  const bookings = await listBookingsForProfile(owner.id);
+  const clients = await listClients(owner.id);
   const completed = bookings.filter((b) => b.status === "completed").length;
   const converted = clients.length;
   const conv =

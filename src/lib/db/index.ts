@@ -1,6 +1,7 @@
 import type {
   AiGeneration,
   AuthUser,
+  AvailabilitySlot,
   Booking,
   BookingEventType,
   BookingMessage,
@@ -22,13 +23,32 @@ import type {
   Subscription,
   TherapistPrivateNote,
 } from "../types";
-import type { UserRole } from "../types";
 import { PLANS } from "../plans";
 import { hashPassword } from "../auth/password";
-import { newId, nowIso, secureToken, slugify } from "../util";
+import { isSameDay, newId, nowIso, secureToken, slugify } from "../util";
 import { recomputeProfile, store, __resetStore } from "./store";
+import { getRepo, isSupabaseBackend } from "./factory";
+import type {
+  DirectoryFilter,
+  ProfileAnalytics,
+  ActivityTotals,
+  MatchResultInput,
+} from "./repository";
 
 export { __resetStore };
+export type {
+  DirectoryFilter,
+  ProfileAnalytics,
+  ActivityTotals,
+  MatchResultInput,
+} from "./repository";
+
+// ---------- Backend dispatch ----------
+// The public API is async regardless of backend. When DB_BACKEND=supabase
+// and Supabase is configured, every call delegates to the Postgres
+// repository; otherwise the in-memory demo store (below) is used. Tests
+// and `next build` run on the in-memory store.
+const useSupabase = isSupabaseBackend();
 
 // ---------- Auth users ----------
 // Resolver lets the data layer pick the dashboard "owner" from the
@@ -39,11 +59,15 @@ export function __setOwnerResolver(fn: () => string | undefined): void {
   ownerResolver = fn;
 }
 
-export function getUserById(id: string): AuthUser | null {
+export async function getUserById(id: string): Promise<AuthUser | null> {
+  if (useSupabase) return getRepo().getUserById(id);
   return store().users.find((u) => u.id === id) ?? null;
 }
 
-export function findUserByEmail(email: string): AuthUser | null {
+export async function findUserByEmail(
+  email: string
+): Promise<AuthUser | null> {
+  if (useSupabase) return getRepo().findUserByEmail(email);
   const e = email.trim().toLowerCase();
   return store().users.find((u) => u.email.toLowerCase() === e) ?? null;
 }
@@ -58,12 +82,13 @@ function uniqueSlug(base: string): string {
 }
 
 // Signup: creates a therapist user + an empty draft profile they own.
-export function createUser(
+export async function createUser(
   email: string,
   password: string,
   fullName: string
-): { user: AuthUser; profile: Profile } | { error: string } {
-  if (findUserByEmail(email)) {
+): Promise<{ user: AuthUser; profile: Profile } | { error: string }> {
+  if (useSupabase) return getRepo().createUser(email, password, fullName);
+  if (await findUserByEmail(email)) {
     return { error: "Пользователь с таким email уже существует" };
   }
   const userId = `user-${newId()}`;
@@ -122,6 +147,7 @@ export function createUser(
 }
 
 // ---- Public-safe projection ----
+// Pure transform (no store access) — kept synchronous.
 export function toPublicProfile(p: Profile): Profile {
   const { therapist_address_private, ...rest } = p;
   return {
@@ -133,20 +159,16 @@ export function toPublicProfile(p: Profile): Profile {
 }
 
 // ---------- Plans ----------
-export function listPlans(): Plan[] {
+export async function listPlans(): Promise<Plan[]> {
+  if (useSupabase) return getRepo().listPlans();
   return store().plans;
 }
 
 // ---------- Profiles ----------
-export interface DirectoryFilter {
-  modality?: string; // modality key
-  city?: string; // city label
-  district?: string;
-  q?: string;
-  includeUnindexable?: boolean;
-}
-
-export function listPublicProfiles(filter: DirectoryFilter = {}): Profile[] {
+export async function listPublicProfiles(
+  filter: DirectoryFilter = {}
+): Promise<Profile[]> {
+  if (useSupabase) return getRepo().listPublicProfiles(filter);
   let list = store().profiles.filter(
     (p) => p.is_published && p.moderation_status === "approved"
   );
@@ -176,6 +198,19 @@ export function listPublicProfiles(filter: DirectoryFilter = {}): Profile[] {
         (p.professional_description ?? "").toLowerCase().includes(q)
     );
   }
+  if (filter.availableToday) {
+    const today = new Date();
+    const nowMs = Date.now();
+    list = list.filter((p) =>
+      store().availabilitySlots.some(
+        (s) =>
+          s.profile_id === p.id &&
+          s.status === "open" &&
+          new Date(s.starts_at).getTime() > nowMs &&
+          isSameDay(new Date(s.starts_at), today)
+      )
+    );
+  }
   // Featured (expert) first, then quality score.
   return list
     .map(toPublicProfile)
@@ -186,31 +221,45 @@ export function listPublicProfiles(filter: DirectoryFilter = {}): Profile[] {
     );
 }
 
-export function getPublicProfileBySlug(slug: string): Profile | null {
+export async function getPublicProfileBySlug(
+  slug: string
+): Promise<Profile | null> {
+  if (useSupabase) return getRepo().getPublicProfileBySlug(slug);
   const p = store().profiles.find(
     (x) => x.slug === slug && x.is_published && x.moderation_status === "approved"
   );
   return p ? toPublicProfile(p) : null;
 }
 
-export function getRawProfileBySlug(slug: string): Profile | null {
+export async function getRawProfileBySlug(
+  slug: string
+): Promise<Profile | null> {
+  if (useSupabase) return getRepo().getRawProfileBySlug(slug);
   return store().profiles.find((x) => x.slug === slug) ?? null;
 }
 
-export function getRawProfileById(id: string): Profile | null {
+export async function getRawProfileById(
+  id: string
+): Promise<Profile | null> {
+  if (useSupabase) return getRepo().getRawProfileById(id);
   return store().profiles.find((x) => x.id === id) ?? null;
 }
 
 // Profile owned by a user (dashboard owner context). When no userId is
 // passed, resolves from the signed-in session via the registered
 // resolver; falls back to the demo profile (tests / no session).
-export function getOwnerProfile(userId?: string): Profile {
+export async function getOwnerProfile(userId?: string): Promise<Profile> {
+  if (useSupabase) return getRepo().getOwnerProfile(userId ?? ownerResolver());
   const uid = userId ?? ownerResolver() ?? "user-anna";
   const found = store().profiles.find((p) => p.user_id === uid);
   return found ?? store().profiles[0];
 }
 
-export function updateProfile(id: string, patch: Partial<Profile>): Profile | null {
+export async function updateProfile(
+  id: string,
+  patch: Partial<Profile>
+): Promise<Profile | null> {
+  if (useSupabase) return getRepo().updateProfile(id, patch);
   const p = store().profiles.find((x) => x.id === id);
   if (!p) return null;
   Object.assign(p, patch);
@@ -219,10 +268,11 @@ export function updateProfile(id: string, patch: Partial<Profile>): Profile | nu
 }
 
 // ---------- Services ----------
-export function upsertService(
+export async function upsertService(
   profileId: string,
   data: Partial<ServiceItem> & { modality: string; title: string }
-): ServiceItem | null {
+): Promise<ServiceItem | null> {
+  if (useSupabase) return getRepo().upsertService(profileId, data);
   const p = store().profiles.find((x) => x.id === profileId);
   if (!p) return null;
   p.services = p.services ?? [];
@@ -251,7 +301,11 @@ export function upsertService(
   return svc;
 }
 
-export function deleteService(profileId: string, serviceId: string): boolean {
+export async function deleteService(
+  profileId: string,
+  serviceId: string
+): Promise<boolean> {
+  if (useSupabase) return getRepo().deleteService(profileId, serviceId);
   const p = store().profiles.find((x) => x.id === profileId);
   if (!p?.services) return false;
   const before = p.services.length;
@@ -261,14 +315,18 @@ export function deleteService(profileId: string, serviceId: string): boolean {
 }
 
 // ---------- Media ----------
-export function listMedia(profileId: string): ProfileMedia[] {
+export async function listMedia(
+  profileId: string
+): Promise<ProfileMedia[]> {
+  if (useSupabase) return getRepo().listMedia(profileId);
   return store().profiles.find((p) => p.id === profileId)?.media ?? [];
 }
 
-export function addMedia(
+export async function addMedia(
   profileId: string,
   data: Omit<ProfileMedia, "id" | "profile_id">
-): ProfileMedia | null {
+): Promise<ProfileMedia | null> {
+  if (useSupabase) return getRepo().addMedia(profileId, data);
   const p = store().profiles.find((x) => x.id === profileId);
   if (!p) return null;
   p.media = p.media ?? [];
@@ -278,7 +336,11 @@ export function addMedia(
   return m;
 }
 
-export function deleteMedia(profileId: string, mediaId: string): boolean {
+export async function deleteMedia(
+  profileId: string,
+  mediaId: string
+): Promise<boolean> {
+  if (useSupabase) return getRepo().deleteMedia(profileId, mediaId);
   const p = store().profiles.find((x) => x.id === profileId);
   if (!p?.media) return false;
   const before = p.media.length;
@@ -288,7 +350,10 @@ export function deleteMedia(profileId: string, mediaId: string): boolean {
 }
 
 // ---------- Favorites ----------
-export function listFavorites(userId: string): (Favorite & { profile: Profile | null })[] {
+export async function listFavorites(
+  userId: string
+): Promise<(Favorite & { profile: Profile | null })[]> {
+  if (useSupabase) return getRepo().listFavorites(userId);
   return store()
     .favorites.filter((f) => f.user_id === userId)
     .map((f) => ({
@@ -300,12 +365,14 @@ export function listFavorites(userId: string): (Favorite & { profile: Profile | 
     }));
 }
 
-export function addFavorite(
+export async function addFavorite(
   userId: string,
   profileId: string,
   source: Favorite["source"] = "directory",
   matchScore?: number
-): Favorite {
+): Promise<Favorite> {
+  if (useSupabase)
+    return getRepo().addFavorite(userId, profileId, source, matchScore);
   const existing = store().favorites.find(
     (f) => f.user_id === userId && f.profile_id === profileId
   );
@@ -322,7 +389,11 @@ export function addFavorite(
   return fav;
 }
 
-export function removeFavorite(userId: string, profileId: string): boolean {
+export async function removeFavorite(
+  userId: string,
+  profileId: string
+): Promise<boolean> {
+  if (useSupabase) return getRepo().removeFavorite(userId, profileId);
   const before = store().favorites.length;
   g_filterFavorites(userId, profileId);
   return store().favorites.length < before;
@@ -336,9 +407,14 @@ function g_filterFavorites(userId: string, profileId: string) {
 }
 
 // ---------- Bookings ----------
-export function createBooking(
-  input: Partial<Booking> & { profile_id: string; client_name: string; first_message?: string }
-): Booking {
+export async function createBooking(
+  input: Partial<Booking> & {
+    profile_id: string;
+    client_name: string;
+    first_message?: string;
+  }
+): Promise<Booking> {
+  if (useSupabase) return getRepo().createBooking(input);
   const booking: Booking = {
     id: newId(),
     profile_id: input.profile_id,
@@ -369,35 +445,54 @@ export function createBooking(
     events: [],
   };
   store().bookings.push(booking);
-  addBookingEvent(booking.id, "created", "Заявка на запись создана");
+  await addBookingEvent(booking.id, "created", "Заявка на запись создана");
   if (input.first_message) {
-    addBookingMessage(booking.id, "client", booking.client_name, input.first_message);
+    await addBookingMessage(
+      booking.id,
+      "client",
+      booking.client_name,
+      input.first_message
+    );
     booking.status = "chat_started";
   }
   return booking;
 }
 
-export function getBookingByToken(token: string): Booking | null {
+export async function getBookingByToken(
+  token: string
+): Promise<Booking | null> {
+  if (useSupabase) return getRepo().getBookingByToken(token);
   return store().bookings.find((b) => b.token === token) ?? null;
 }
 
-export function getBookingById(id: string): Booking | null {
+export async function getBookingById(id: string): Promise<Booking | null> {
+  if (useSupabase) return getRepo().getBookingById(id);
   return store().bookings.find((b) => b.id === id) ?? null;
 }
 
-export function listBookingsForProfile(profileId: string): Booking[] {
+export async function listBookingsForProfile(
+  profileId: string
+): Promise<Booking[]> {
+  if (useSupabase) return getRepo().listBookingsForProfile(profileId);
   return store()
     .bookings.filter((b) => b.profile_id === profileId)
     .sort((a, b) => b.updated_at.localeCompare(a.updated_at));
 }
 
-export function addBookingMessage(
+export async function addBookingMessage(
   bookingId: string,
   senderType: "therapist" | "client",
   senderName: string,
   body: string
-): BookingMessage | null {
-  const b = getBookingById(bookingId);
+): Promise<BookingMessage | null> {
+  if (useSupabase)
+    return getRepo().addBookingMessage(
+      bookingId,
+      senderType,
+      senderName,
+      body
+    );
+  const b = await getBookingById(bookingId);
   if (!b) return null;
   const msg: BookingMessage = {
     id: newId(),
@@ -411,7 +506,7 @@ export function addBookingMessage(
   b.messages = b.messages ?? [];
   b.messages.push(msg);
   b.updated_at = nowIso();
-  addBookingEvent(
+  await addBookingEvent(
     bookingId,
     "message",
     `Сообщение от ${senderType === "therapist" ? "специалиста" : "клиента"}`
@@ -426,12 +521,16 @@ export function addBookingMessage(
   return msg;
 }
 
-export function addBookingEvent(
+export async function addBookingEvent(
   bookingId: string,
   eventType: BookingEventType,
   eventText?: string
-) {
-  const b = getBookingById(bookingId);
+): Promise<void> {
+  if (useSupabase) {
+    await getRepo().addBookingEvent(bookingId, eventType, eventText);
+    return;
+  }
+  const b = await getBookingById(bookingId);
   if (!b) return;
   b.events = b.events ?? [];
   b.events.push({
@@ -444,63 +543,192 @@ export function addBookingEvent(
   b.updated_at = nowIso();
 }
 
-export function setBookingStatus(
+export async function setBookingStatus(
   bookingId: string,
   status: BookingStatus,
   eventText?: string
-): Booking | null {
-  const b = getBookingById(bookingId);
+): Promise<Booking | null> {
+  if (useSupabase)
+    return getRepo().setBookingStatus(bookingId, status, eventText);
+  const b = await getBookingById(bookingId);
   if (!b) return null;
   b.status = status;
   b.updated_at = nowIso();
-  addBookingEvent(bookingId, "status_change", eventText ?? `Статус: ${status}`);
+  await addBookingEvent(
+    bookingId,
+    "status_change",
+    eventText ?? `Статус: ${status}`
+  );
   return b;
 }
 
-export function proposeTime(
+export async function proposeTime(
   bookingId: string,
   by: "therapist" | "client",
   slot: string
-): Booking | null {
-  const b = getBookingById(bookingId);
+): Promise<Booking | null> {
+  if (useSupabase) return getRepo().proposeTime(bookingId, by, slot);
+  const b = await getBookingById(bookingId);
   if (!b) return null;
   b.preferred_time_slot_1 = slot;
   b.status = "time_proposed";
   b.updated_at = nowIso();
-  addBookingEvent(bookingId, "time_proposed", `${by === "therapist" ? "Специалист" : "Клиент"} предложил время: ${slot}`);
+  await addBookingEvent(
+    bookingId,
+    "time_proposed",
+    `${by === "therapist" ? "Специалист" : "Клиент"} предложил время: ${slot}`
+  );
   return b;
 }
 
-export function confirmBooking(
+export async function confirmBooking(
   bookingId: string,
   slot: string
-): Booking | null {
-  const b = getBookingById(bookingId);
+): Promise<Booking | null> {
+  if (useSupabase) return getRepo().confirmBooking(bookingId, slot);
+  const b = await getBookingById(bookingId);
   if (!b) return null;
   b.confirmed_time_slot = slot;
   b.status = "confirmed";
   b.updated_at = nowIso();
-  addBookingEvent(bookingId, "confirmed", `Запись подтверждена на ${slot}`);
+  await addBookingEvent(bookingId, "confirmed", `Запись подтверждена на ${slot}`);
   return b;
 }
 
-export function setBookingOutcome(
+export async function setBookingOutcome(
   bookingId: string,
   outcome: BookingOutcome,
   status: BookingStatus
-): Booking | null {
-  const b = getBookingById(bookingId);
+): Promise<Booking | null> {
+  if (useSupabase)
+    return getRepo().setBookingOutcome(bookingId, outcome, status);
+  const b = await getBookingById(bookingId);
   if (!b) return null;
   b.outcome = outcome;
   b.status = status;
   b.updated_at = nowIso();
-  addBookingEvent(bookingId, "outcome", `Итог: ${outcome}`);
+  await addBookingEvent(bookingId, "outcome", `Итог: ${outcome}`);
   return b;
 }
 
+// ---------- Availability slots ----------
+function memSlots(profileId: string): AvailabilitySlot[] {
+  return store().availabilitySlots.filter((s) => s.profile_id === profileId);
+}
+
+export async function listOpenSlots(
+  profileId: string
+): Promise<AvailabilitySlot[]> {
+  if (useSupabase) return getRepo().listOpenSlots(profileId);
+  const now = Date.now();
+  return memSlots(profileId)
+    .filter(
+      (s) => s.status === "open" && new Date(s.starts_at).getTime() > now
+    )
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+}
+
+export async function listSlotsForProfile(
+  profileId: string
+): Promise<AvailabilitySlot[]> {
+  if (useSupabase) return getRepo().listSlotsForProfile(profileId);
+  const now = Date.now();
+  return memSlots(profileId)
+    .filter((s) => new Date(s.starts_at).getTime() > now)
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+}
+
+export async function nextOpenSlot(
+  profileId: string
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase) return getRepo().nextOpenSlot(profileId);
+  return (await listOpenSlots(profileId))[0] ?? null;
+}
+
+export async function profileHasOpenSlotToday(
+  profileId: string
+): Promise<boolean> {
+  if (useSupabase) return getRepo().profileHasOpenSlotToday(profileId);
+  const today = new Date();
+  return (await listOpenSlots(profileId)).some((s) =>
+    isSameDay(new Date(s.starts_at), today)
+  );
+}
+
+export async function getOpenSlot(
+  slotId: string,
+  profileId: string
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase) return getRepo().getOpenSlot(slotId, profileId);
+  const s = store().availabilitySlots.find(
+    (x) => x.id === slotId && x.profile_id === profileId
+  );
+  if (!s || s.status !== "open") return null;
+  if (new Date(s.starts_at).getTime() <= Date.now()) return null;
+  return s;
+}
+
+export async function addAvailabilitySlot(
+  profileId: string,
+  startsAtIso: string,
+  duration: number
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase)
+    return getRepo().addAvailabilitySlot(profileId, startsAtIso, duration);
+  const t = new Date(startsAtIso).getTime();
+  if (Number.isNaN(t) || t <= Date.now()) return null;
+  const startsAt = new Date(t).toISOString();
+  if (memSlots(profileId).some((s) => s.starts_at === startsAt)) return null;
+  const slot: AvailabilitySlot = {
+    id: newId(),
+    profile_id: profileId,
+    starts_at: startsAt,
+    duration,
+    status: "open",
+    booking_id: null,
+    created_at: nowIso(),
+  };
+  store().availabilitySlots.push(slot);
+  return slot;
+}
+
+export async function deleteAvailabilitySlot(
+  profileId: string,
+  slotId: string
+): Promise<boolean> {
+  if (useSupabase)
+    return getRepo().deleteAvailabilitySlot(profileId, slotId);
+  const slots = store().availabilitySlots;
+  const i = slots.findIndex(
+    (s) =>
+      s.id === slotId && s.profile_id === profileId && s.status === "open"
+  );
+  if (i === -1) return false;
+  slots.splice(i, 1);
+  return true;
+}
+
+export async function bookSlot(
+  slotId: string,
+  profileId: string,
+  bookingId: string
+): Promise<AvailabilitySlot | null> {
+  if (useSupabase) return getRepo().bookSlot(slotId, profileId, bookingId);
+  const s = store().availabilitySlots.find(
+    (x) => x.id === slotId && x.profile_id === profileId
+  );
+  if (!s || s.status !== "open") return null;
+  s.status = "booked";
+  s.booking_id = bookingId;
+  return s;
+}
+
 // ---------- Clients CRM ----------
-export function convertBookingToClient(bookingId: string): CrmClient | null {
-  const b = getBookingById(bookingId);
+export async function convertBookingToClient(
+  bookingId: string
+): Promise<CrmClient | null> {
+  if (useSupabase) return getRepo().convertBookingToClient(bookingId);
+  const b = await getBookingById(bookingId);
   if (!b) return null;
   const existing = store().clients.find((c) => c.source_booking_id === bookingId);
   if (existing) return existing;
@@ -527,30 +755,43 @@ export function convertBookingToClient(bookingId: string): CrmClient | null {
   store().clients.push(client);
   b.status = "converted_to_repeat_client";
   b.updated_at = nowIso();
-  addBookingEvent(b.id, "converted_to_client", "Заявка преобразована в клиента CRM");
+  await addBookingEvent(
+    b.id,
+    "converted_to_client",
+    "Заявка преобразована в клиента CRM"
+  );
   return client;
 }
 
-export function listClients(profileId: string): CrmClient[] {
+export async function listClients(
+  profileId: string
+): Promise<CrmClient[]> {
+  if (useSupabase) return getRepo().listClients(profileId);
   return store().clients.filter((c) => c.profile_id === profileId);
 }
 
-export function getClient(id: string): CrmClient | null {
+export async function getClient(id: string): Promise<CrmClient | null> {
+  if (useSupabase) return getRepo().getClient(id);
   return store().clients.find((c) => c.id === id) ?? null;
 }
 
-export function updateClient(id: string, patch: Partial<CrmClient>): CrmClient | null {
-  const c = getClient(id);
+export async function updateClient(
+  id: string,
+  patch: Partial<CrmClient>
+): Promise<CrmClient | null> {
+  if (useSupabase) return getRepo().updateClient(id, patch);
+  const c = await getClient(id);
   if (!c) return null;
   Object.assign(c, patch, { updated_at: nowIso() });
   return c;
 }
 
-export function addClientSession(
+export async function addClientSession(
   clientId: string,
   data: Partial<ClientSession>
-): ClientSession | null {
-  const c = getClient(clientId);
+): Promise<ClientSession | null> {
+  if (useSupabase) return getRepo().addClientSession(clientId, data);
+  const c = await getClient(clientId);
   if (!c) return null;
   const s: ClientSession = {
     id: newId(),
@@ -570,20 +811,24 @@ export function addClientSession(
   return s;
 }
 
-export function getClientByToken(token: string): CrmClient | null {
+export async function getClientByToken(
+  token: string
+): Promise<CrmClient | null> {
+  if (useSupabase) return getRepo().getClientByToken(token);
   if (!token) return null;
   return store().clients.find((c) => c.token === token) ?? null;
 }
 
 // ---------- Private mutual feedback (never public) ----------
-export function addTherapistPrivateNote(
+export async function addTherapistPrivateNote(
   profileId: string,
   data: Partial<TherapistPrivateNote>
-): TherapistPrivateNote | null {
-  const owner = getRawProfileById(profileId);
+): Promise<TherapistPrivateNote | null> {
+  if (useSupabase) return getRepo().addTherapistPrivateNote(profileId, data);
+  const owner = await getRawProfileById(profileId);
   if (!owner) return null;
   if (data.client_id) {
-    const c = getClient(data.client_id);
+    const c = await getClient(data.client_id);
     if (!c || c.profile_id !== profileId) return null;
   }
   const note: TherapistPrivateNote = {
@@ -607,10 +852,12 @@ export function addTherapistPrivateNote(
   return note;
 }
 
-export function listTherapistPrivateNotes(
+export async function listTherapistPrivateNotes(
   profileId: string,
   clientId?: string
-): TherapistPrivateNote[] {
+): Promise<TherapistPrivateNote[]> {
+  if (useSupabase)
+    return getRepo().listTherapistPrivateNotes(profileId, clientId);
   return store()
     .therapistNotes.filter(
       (n) =>
@@ -621,11 +868,12 @@ export function listTherapistPrivateNotes(
 }
 
 // Submitted by the client/patient via their unguessable token. Never public.
-export function submitClientFeedback(
+export async function submitClientFeedback(
   token: string,
   data: Partial<ClientPrivateFeedback>
-): ClientPrivateFeedback | null {
-  const client = getClientByToken(token);
+): Promise<ClientPrivateFeedback | null> {
+  if (useSupabase) return getRepo().submitClientFeedback(token, data);
+  const client = await getClientByToken(token);
   if (!client) return null;
   const fb: ClientPrivateFeedback = {
     id: newId(),
@@ -646,10 +894,12 @@ export function submitClientFeedback(
 }
 
 // Owner-only read of feedback received about their own profile/clients.
-export function listClientFeedbackForProfile(
+export async function listClientFeedbackForProfile(
   profileId: string,
   clientId?: string
-): ClientPrivateFeedback[] {
+): Promise<ClientPrivateFeedback[]> {
+  if (useSupabase)
+    return getRepo().listClientFeedbackForProfile(profileId, clientId);
   return store()
     .clientFeedback.filter(
       (f) =>
@@ -660,8 +910,15 @@ export function listClientFeedbackForProfile(
 }
 
 // ---------- Analytics (no PII) ----------
-export function recordProfileView(profileId: string, path?: string): void {
-  if (!getRawProfileById(profileId)) return;
+export async function recordProfileView(
+  profileId: string,
+  path?: string
+): Promise<void> {
+  if (useSupabase) {
+    await getRepo().recordProfileView(profileId, path);
+    return;
+  }
+  if (!(await getRawProfileById(profileId))) return;
   store().profileViews.push({
     id: newId(),
     profile_id: profileId,
@@ -670,11 +927,15 @@ export function recordProfileView(profileId: string, path?: string): void {
   });
 }
 
-export function recordContactClick(
+export async function recordContactClick(
   profileId: string,
   channel: ContactChannel
-): void {
-  if (!getRawProfileById(profileId)) return;
+): Promise<void> {
+  if (useSupabase) {
+    await getRepo().recordContactClick(profileId, channel);
+    return;
+  }
+  if (!(await getRawProfileById(profileId))) return;
   store().contactClicks.push({
     id: newId(),
     profile_id: profileId,
@@ -683,14 +944,10 @@ export function recordContactClick(
   });
 }
 
-export interface ProfileAnalytics {
-  totalViews: number;
-  totalClicks: number;
-  viewsByDay: { date: string; count: number }[]; // last 14 days, oldest→newest
-  clicksByChannel: Record<string, number>;
-}
-
-export function getAnalytics(profileId: string): ProfileAnalytics {
+export async function getAnalytics(
+  profileId: string
+): Promise<ProfileAnalytics> {
+  if (useSupabase) return getRepo().getAnalytics(profileId);
   const views = store().profileViews.filter((v) => v.profile_id === profileId);
   const clicks = store().contactClicks.filter(
     (c) => c.profile_id === profileId
@@ -715,7 +972,14 @@ export function getAnalytics(profileId: string): ProfileAnalytics {
   };
 }
 
-export function logAiGeneration(task: string, usedOpenAI: boolean): void {
+export async function logAiGeneration(
+  task: string,
+  usedOpenAI: boolean
+): Promise<void> {
+  if (useSupabase) {
+    await getRepo().logAiGeneration(task, usedOpenAI);
+    return;
+  }
   store().aiGenerations.push({
     id: newId(),
     task,
@@ -724,17 +988,15 @@ export function logAiGeneration(task: string, usedOpenAI: boolean): void {
   });
 }
 
-export function listAiGenerations(): AiGeneration[] {
+export async function listAiGenerations(): Promise<AiGeneration[]> {
+  if (useSupabase) return getRepo().listAiGenerations();
   return store()
     .aiGenerations.slice()
     .sort((a, b) => b.created_at.localeCompare(a.created_at));
 }
 
-export function getActivityTotals(): {
-  totalViews: number;
-  totalClicks: number;
-  aiCalls: number;
-} {
+export async function getActivityTotals(): Promise<ActivityTotals> {
+  if (useSupabase) return getRepo().getActivityTotals();
   const s = store();
   return {
     totalViews: s.profileViews.length,
@@ -744,16 +1006,11 @@ export function getActivityTotals(): {
 }
 
 // ---------- v1: AI match persistence ----------
-export function saveMatch(
+export async function saveMatch(
   request: Omit<MatchRequestRecord, "id" | "created_at">,
-  results: {
-    profile_id: string;
-    score: number;
-    service_recommendation: string;
-    reasons: string[];
-    risks: string[];
-  }[]
-): MatchRequestRecord {
+  results: MatchResultInput[]
+): Promise<MatchRequestRecord> {
+  if (useSupabase) return getRepo().saveMatch(request, results);
   const req: MatchRequestRecord = {
     ...request,
     id: newId(),
@@ -776,9 +1033,10 @@ export function saveMatch(
   return req;
 }
 
-export function listMatchesForProfile(
+export async function listMatchesForProfile(
   profileId: string
-): (MatchResultRecord & { request: MatchRequestRecord | null })[] {
+): Promise<(MatchResultRecord & { request: MatchRequestRecord | null })[]> {
+  if (useSupabase) return getRepo().listMatchesForProfile(profileId);
   return store()
     .matchResults.filter((r) => r.profile_id === profileId)
     .sort((a, b) => b.created_at.localeCompare(a.created_at))
@@ -790,9 +1048,13 @@ export function listMatchesForProfile(
 }
 
 // ---------- Support ----------
-export function createSupportRequest(
-  input: Omit<SupportRequest, "id" | "status" | "admin_note" | "created_at" | "updated_at">
-): SupportRequest {
+export async function createSupportRequest(
+  input: Omit<
+    SupportRequest,
+    "id" | "status" | "admin_note" | "created_at" | "updated_at"
+  >
+): Promise<SupportRequest> {
+  if (useSupabase) return getRepo().createSupportRequest(input);
   const sr: SupportRequest = {
     ...input,
     id: newId(),
@@ -805,14 +1067,18 @@ export function createSupportRequest(
   return sr;
 }
 
-export function listSupportRequests(): SupportRequest[] {
-  return store().support.sort((a, b) => b.created_at.localeCompare(a.created_at));
+export async function listSupportRequests(): Promise<SupportRequest[]> {
+  if (useSupabase) return getRepo().listSupportRequests();
+  return store().support.sort((a, b) =>
+    b.created_at.localeCompare(a.created_at)
+  );
 }
 
-export function updateSupportRequest(
+export async function updateSupportRequest(
   id: string,
   patch: Partial<SupportRequest>
-): SupportRequest | null {
+): Promise<SupportRequest | null> {
+  if (useSupabase) return getRepo().updateSupportRequest(id, patch);
   const sr = store().support.find((s) => s.id === id);
   if (!sr) return null;
   Object.assign(sr, patch, { updated_at: nowIso() });
@@ -820,10 +1086,11 @@ export function updateSupportRequest(
 }
 
 // ---------- Subscriptions / payments ----------
-export function createPayment(
+export async function createPayment(
   profileId: string,
   planId: "pro" | "expert"
-): Payment {
+): Promise<Payment> {
+  if (useSupabase) return getRepo().createPayment(profileId, planId);
   const plan = PLANS[planId];
   const payment: Payment = {
     id: newId(),
@@ -842,18 +1109,26 @@ export function createPayment(
   return payment;
 }
 
-export function getPaymentByProviderId(providerId: string): Payment | null {
+export async function getPaymentByProviderId(
+  providerId: string
+): Promise<Payment | null> {
+  if (useSupabase) return getRepo().getPaymentByProviderId(providerId);
   return (
     store().payments.find((p) => p.provider_payment_id === providerId) ?? null
   );
 }
 
 // Activates subscription ONLY when called from verified webhook/backend.
-export function markPaymentSucceeded(providerId: string): Subscription | null {
-  const payment = getPaymentByProviderId(providerId);
+export async function markPaymentSucceeded(
+  providerId: string
+): Promise<Subscription | null> {
+  if (useSupabase) return getRepo().markPaymentSucceeded(providerId);
+  const payment = await getPaymentByProviderId(providerId);
   if (!payment || payment.status === "succeeded") {
     return payment
-      ? store().subscriptions.find((s) => s.id === payment.subscription_id) ?? null
+      ? store().subscriptions.find(
+          (s) => s.id === payment.subscription_id
+        ) ?? null
       : null;
   }
   payment.status = "succeeded";
@@ -864,7 +1139,9 @@ export function markPaymentSucceeded(providerId: string): Subscription | null {
   const now = new Date();
   const expires = new Date(now.getTime() + days * 86400000);
 
-  let sub = store().subscriptions.find((s) => s.profile_id === payment.profile_id);
+  let sub = store().subscriptions.find(
+    (s) => s.profile_id === payment.profile_id
+  );
   if (!sub) {
     sub = {
       id: newId(),
@@ -883,7 +1160,7 @@ export function markPaymentSucceeded(providerId: string): Subscription | null {
   }
   payment.subscription_id = sub.id;
 
-  const profile = getRawProfileById(payment.profile_id);
+  const profile = await getRawProfileById(payment.profile_id);
   if (profile) {
     profile.plan_id = planId;
     profile.updated_at = nowIso();
@@ -891,11 +1168,14 @@ export function markPaymentSucceeded(providerId: string): Subscription | null {
   return sub;
 }
 
-export function cancelSubscription(profileId: string): Subscription | null {
+export async function cancelSubscription(
+  profileId: string
+): Promise<Subscription | null> {
+  if (useSupabase) return getRepo().cancelSubscription(profileId);
   const sub = store().subscriptions.find((s) => s.profile_id === profileId);
   if (!sub) return null;
   sub.status = "cancelled";
-  const profile = getRawProfileById(profileId);
+  const profile = await getRawProfileById(profileId);
   if (profile) {
     profile.plan_id = "free";
     profile.updated_at = nowIso();
@@ -903,24 +1183,33 @@ export function cancelSubscription(profileId: string): Subscription | null {
   return sub;
 }
 
-export function getSubscription(profileId: string): Subscription | null {
+export async function getSubscription(
+  profileId: string
+): Promise<Subscription | null> {
+  if (useSupabase) return getRepo().getSubscription(profileId);
   return store().subscriptions.find((s) => s.profile_id === profileId) ?? null;
 }
 
-export function listPayments(): Payment[] {
-  return store().payments.sort((a, b) => b.created_at.localeCompare(a.created_at));
+export async function listPayments(): Promise<Payment[]> {
+  if (useSupabase) return getRepo().listPayments();
+  return store().payments.sort((a, b) =>
+    b.created_at.localeCompare(a.created_at)
+  );
 }
 
-export function listSubscriptions(): Subscription[] {
+export async function listSubscriptions(): Promise<Subscription[]> {
+  if (useSupabase) return getRepo().listSubscriptions();
   return store().subscriptions;
 }
 
 // ---------- Admin / moderation ----------
-export function listAllProfiles(): Profile[] {
+export async function listAllProfiles(): Promise<Profile[]> {
+  if (useSupabase) return getRepo().listAllProfiles();
   return store().profiles;
 }
 
-export function listModerationFlags() {
+export async function listModerationFlags() {
+  if (useSupabase) return getRepo().listModerationFlags();
   return store()
     .moderation.filter((m) => !m.resolved)
     .map((m) => ({
@@ -929,18 +1218,22 @@ export function listModerationFlags() {
     }));
 }
 
-export function resolveModerationFlag(id: string): boolean {
+export async function resolveModerationFlag(
+  id: string
+): Promise<boolean> {
+  if (useSupabase) return getRepo().resolveModerationFlag(id);
   const f = store().moderation.find((m) => m.id === id);
   if (!f) return false;
   f.resolved = true;
   return true;
 }
 
-export function setModerationStatus(
+export async function setModerationStatus(
   profileId: string,
   status: Profile["moderation_status"]
-): Profile | null {
-  const p = getRawProfileById(profileId);
+): Promise<Profile | null> {
+  if (useSupabase) return getRepo().setModerationStatus(profileId, status);
+  const p = await getRawProfileById(profileId);
   if (!p) return null;
   p.moderation_status = status;
   p.updated_at = nowIso();

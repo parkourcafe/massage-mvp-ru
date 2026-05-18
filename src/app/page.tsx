@@ -12,8 +12,8 @@ export const metadata: Metadata = pageMetadata({
   path: "/",
 });
 
-export default function HomePage() {
-  const featured = listPublicProfiles().slice(0, 3);
+export default async function HomePage() {
+  const featured = (await listPublicProfiles()).slice(0, 3);
   return (
     <div>
       <section className="bg-gradient-to-b from-brand-50 to-slate-50">

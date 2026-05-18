@@ -25,15 +25,15 @@ describe("password hashing", () => {
 });
 
 describe("users & signup", () => {
-  it("seeds demo + admin accounts", () => {
-    const demo = findUserByEmail("demo@massage.ru");
+  it("seeds demo + admin accounts", async () => {
+    const demo = await findUserByEmail("demo@massage.ru");
     expect(demo?.role).toBe("therapist");
     expect(demo?.id).toBe("user-anna");
-    expect(findUserByEmail("admin@massage.ru")?.role).toBe("admin");
+    expect((await findUserByEmail("admin@massage.ru"))?.role).toBe("admin");
   });
 
-  it("signup creates a therapist user with an owned draft profile", () => {
-    const res = createUser("new@massage.ru", "longpass123", "Иван Петров");
+  it("signup creates a therapist user with an owned draft profile", async () => {
+    const res = await createUser("new@massage.ru", "longpass123", "Иван Петров");
     expect("user" in res).toBe(true);
     if (!("user" in res)) return;
     expect(res.user.role).toBe("therapist");
@@ -41,16 +41,16 @@ describe("users & signup", () => {
     expect(res.profile.is_published).toBe(false);
     expect(res.profile.user_id).toBe(res.user.id);
     // Resolvable as that user's owner profile.
-    expect(getOwnerProfile(res.user.id).id).toBe(res.profile.id);
-    expect(getUserById(res.user.id)?.email).toBe("new@massage.ru");
+    expect((await getOwnerProfile(res.user.id)).id).toBe(res.profile.id);
+    expect((await getUserById(res.user.id))?.email).toBe("new@massage.ru");
   });
 
-  it("rejects duplicate email", () => {
-    const r = createUser("demo@massage.ru", "longpass123", "Dup");
+  it("rejects duplicate email", async () => {
+    const r = await createUser("demo@massage.ru", "longpass123", "Dup");
     expect("error" in r).toBe(true);
   });
 
-  it("getOwnerProfile falls back to the demo profile without a session", () => {
-    expect(getOwnerProfile().user_id).toBe("user-anna");
+  it("getOwnerProfile falls back to the demo profile without a session", async () => {
+    expect((await getOwnerProfile()).user_id).toBe("user-anna");
   });
 });
