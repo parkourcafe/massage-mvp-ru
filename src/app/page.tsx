@@ -3,6 +3,13 @@ import type { Metadata } from "next";
 import { MODALITIES, PLATFORM_NOTICE, SAFETY_RULES } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
 import { ProfileCard } from "@/components/ProfileCard";
+import {
+  Counter,
+  CursorGlow,
+  HoverCursor,
+  Magnetic,
+  Tilt,
+} from "@/components/effects";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -57,13 +64,12 @@ const NEEDS: { label: string; slug: string }[] = [
 export default async function HomePage() {
   const profiles = await listPublicProfiles();
   const featured = profiles.slice(0, 3);
-  const countLabel =
-    profiles.length > 0 ? `${profiles.length}` : "Проверенные";
 
   return (
     <div>
       {/* HERO */}
-      <section className="bg-calm-hero relative overflow-hidden">
+      <section className="bg-calm-hero">
+       <CursorGlow>
         <div className="container-px grid items-center gap-16 py-16 sm:py-24 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="relative z-10">
             <span className="eyebrow">
@@ -150,7 +156,15 @@ export default async function HomePage() {
         <div className="container-px">
           <div className="grid gap-8 border-t border-line py-10 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { v: countLabel, l: "специалистов в каталоге" },
+              {
+                v:
+                  profiles.length > 0 ? (
+                    <Counter value={profiles.length} />
+                  ) : (
+                    "Проверенные"
+                  ),
+                l: "специалистов в каталоге",
+              },
               { v: "0 ₽", l: "комиссия для клиента · оплата только мастеру" },
               { v: "Онлайн", l: "бронь свободных окон без перезвонов" },
               { v: "AI", l: "подбор специалиста под вашу задачу" },
@@ -164,15 +178,29 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
+       </CursorGlow>
       </section>
 
-      {/* MARQUEE BAND (static) */}
-      <div className="overflow-hidden border-y border-line bg-surface">
-        <div className="container-px flex flex-wrap items-center gap-x-8 gap-y-2 py-4 text-sm uppercase tracking-[0.18em] text-secondary">
-          {MARQUEE.map((m, i) => (
-            <span key={m} className="flex items-center gap-8">
-              <span className={i % 3 === 1 ? "num-label" : undefined}>{m}</span>
-              <span aria-hidden className="text-line-strong">
+      {/* MARQUEE BAND */}
+      <div
+        className="overflow-hidden border-y border-line bg-surface py-5"
+        style={{
+          WebkitMaskImage:
+            "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
+          maskImage:
+            "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
+        }}
+      >
+        <div className="flex w-max animate-marquee whitespace-nowrap motion-reduce:animate-none">
+          {[...MARQUEE, ...MARQUEE].map((m, i) => (
+            <span
+              key={i}
+              className={`inline-flex items-center px-6 font-serif text-3xl tracking-tight sm:text-4xl ${
+                i % 3 === 1 ? "italic" : ""
+              } ${i % 4 === 0 ? "text-accent" : "text-heading"}`}
+            >
+              {m}
+              <span aria-hidden className="ml-8 text-2xl text-secondary/40">
                 ·
               </span>
             </span>
@@ -305,9 +333,22 @@ export default async function HomePage() {
         </div>
         {featured.length > 0 ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p) => (
-              <ProfileCard key={p.id} profile={p} />
-            ))}
+            {featured.map((p, i) => {
+              const card = <ProfileCard profile={p} />;
+              return (
+                <HoverCursor
+                  key={p.id}
+                  label={`→ Записаться к ${p.full_name.split(" ")[0]}`}
+                  className="h-full"
+                >
+                  {i === 1 ? (
+                    <Tilt className="h-full">{card}</Tilt>
+                  ) : (
+                    card
+                  )}
+                </HoverCursor>
+              );
+            })}
           </div>
         ) : (
           <p className="body-lg text-secondary">
@@ -362,12 +403,14 @@ export default async function HomePage() {
             </h2>
           </div>
           <div className="relative z-10 flex flex-col items-start gap-4">
-            <Link
-              href="/therapists"
-              className="inline-flex items-center gap-3 rounded-full bg-white px-9 py-5 text-base font-medium text-obsidian-1 transition-transform hover:-translate-y-0.5"
-            >
-              Найти мастера <span aria-hidden>→</span>
-            </Link>
+            <Magnetic>
+              <Link
+                href="/therapists"
+                className="inline-flex items-center gap-3 rounded-full bg-white px-9 py-5 text-base font-medium text-obsidian-1"
+              >
+                Найти мастера <span aria-hidden>→</span>
+              </Link>
+            </Magnetic>
             <Link
               href="/dashboard/profile"
               className="text-sm text-white/70 underline-offset-4 hover:underline"
