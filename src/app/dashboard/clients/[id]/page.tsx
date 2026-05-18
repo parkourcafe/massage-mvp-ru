@@ -19,10 +19,11 @@ export default async function ClientDetailPage({ params }: Params) {
   const feedback = await listClientFeedbackForProfile(owner.id, client.id);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">
-        Клиент: {client.name}
-      </h1>
+    <div className="space-y-6">
+      <div>
+        <p className="eyebrow">Карточка клиента</p>
+        <h1 className="h1 mt-3">{client.name}</h1>
+      </div>
       <ClientDetail
         client={client}
         notes={notes}
