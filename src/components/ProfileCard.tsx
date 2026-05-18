@@ -30,17 +30,17 @@ export async function ProfileCard({
     );
 
   return (
-    <div className="card flex flex-col gap-3">
+    <div className="card-interactive flex flex-col gap-4">
       <div className="flex gap-4">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photo.url}
             alt={photo.alt_text ?? profile.full_name}
-            className="h-20 w-20 rounded-lg object-cover bg-slate-100"
+            className="h-20 w-20 rounded-xl object-cover bg-sand-100 ring-1 ring-sand-200"
           />
         ) : (
-          <div className="h-20 w-20 rounded-lg bg-brand-100 flex items-center justify-center text-brand-700 text-xl font-semibold">
+          <div className="h-20 w-20 rounded-xl bg-brand-100 flex items-center justify-center text-brand-700 text-xl font-serif font-semibold">
             {profile.full_name.slice(0, 1)}
           </div>
         )}
@@ -48,12 +48,12 @@ export async function ProfileCard({
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href={`/therapist/${profile.slug}`}
-              className="font-semibold text-slate-900 hover:text-brand-700"
+              className="font-serif text-lg font-semibold text-ink hover:text-brand-700"
             >
               {profile.full_name}
             </Link>
             {profile.plan_id === "expert" && (
-              <span className="badge bg-amber-100 text-amber-800">ТОП</span>
+              <span className="badge bg-clay-100 text-clay-600">ТОП</span>
             )}
             {typeof matchScore === "number" && (
               <span className="badge bg-brand-100 text-brand-800">
@@ -61,24 +61,24 @@ export async function ProfileCard({
               </span>
             )}
             {availableToday && (
-              <span className="badge bg-green-100 text-green-800">
+              <span className="badge bg-brand-600 text-white">
                 Свободно сегодня
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-muted mt-0.5">
             {[profile.city, profile.district].filter(Boolean).join(", ")}
             {profile.years_experience
               ? ` · опыт ${profile.years_experience} лет`
               : ""}
           </p>
           {profile.headline && (
-            <p className="text-sm text-slate-600 mt-1 line-clamp-2">
+            <p className="text-sm text-ink-soft mt-1.5 line-clamp-2">
               {profile.headline}
             </p>
           )}
           {upcomingSlot && (
-            <p className="text-xs text-brand-700 mt-1">
+            <p className="text-xs font-medium text-brand-700 mt-2">
               Ближайшее окно: {formatSlot(upcomingSlot.starts_at)}
             </p>
           )}
@@ -93,13 +93,16 @@ export async function ProfileCard({
         ))}
       </div>
 
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-slate-700">
-          от <strong>{formatRub(Number.isFinite(priceFrom) ? priceFrom : null)}</strong>
+      <div className="flex items-center justify-between gap-3 border-t border-sand-200 pt-4">
+        <span className="text-sm text-ink-soft">
+          от{" "}
+          <strong className="font-serif text-base text-ink">
+            {formatRub(Number.isFinite(priceFrom) ? priceFrom : null)}
+          </strong>
         </span>
         <div className="flex gap-2">
           <Link href={`/therapist/${profile.slug}`} className="btn-ghost">
-            Открыть профиль
+            Профиль
           </Link>
           <Link
             href={`/therapist/${profile.slug}/booking`}

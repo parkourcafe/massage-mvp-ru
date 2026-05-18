@@ -46,58 +46,67 @@ export async function DirectoryView({
           ]}
         />
       )}
-      <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
-      {subtitle && <p className="mt-1 text-slate-600">{subtitle}</p>}
-      <p className="mt-2 text-sm text-brand-700">{PLATFORM_NOTICE}</p>
+      <span className="eyebrow">Каталог</span>
+      <h1 className="mt-3 text-3xl sm:text-4xl font-bold">{title}</h1>
+      {subtitle && (
+        <p className="mt-2 text-lg text-ink-soft">{subtitle}</p>
+      )}
+      <p className="mt-3 text-sm font-medium text-brand-700">
+        {PLATFORM_NOTICE}
+      </p>
 
-      <div className="mt-5">
+      <div className="mt-6">
         <Link
           href={toggleHref}
           className={
             todayActive
-              ? "badge bg-green-600 text-white px-3 py-1.5"
-              : "badge bg-green-100 text-green-800 px-3 py-1.5 hover:bg-green-200"
+              ? "btn bg-brand-700 text-white shadow-soft hover:bg-brand-800"
+              : "btn border border-brand-300 bg-white text-brand-800 hover:border-brand-400 hover:bg-brand-50"
           }
         >
-          {todayActive
-            ? "✓ Доступны сегодня — показать всех"
-            : "Доступны сегодня"}
+          <span
+            aria-hidden
+            className={
+              todayActive
+                ? "h-2 w-2 rounded-full bg-white"
+                : "h-2 w-2 rounded-full bg-brand-500"
+            }
+          />
+          {todayActive ? "Доступны сегодня — сбросить" : "Доступны сегодня"}
         </Link>
       </div>
 
       {content && (
-        <section className="mt-6 max-w-3xl space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">
-            {content.heading}
-          </h2>
+        <section className="mt-8 max-w-3xl space-y-3">
+          <h2 className="text-xl font-semibold">{content.heading}</h2>
           {content.paragraphs.map((t, i) => (
-            <p key={i} className="text-slate-700">
+            <p key={i} className="leading-relaxed text-ink-soft">
               {t}
             </p>
           ))}
         </section>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        <Link href="/therapists" className="chip hover:bg-brand-100">
+      <div className="mt-8 flex flex-wrap gap-2">
+        <Link href="/therapists" className="chip-brand hover:bg-brand-100">
           Все
         </Link>
         {MODALITIES.slice(0, 10).map((m) => (
           <Link
             key={m.key}
             href={`/therapists/${m.slug}`}
-            className="chip hover:bg-brand-100"
+            className="chip hover:bg-sand-200"
           >
             {m.label}
           </Link>
         ))}
       </div>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-2.5 flex flex-wrap gap-2">
         {CITIES.map((c) => (
           <Link
             key={c.slug}
             href={`/therapists/${c.slug}`}
-            className="chip hover:bg-brand-100"
+            className="chip hover:bg-sand-200"
           >
             {c.label}
           </Link>
@@ -105,16 +114,19 @@ export async function DirectoryView({
       </div>
 
       {profiles.length === 0 ? (
-        <p className="mt-10 text-slate-500">
+        <div className="surface mt-10 text-center text-ink-muted">
           По заданным условиям специалисты не найдены. Попробуйте изменить
           фильтры или{" "}
-          <Link href="/match" className="text-brand-700 underline">
+          <Link
+            href="/match"
+            className="font-medium text-brand-700 underline underline-offset-2"
+          >
             подобрать с помощью AI
           </Link>
           .
-        </p>
+        </div>
       ) : (
-        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {profiles.map((p) => (
             <ProfileCard key={p.id} profile={p} source="directory" />
           ))}
@@ -122,15 +134,16 @@ export async function DirectoryView({
       )}
 
       {content && content.faq.length > 0 && (
-        <section className="mt-12 max-w-3xl">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Частые вопросы
-          </h2>
-          <div className="mt-3 space-y-3">
+        <section className="mt-14 max-w-3xl">
+          <span className="eyebrow">FAQ</span>
+          <h2 className="mt-3 text-xl font-semibold">Частые вопросы</h2>
+          <div className="mt-4 space-y-4">
             {content.faq.map((f, i) => (
-              <div key={i}>
-                <p className="font-medium text-slate-800">{f.q}</p>
-                <p className="text-sm text-slate-600">{f.a}</p>
+              <div key={i} className="surface">
+                <p className="font-medium text-ink">{f.q}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+                  {f.a}
+                </p>
               </div>
             ))}
           </div>
@@ -140,11 +153,11 @@ export async function DirectoryView({
       {related && related.length > 0 && (
         <nav
           aria-label="Смотрите также"
-          className="mt-12 border-t pt-8 space-y-5"
+          className="mt-14 border-t border-sand-200 pt-8 space-y-5"
         >
           {related.map((g) => (
             <div key={g.title}>
-              <h2 className="text-sm font-semibold text-slate-900">
+              <h2 className="text-sm font-semibold text-ink">
                 {g.title}
               </h2>
               <div className="mt-2 flex flex-wrap gap-2">
