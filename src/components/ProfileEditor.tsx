@@ -106,13 +106,16 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
   return (
     <div className="space-y-8">
       {msg && (
-        <p className="rounded-lg bg-brand-50 text-brand-800 text-sm px-3 py-2">
+        <p className="rounded-xl2 bg-accent-soft border border-line text-accent text-sm px-4 py-3">
           {msg}
         </p>
       )}
 
-      <form onSubmit={saveProfile} className="card space-y-4">
-        <h2 className="font-semibold">Основная информация</h2>
+      <form onSubmit={saveProfile} className="card space-y-6">
+        <div>
+          <p className="eyebrow"><span className="num-label">02</span> Базовое</p>
+          <h2 className="h3 mt-2">Основная информация</h2>
+        </div>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field name="full_name" label="Имя" defaultValue={profile.full_name} />
           <Field
@@ -191,9 +194,10 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
             defaultValue={profile.safety_boundaries ?? ""}
           />
         </div>
+        <div className="rule" />
         <div>
-          <h3 className="font-medium text-slate-800">Контакты и соцсети</h3>
-          <p className="text-xs text-slate-500 mb-2">
+          <p className="eyebrow">Контакты и соцсети</p>
+          <p className="small text-secondary mt-2 mb-3">
             Показываются на публичном профиле. Личный телефон и точный
             адрес остаются приватными.
           </p>
@@ -226,7 +230,8 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-2 text-sm">
+        <div className="rule" />
+        <div className="grid sm:grid-cols-3 gap-3 text-sm">
           <Check name="show_gender" label="Показывать пол" defaultChecked={profile.show_gender} />
           <Check name="works_at_own_place" label="Приём у себя" defaultChecked={profile.works_at_own_place} />
           <Check name="travels_to_client" label="Выезд к клиенту" defaultChecked={profile.travels_to_client} />
@@ -240,30 +245,35 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
         </button>
       </form>
 
-      <div className="card space-y-4">
-        <h2 className="font-semibold">Услуги</h2>
+      <div className="card space-y-6">
+        <div>
+          <p className="eyebrow"><span className="num-label">03</span> Прайс</p>
+          <h2 className="h3 mt-2">Услуги</h2>
+        </div>
         <div className="space-y-2">
           {services.map((s) => (
             <div
               key={s.id}
-              className="flex items-center justify-between border rounded-lg px-3 py-2 text-sm"
+              className="flex items-center justify-between surface rounded-xl2 px-4 py-3 text-sm"
             >
-              <span>
-                <strong>{s.title}</strong> · {modalityLabel(s.modality)} ·{" "}
-                {s.duration ?? "—"} мин · {s.price ?? "—"} ₽
+              <span className="text-body">
+                <strong className="text-heading">{s.title}</strong> ·{" "}
+                {modalityLabel(s.modality)} · {s.duration ?? "—"} мин ·{" "}
+                {s.price ?? "—"} ₽
               </span>
               <button
                 onClick={() => removeService(s.id)}
-                className="text-red-600 text-xs"
+                className="text-accent text-xs hover:opacity-80"
               >
                 Удалить
               </button>
             </div>
           ))}
           {services.length === 0 && (
-            <p className="text-sm text-slate-500">Услуги не добавлены.</p>
+            <p className="small text-secondary">Услуги не добавлены.</p>
           )}
         </div>
+        <div className="rule" />
         <form onSubmit={addService} className="grid sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Тип</label>
@@ -329,8 +339,13 @@ function Check({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex items-center gap-2">
-      <input type="checkbox" name={name} defaultChecked={defaultChecked} />
+    <label className="flex items-center gap-2 text-body">
+      <input
+        type="checkbox"
+        name={name}
+        defaultChecked={defaultChecked}
+        className="accent-accent"
+      />
       {label}
     </label>
   );

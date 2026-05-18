@@ -100,14 +100,17 @@ export default function MediaPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Медиа</h1>
-      <p className="text-sm text-slate-600">
-        Фото загружаются файлом (JPG, PNG или WebP, до 5 МБ) либо по
-        ссылке. Видео добавляются только по ссылке (
-        {VIDEO_PROVIDERS.join(", ")}). Запрещены провокационные,
-        обнажённые и интимные материалы.
-      </p>
-      <p className="rounded-lg bg-amber-50 text-amber-800 text-xs px-3 py-2">
+      <header>
+        <p className="eyebrow"><span className="num-label">01</span> Кабинет специалиста</p>
+        <h1 className="h1 mt-3">Медиа</h1>
+        <p className="body-lg text-secondary mt-3 max-w-2xl">
+          Фото загружаются файлом (JPG, PNG или WebP, до 5 МБ) либо по
+          ссылке. Видео добавляются только по ссылке (
+          {VIDEO_PROVIDERS.join(", ")}). Запрещены провокационные,
+          обнажённые и интимные материалы.
+        </p>
+      </header>
+      <p className="rounded-xl2 bg-accent-soft border border-line text-secondary text-xs px-4 py-3">
         Публикуя фото, вы подтверждаете, что имеете право на их
         использование. Не загружайте фото клиентов без их письменного
         согласия. Не размещайте чужие материалы и медицинские документы
@@ -115,7 +118,7 @@ export default function MediaPage() {
       </p>
 
       {error && (
-        <p className="rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+        <p className="rounded-xl2 bg-accent-soft border border-line text-accent text-sm px-4 py-3">
           {error}
         </p>
       )}
@@ -137,7 +140,7 @@ export default function MediaPage() {
             name="file"
             type="file"
             accept="image/jpeg,image/png,image/webp"
-            className="input"
+            className="input border border-dashed border-line-strong bg-surface text-secondary"
           />
         </div>
         <div>
@@ -161,31 +164,34 @@ export default function MediaPage() {
 
       <div className="grid sm:grid-cols-2 gap-3">
         {media.map((m) => (
-          <div key={m.id} className="card flex items-start justify-between">
+          <div
+            key={m.id}
+            className="card card-interactive flex items-start justify-between gap-3"
+          >
             <div className="min-w-0">
-              <p className="text-sm font-medium">
+              <span className="badge">
                 {TYPES.find((t) => t.key === m.type)?.label ?? m.type}
-              </p>
+              </span>
               <a
                 href={m.url}
-                className="text-xs text-brand-700 underline break-all"
+                className="block mt-2 text-xs text-accent underline break-all"
               >
                 {m.url}
               </a>
               {m.title && (
-                <p className="text-xs text-slate-500">{m.title}</p>
+                <p className="text-xs text-secondary mt-1">{m.title}</p>
               )}
             </div>
             <button
               onClick={() => remove(m.id)}
-              className="text-red-600 text-xs"
+              className="text-accent text-xs hover:opacity-80 shrink-0"
             >
               Удалить
             </button>
           </div>
         ))}
         {media.length === 0 && (
-          <p className="text-sm text-slate-500">Медиа не добавлено.</p>
+          <div className="img-ph sm:col-span-2">Медиа не добавлено.</div>
         )}
       </div>
     </div>
