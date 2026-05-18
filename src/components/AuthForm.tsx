@@ -34,19 +34,22 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   }
 
   return (
-    <div className="container-px py-12 max-w-md">
-      <h1 className="text-2xl font-bold text-slate-900">
+    <div className="container-px py-24 max-w-md">
+      <div className="eyebrow">
+        {isSignup ? "Для специалистов" : "Личный кабинет"}
+      </div>
+      <h1 className="h1 mt-6">
         {isSignup ? "Регистрация специалиста" : "Вход"}
       </h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <p className="mt-4 text-sm text-secondary">
         {isSignup
           ? "Создайте аккаунт массажиста и заполните профиль."
           : "Войдите в личный кабинет."}
       </p>
 
-      <form onSubmit={submit} className="card mt-6 space-y-4">
+      <form onSubmit={submit} className="card mt-8 space-y-4">
         {error && (
-          <p className="rounded-lg bg-rose-50 text-rose-700 text-sm px-3 py-2">
+          <p className="rounded-lg bg-accent-soft text-accent text-sm px-3 py-2">
             {error}
           </p>
         )}
@@ -70,7 +73,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             minLength={isSignup ? 8 : 1}
           />
           {isSignup && (
-            <p className="text-xs text-slate-500 mt-1">Минимум 8 символов.</p>
+            <p className="text-xs text-secondary mt-1">Минимум 8 символов.</p>
           )}
         </div>
         <button className="btn-primary w-full" disabled={busy}>
@@ -78,18 +81,18 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-slate-600">
+      <p className="mt-6 text-sm text-secondary">
         {isSignup ? (
           <>
             Уже есть аккаунт?{" "}
-            <Link href="/login" className="text-brand-700 underline">
+            <Link href="/login" className="text-accent hover:underline">
               Войти
             </Link>
           </>
         ) : (
           <>
             Нет аккаунта?{" "}
-            <Link href="/signup" className="text-brand-700 underline">
+            <Link href="/signup" className="text-accent hover:underline">
               Зарегистрироваться
             </Link>
           </>

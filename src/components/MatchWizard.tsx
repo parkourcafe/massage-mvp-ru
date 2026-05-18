@@ -43,7 +43,7 @@ export function MatchWizard() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       {error && (
-        <p className="rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+        <p className="rounded-lg bg-accent-soft text-accent text-sm px-3 py-2">
           {error}
         </p>
       )}
@@ -153,7 +153,7 @@ export function MatchWizard() {
             Отметки о здоровье / противопоказаниях (необязательно)
           </label>
           <input name="contraindications_or_health_notes" className="input" />
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-secondary mt-1">
             Это не медицинская консультация. При наличии заболеваний
             проконсультируйтесь с врачом.
           </p>
