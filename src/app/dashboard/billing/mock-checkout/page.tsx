@@ -41,20 +41,29 @@ function MockCheckoutInner() {
   }
 
   return (
-    <div className="container-px py-16 max-w-md text-center">
+    <div className="py-16 max-w-md mx-auto text-center">
       <div className="card">
-        <h1 className="text-xl font-bold">Тестовая оплата (YooKassa)</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <div className="-mx-6 -mt-6 mb-6 px-6 py-6 bg-gradient-to-br from-accent to-plum-700 rounded-t-2xl text-left">
+          <p className="eyebrow text-white/65">YooKassa</p>
+          <h1 className="h2 mt-2 text-white">Тестовая оплата</h1>
+        </div>
+        <p className="small">
           Демонстрационный экран. Реальная оплата откроется на стороне
           YooKassa при настроенных ключах.
         </p>
-        <p className="mt-1 text-xs text-slate-400 break-all">Платёж: {pid}</p>
+        <p className="mt-3 text-xs text-secondary break-all">
+          Платёж: <span className="font-serif text-body">{pid}</span>
+        </p>
         {status === "done" ? (
-          <p className="mt-4 text-emerald-700">Оплата подтверждена ✓</p>
+          <p className="mt-6 serif text-accent text-lg">
+            Оплата подтверждена ✓
+          </p>
         ) : status === "error" ? (
-          <p className="mt-4 text-red-600">Ошибка платежа</p>
+          <p className="mt-6 rounded-lg bg-accent-soft border border-line text-accent text-sm px-4 py-3">
+            Ошибка платежа
+          </p>
         ) : (
-          <div className="mt-6 flex gap-2 justify-center">
+          <div className="mt-7 flex gap-2 justify-center">
             <button
               className="btn-primary"
               disabled={status === "paying"}
@@ -78,7 +87,7 @@ function MockCheckoutInner() {
 
 export default function MockCheckout() {
   return (
-    <Suspense fallback={<div className="container-px py-16">Загрузка…</div>}>
+    <Suspense fallback={<div className="py-16 text-body">Загрузка…</div>}>
       <MockCheckoutInner />
     </Suspense>
   );

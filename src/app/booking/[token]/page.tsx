@@ -17,36 +17,69 @@ export default async function ClientBookingPage({ params }: Params) {
   const therapist = await getRawProfileById(booking.profile_id);
 
   return (
-    <div className="container-px py-10 max-w-3xl">
-      <h1 className="text-2xl font-bold text-slate-900">
-        Ваша заявка к специалисту: {therapist?.full_name ?? ""}
-      </h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Это ваша личная защищённая страница. Не передавайте ссылку третьим
-        лицам. Страница не индексируется.
-      </p>
-
-      <div className="mt-4 card text-sm grid sm:grid-cols-2 gap-2">
-        <p>
-          <span className="text-slate-500">Услуга:</span>{" "}
-          {booking.service_type ? modalityLabel(booking.service_type) : "—"}
-        </p>
-        <p>
-          <span className="text-slate-500">Длительность:</span>{" "}
-          {booking.duration ?? "—"} мин
-        </p>
-        <p>
-          <span className="text-slate-500">Формат:</span>{" "}
-          {booking.location_type ?? "—"}
-        </p>
-        <p>
-          <span className="text-slate-500">Город / район:</span>{" "}
-          {[booking.city, booking.district].filter(Boolean).join(", ") || "—"}
+    <div className="bg-page">
+      <div className="container-px pt-12 sm:pt-16 pb-8">
+        <span className="eyebrow">Ваша запись</span>
+        <h1 className="h1 mt-5">
+          Заявка к {therapist?.full_name ?? "специалисту"}.
+        </h1>
+        <p className="small mt-4 max-w-xl">
+          Это ваша личная защищённая страница. Не передавайте ссылку третьим
+          лицам. Страница не индексируется.
         </p>
       </div>
 
-      <div className="mt-6">
-        <BookingThread booking={booking} role="client" />
+      <div className="container-px pb-12 sm:pb-16">
+        <div className="grid lg:grid-cols-[1.5fr_1fr] gap-10 lg:gap-16 items-start">
+          <div className="order-2 lg:order-1">
+            <BookingThread booking={booking} role="client" />
+          </div>
+
+          <aside className="order-1 lg:order-2 card lg:sticky lg:top-24">
+            <span className="eyebrow">Ваш сеанс</span>
+            <h3 className="h3 mt-4">
+              {booking.service_type
+                ? modalityLabel(booking.service_type)
+                : "Сеанс массажа"}
+            </h3>
+            <hr className="rule my-6" />
+            <div className="space-y-3">
+              <div className="flex items-baseline justify-between gap-4 border-b border-line pb-3">
+                <span className="small">Услуга</span>
+                <span className="serif text-heading text-base">
+                  {booking.service_type
+                    ? modalityLabel(booking.service_type)
+                    : "—"}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 border-b border-line pb-3">
+                <span className="small">Длительность</span>
+                <span className="serif text-heading text-base">
+                  {booking.duration ?? "—"} мин
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 border-b border-line pb-3">
+                <span className="small">Формат</span>
+                <span className="serif text-heading text-base">
+                  {booking.location_type ?? "—"}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 border-b border-line pb-3">
+                <span className="small">Город / район</span>
+                <span className="serif text-heading text-base">
+                  {[booking.city, booking.district]
+                    .filter(Boolean)
+                    .join(", ") || "—"}
+                </span>
+              </div>
+            </div>
+            <hr className="rule my-6" />
+            <p className="small">
+              Детали и точный адрес согласуются со специалистом во внутренней
+              переписке ниже.
+            </p>
+          </aside>
+        </div>
       </div>
     </div>
   );

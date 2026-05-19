@@ -32,20 +32,23 @@ export default async function DashboardLayout({
 }) {
   await requireUser();
   return (
-    <div className="container-px py-8 grid lg:grid-cols-[220px_1fr] gap-8">
+    <div className="container-px grid gap-8 py-10 lg:grid-cols-[240px_1fr]">
       <aside>
-        <nav className="space-y-1 text-sm sticky top-4">
-          {NAV.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className="block rounded-lg px-3 py-2 text-slate-700 hover:bg-brand-50 hover:text-brand-700"
-            >
-              {n.label}
-            </Link>
-          ))}
-          <LogoutButton />
-        </nav>
+        <div className="sticky top-24 rounded-xl2 border border-line bg-card p-4">
+          <p className="eyebrow mb-3 px-3">Личный кабинет</p>
+          <nav className="space-y-1 text-sm">
+            {NAV.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                className="block rounded-lg px-3 py-2 text-body transition-colors hover:bg-accent-soft hover:text-heading"
+              >
+                {n.label}
+              </Link>
+            ))}
+            <LogoutButton />
+          </nav>
+        </div>
       </aside>
       <section className="min-w-0">{children}</section>
     </div>

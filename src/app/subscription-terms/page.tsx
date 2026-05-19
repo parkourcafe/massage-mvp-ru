@@ -12,11 +12,13 @@ export function generateMetadata(): Metadata {
 
 export default function SubscriptionTermsPage() {
   return (
-    <div className="container-px py-10 max-w-3xl space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">Условия подписки</h1>
-      <p className="text-sm text-slate-500">Редакция от 17.05.2026</p>
+    <div className="container-px py-24 max-w-3xl">
+      <div className="eyebrow">Документы</div>
+      <h1 className="h1 mt-6">Условия подписки</h1>
+      <p className="small mt-4 text-secondary">Редакция от 17.05.2026</p>
+      <hr className="rule my-10" />
 
-      <ul className="list-disc pl-6 text-slate-700 space-y-2">
+      <ul className="list-disc pl-6 text-body space-y-2">
         <li>
           Подписка (Pro / Expert) активируется на 30 дней после
           подтверждённой оплаты. Pro не активируется по фронтовому
@@ -42,13 +44,13 @@ export default function SubscriptionTermsPage() {
         </li>
       </ul>
 
-      <p className="text-slate-700">
+      <p className="text-body mt-6">
         См.{" "}
-        <Link className="text-brand-700 underline" href="/offer">
+        <Link className="text-accent hover:underline" href="/offer">
           Публичную оферту
         </Link>{" "}
         и{" "}
-        <Link className="text-brand-700 underline" href="/terms">
+        <Link className="text-accent hover:underline" href="/terms">
           Пользовательское соглашение
         </Link>
         .

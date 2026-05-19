@@ -96,36 +96,50 @@ export function ClientDetail({
   return (
     <div className="space-y-6">
       {msg && (
-        <p className="rounded-lg bg-brand-50 text-brand-800 text-sm px-3 py-2">
+        <p className="rounded-xl bg-accent-soft text-accent text-sm px-4 py-3 border border-line">
           {msg}
         </p>
       )}
 
-      <div className="card text-sm grid sm:grid-cols-2 gap-2">
-        <p>
-          <span className="text-slate-500">Контакт:</span>{" "}
-          {client.contact_method ?? "—"}: {client.contact_value ?? "—"}
+      <div className="card text-sm grid sm:grid-cols-2 gap-x-6 gap-y-4">
+        <p className="sm:col-span-2 flex items-center justify-between gap-3 border-b border-line pb-4">
+          <span className="eyebrow">Статус</span>
+          <span className="badge bg-plum-700 text-white">
+            {client.repeat_status}
+          </span>
         </p>
         <p>
-          <span className="text-slate-500">Город/район:</span>{" "}
-          {[client.city, client.district].filter(Boolean).join(", ") || "—"}
+          <span className="eyebrow block mb-1">Контакт</span>
+          <span className="text-heading">
+            {client.contact_method ?? "—"}: {client.contact_value ?? "—"}
+          </span>
         </p>
         <p>
-          <span className="text-slate-500">Любимая услуга:</span>{" "}
-          {client.preferred_service_type
-            ? modalityLabel(client.preferred_service_type)
-            : "—"}
+          <span className="eyebrow block mb-1">Город/район</span>
+          <span className="text-heading">
+            {[client.city, client.district].filter(Boolean).join(", ") || "—"}
+          </span>
         </p>
         <p>
-          <span className="text-slate-500">Любимая длительность:</span>{" "}
-          {client.favorite_duration ?? "—"} мин
+          <span className="eyebrow block mb-1">Любимая услуга</span>
+          <span className="text-heading">
+            {client.preferred_service_type
+              ? modalityLabel(client.preferred_service_type)
+              : "—"}
+          </span>
+        </p>
+        <p>
+          <span className="eyebrow block mb-1">Любимая длительность</span>
+          <span className="text-heading">
+            {client.favorite_duration ?? "—"} мин
+          </span>
         </p>
       </div>
 
       {feedbackUrl && (
-        <div className="card space-y-2">
-          <h2 className="font-semibold">Ссылка для обратной связи клиента</h2>
-          <p className="text-xs text-slate-500">
+        <div className="card space-y-3">
+          <h2 className="h3">Ссылка для обратной связи клиента</h2>
+          <p className="text-xs text-secondary">
             Отправьте клиенту эту приватную ссылку после сеанса. Его отзыв
             видите только вы и он сам — на сайте ничего не публикуется.
           </p>
@@ -146,7 +160,7 @@ export function ClientDetail({
       )}
 
       <form onSubmit={saveClient} className="card space-y-3">
-        <h2 className="font-semibold">Карточка клиента</h2>
+        <h2 className="h3">Карточка клиента</h2>
         <div>
           <label className="label">Статус</label>
           <select
@@ -180,7 +194,7 @@ export function ClientDetail({
             className="input"
             defaultValue={client.contraindication_notes ?? ""}
           />
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-secondary mt-1">
             Не храните медицинские диагнозы. Это не медицинская консультация.
           </p>
         </div>
@@ -188,10 +202,11 @@ export function ClientDetail({
       </form>
 
       <form onSubmit={addNote} className="card space-y-3">
-        <h2 className="font-semibold">Приватная оценка клиента</h2>
-        <p className="text-xs text-slate-500">
-          Эти заметки видите <strong>только вы</strong>. Они не публикуются
-          на сайте и не видны клиенту.
+        <h2 className="h3">Приватная оценка клиента</h2>
+        <p className="text-xs text-secondary">
+          Эти заметки видите{" "}
+          <strong className="text-heading">только вы</strong>. Они не
+          публикуются на сайте и не видны клиенту.
         </p>
         <div className="grid sm:grid-cols-2 gap-3">
           <div>
@@ -232,34 +247,36 @@ export function ClientDetail({
 
       {notes.length > 0 && (
         <div className="card space-y-3">
-          <h2 className="font-semibold">
-            Мои приватные заметки ({notes.length})
-          </h2>
+          <p className="eyebrow">Только для вас</p>
+          <h2 className="h3">Мои приватные заметки ({notes.length})</h2>
           {notes.map((n) => (
-            <div key={n.id} className="border rounded-lg px-3 py-2 text-sm">
-              <p className="font-medium">
+            <div
+              key={n.id}
+              className="surface rounded-xl px-4 py-3 text-sm space-y-1"
+            >
+              <p className="text-heading serif">
                 {n.session_date ?? "—"}
                 {n.focus_area ? ` · ${n.focus_area}` : ""}
                 {n.pressure_used ? ` · нажим: ${n.pressure_used}` : ""}
               </p>
               {n.how_session_went && (
-                <p className="text-slate-600">Ход: {n.how_session_went}</p>
+                <p className="text-body">Ход: {n.how_session_went}</p>
               )}
               {n.what_to_repeat && (
-                <p className="text-slate-600">
+                <p className="text-body">
                   Повторить: {n.what_to_repeat}
                 </p>
               )}
               {n.what_to_avoid && (
-                <p className="text-slate-600">
+                <p className="text-body">
                   Избегать: {n.what_to_avoid}
                 </p>
               )}
               {n.next_step && (
-                <p className="text-slate-600">Дальше: {n.next_step}</p>
+                <p className="text-body">Дальше: {n.next_step}</p>
               )}
               {n.private_note && (
-                <p className="text-slate-600">Заметка: {n.private_note}</p>
+                <p className="text-body">Заметка: {n.private_note}</p>
               )}
             </div>
           ))}
@@ -267,53 +284,59 @@ export function ClientDetail({
       )}
 
       <div className="card space-y-3">
-        <h2 className="font-semibold">
-          Обратная связь от клиента ({feedback.length})
-        </h2>
-        <p className="text-xs text-slate-500">
+        <p className="eyebrow">От клиента</p>
+        <h2 className="h3">Обратная связь от клиента ({feedback.length})</h2>
+        <p className="text-xs text-secondary">
           Приходит с приватной страницы клиента. Не публикуется на сайте.
         </p>
         {feedback.length === 0 && (
-          <p className="text-sm text-slate-500">Отзывов пока нет.</p>
+          <p className="text-sm text-secondary">Отзывов пока нет.</p>
         )}
         {feedback.map((f) => (
-          <div key={f.id} className="border rounded-lg px-3 py-2 text-sm">
-            <p className="font-medium">
+          <div
+            key={f.id}
+            className="surface rounded-xl px-4 py-3 text-sm space-y-1"
+          >
+            <p className="text-heading serif">
               {f.created_at.slice(0, 10)} · комфорт {f.comfort_score ?? "—"}/5
               · профессионализм {f.professionalism_score ?? "—"}/5 · чистота{" "}
               {f.cleanliness_score ?? "—"}/5 · пунктуальность{" "}
               {f.punctuality_score ?? "—"}/5
             </p>
-            <p className="text-slate-600">
+            <p className="text-body">
               Нажим:{" "}
               {f.pressure_fit ? PRESSURE_FIT_LABEL[f.pressure_fit] : "—"} ·
               Продолжать:{" "}
               {f.repeat_status ? REPEAT_LABEL[f.repeat_status] : "—"}
             </p>
             {f.comment && (
-              <p className="text-slate-600">Комментарий: {f.comment}</p>
+              <p className="text-body">Комментарий: {f.comment}</p>
             )}
           </div>
         ))}
       </div>
 
       <div className="card space-y-3">
-        <h2 className="font-semibold">История сеансов</h2>
+        <p className="eyebrow">Хронология</p>
+        <h2 className="h3">История сеансов</h2>
         {(client.sessions ?? []).length === 0 && (
-          <p className="text-sm text-slate-500">Сеансов пока нет.</p>
+          <p className="text-sm text-secondary">Сеансов пока нет.</p>
         )}
         {(client.sessions ?? []).map((s) => (
-          <div key={s.id} className="border rounded-lg px-3 py-2 text-sm">
-            <p className="font-medium">
+          <div
+            key={s.id}
+            className="surface rounded-xl px-4 py-3 text-sm space-y-1"
+          >
+            <p className="text-heading serif">
               {s.session_date} ·{" "}
               {s.service_type ? modalityLabel(s.service_type) : "—"} ·{" "}
               {s.duration ?? "—"} мин
             </p>
-            <p className="text-slate-600">Зона: {s.focus_area ?? "—"}</p>
-            <p className="text-slate-600">
+            <p className="text-body">Зона: {s.focus_area ?? "—"}</p>
+            <p className="text-body">
               Приватная заметка: {s.private_note ?? "—"}
             </p>
-            <p className="text-slate-600">
+            <p className="text-body">
               Рекомендация: {s.next_recommendation ?? "—"}
             </p>
           </div>
@@ -321,7 +344,7 @@ export function ClientDetail({
 
         <form
           onSubmit={addSession}
-          className="grid sm:grid-cols-2 gap-3 pt-2 border-t"
+          className="grid sm:grid-cols-2 gap-3 pt-4 border-t border-line"
         >
           <div>
             <label className="label">Дата</label>

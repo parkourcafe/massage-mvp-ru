@@ -50,39 +50,54 @@ export default function ImportPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">AI-импорт профиля</h1>
-      <p className="text-sm text-slate-600">
-        Вставьте текст о себе (из соцсетей, анкеты) — AI структурирует его в
-        профиль. Любой интимный/эротический контекст будет удалён.
-      </p>
+    <div className="space-y-6">
+      <header>
+        <p className="eyebrow"><span className="num-label">01</span> Кабинет специалиста</p>
+        <h1 className="h1 mt-3">AI-импорт профиля</h1>
+        <p className="body-lg text-secondary mt-3 max-w-2xl">
+          Вставьте текст о себе (из соцсетей, анкеты) — AI структурирует его в
+          профиль. Любой интимный/эротический контекст будет удалён.
+        </p>
+      </header>
       {error && (
-        <p className="rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+        <p className="rounded-xl2 bg-accent-soft border border-line text-accent text-sm px-4 py-3">
           {error}
         </p>
       )}
-      <textarea
-        className="input"
-        rows={8}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Например: Я массажист с 8-летним опытом, делаю классический и расслабляющий массаж…"
-      />
-      <button className="btn-primary" disabled={busy || text.length < 10} onClick={run}>
-        {busy ? "Обработка…" : "Сгенерировать черновик"}
-      </button>
+      <div className="card space-y-4">
+        <div>
+          <label className="label">Текст о себе</label>
+          <textarea
+            className="input"
+            rows={8}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Например: Я массажист с 8-летним опытом, делаю классический и расслабляющий массаж…"
+          />
+        </div>
+        <button
+          className="btn-primary"
+          disabled={busy || text.length < 10}
+          onClick={run}
+        >
+          {busy ? "Обработка…" : "Сгенерировать черновик"}
+        </button>
+      </div>
 
       {draft && (
-        <div className="card space-y-3">
-          <h2 className="font-semibold">Черновик</h2>
-          <p>
-            <span className="text-slate-500 text-sm">Заголовок:</span>{" "}
-            {draft.headline}
-          </p>
-          <p className="text-sm whitespace-pre-line">
+        <div className="card space-y-4">
+          <div>
+            <p className="eyebrow"><span className="num-label">02</span> Результат</p>
+            <h2 className="h3 mt-2">Черновик</h2>
+          </div>
+          <div>
+            <p className="small text-secondary">Заголовок</p>
+            <p className="serif text-heading text-lg mt-1">{draft.headline}</p>
+          </div>
+          <p className="body text-body whitespace-pre-line">
             {draft.professional_description}
           </p>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-2">
             {draft.suggested_modalities.map((m) => (
               <span key={m} className="chip">
                 {modalityLabel(m)}

@@ -34,7 +34,7 @@ export function ContactLinks({
           href={c.href}
           target="_blank"
           rel="nofollow noopener noreferrer"
-          className="btn-secondary text-sm"
+          className="btn-secondary btn-sm"
           onClick={() => track(c.channel)}
         >
           {c.label}

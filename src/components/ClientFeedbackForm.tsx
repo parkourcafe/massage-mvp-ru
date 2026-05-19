@@ -44,20 +44,38 @@ export function ClientFeedbackForm({ token }: { token: string }) {
 
   if (done) {
     return (
-      <p className="rounded-lg bg-emerald-50 text-emerald-800 text-sm px-4 py-3">
-        Спасибо! Ваша обратная связь отправлена специалисту. Она не
-        публикуется на сайте.
-      </p>
+      <div className="card text-center py-16">
+        <span
+          aria-hidden
+          className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-accent-soft text-accent serif text-3xl"
+        >
+          ✓
+        </span>
+        <span className="eyebrow">Готово</span>
+        <h2 className="h2 mt-4">Спасибо за отзыв.</h2>
+        <p className="body-lg mt-3 max-w-md mx-auto">
+          Ваша обратная связь отправлена специалисту. Она не публикуется на
+          сайте.
+        </p>
+      </div>
     );
   }
 
   return (
-    <form onSubmit={submit} className="card space-y-4">
+    <form onSubmit={submit} className="card space-y-6">
       {error && (
-        <p className="rounded-lg bg-rose-50 text-rose-700 text-sm px-3 py-2">
+        <p className="rounded-[var(--r-control)] bg-accent-soft text-accent text-sm px-4 py-3">
           {error}
         </p>
       )}
+
+      <div className="flex items-baseline gap-3">
+        <span className="num-label text-2xl">01</span>
+        <div>
+          <span className="eyebrow">Оценки</span>
+          <h2 className="h3 mt-1">Как всё прошло</h2>
+        </div>
+      </div>
 
       {SCORE_FIELDS.map((f) => (
         <div key={f.name}>
@@ -66,9 +84,15 @@ export function ClientFeedbackForm({ token }: { token: string }) {
             {[1, 2, 3, 4, 5].map((n) => (
               <label
                 key={n}
-                className="flex items-center gap-1 text-sm cursor-pointer"
+                className="flex items-center justify-center w-11 h-11 rounded-full border border-line-strong text-body text-sm cursor-pointer transition-colors hover:border-accent has-[:checked]:bg-accent has-[:checked]:text-white has-[:checked]:border-accent"
               >
-                <input type="radio" name={f.name} value={n} /> {n}
+                <input
+                  type="radio"
+                  name={f.name}
+                  value={n}
+                  className="sr-only"
+                />
+                {n}
               </label>
             ))}
           </div>
@@ -106,12 +130,14 @@ export function ClientFeedbackForm({ token }: { token: string }) {
         />
       </div>
 
-      <button className="btn-primary" disabled={busy}>
-        {busy ? "Отправка…" : "Отправить обратную связь"}
-      </button>
-      <p className="text-xs text-slate-500">
-        Видно только специалисту. Не публикуется на сайте.
-      </p>
+      <div className="space-y-3 border-t border-line pt-5">
+        <button className="btn-primary btn-lg" disabled={busy}>
+          {busy ? "Отправка…" : "Отправить обратную связь"}
+        </button>
+        <p className="small">
+          Видно только специалисту. Не публикуется на сайте.
+        </p>
+      </div>
     </form>
   );
 }
