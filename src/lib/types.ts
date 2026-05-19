@@ -102,6 +102,13 @@ export interface Profile {
   timezone?: string | null;
   languages: string[];
 
+  // "Рядом" (nearby) feature — therapist-side defaults. The exact
+  // address stays in therapist_address_private and is never public;
+  // these are coarse, opt-in service hints only.
+  home_base_area?: string | null;
+  default_service_radius_km?: number | null;
+  allow_location_visibility?: boolean;
+
   price_from?: number | null;
   session_durations: number[];
 
@@ -172,6 +179,37 @@ export interface AvailabilitySlot {
   status: "open" | "booked";
   booking_id?: string | null;
   created_at: string;
+}
+
+// "Рядом" — a therapist manually goes live for a concrete time window
+// and picks how their location is exposed. They are NEVER visible by
+// default: only an active, non-expired window surfaces them in search.
+export type LocationMode =
+  | "current_location"
+  | "manual_area"
+  | "saved_service_area"
+  | "hidden_exact_location";
+
+export type AvailabilityStatus = "active" | "inactive" | "expired";
+
+export interface TherapistAvailability {
+  id: string;
+  profile_id: string;
+  date: string; // YYYY-MM-DD (local)
+  start_time: string; // HH:MM
+  end_time: string; // HH:MM
+  status: AvailabilityStatus;
+  location_mode: LocationMode;
+  // Coordinates are used ONLY server-side for distance maths. They are
+  // never serialized into any client-facing payload.
+  latitude?: number | null;
+  longitude?: number | null;
+  approximate_area?: string | null; // coarse label shown to clients
+  manual_area?: string | null;
+  service_radius_km: number;
+  created_at: string;
+  updated_at: string;
+  expires_at: string; // ISO datetime — auto-hides after this
 }
 
 export interface Booking {

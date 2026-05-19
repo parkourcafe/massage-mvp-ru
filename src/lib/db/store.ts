@@ -23,6 +23,7 @@ import type {
   ProfileMedia,
   SupportRequest,
   Subscription,
+  TherapistAvailability,
   TherapistPrivateNote,
 } from "../types";
 import { computeQualityScore } from "../quality";
@@ -30,6 +31,7 @@ import { moderateProfilePayload } from "../moderation";
 import { newId, nowIso, secureToken } from "../util";
 import {
   seedAvailability,
+  seedTherapistAvailability,
   seedBookings,
   seedClients,
   seedPlans,
@@ -45,6 +47,7 @@ interface Store {
   favorites: Favorite[];
   bookings: Booking[];
   availabilitySlots: AvailabilitySlot[];
+  therapistAvailability: TherapistAvailability[];
   clients: CrmClient[];
   therapistNotes: TherapistPrivateNote[];
   clientFeedback: ClientPrivateFeedback[];
@@ -108,6 +111,7 @@ function freshStore(): Store {
     favorites: [],
     bookings: seedBookings(),
     availabilitySlots: seedAvailability(),
+    therapistAvailability: seedTherapistAvailability(profiles),
     clients: seedClients(),
     therapistNotes: [],
     clientFeedback: [],

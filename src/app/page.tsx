@@ -48,7 +48,10 @@ export default async function HomePage() {
               свободное время прямо на платформе.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <Link href="/match" className="btn-accent">
+              <Link href="/nearby" className="btn-accent">
+                Найти массаж рядом
+              </Link>
+              <Link href="/match" className="btn-secondary">
                 Подобрать с AI
               </Link>
               <Link href="/therapists" className="btn-secondary">

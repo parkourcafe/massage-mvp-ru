@@ -21,9 +21,11 @@ import type {
   ServiceItem,
   SupportRequest,
   Subscription,
+  TherapistAvailability,
   TherapistPrivateNote,
 } from "../types";
 import { PLANS } from "../plans";
+import { getServiceClient } from "../supabase";
 import { hashPassword } from "../auth/password";
 import { isSameDay, newId, nowIso, secureToken, slugify } from "../util";
 import { recomputeProfile, store, __resetStore } from "./store";
@@ -721,6 +723,213 @@ export async function bookSlot(
   s.status = "booked";
   s.booking_id = bookingId;
   return s;
+}
+
+// ---------- Therapist availability ("Рядом") ----------
+// A therapist is never discoverable by default — only an active,
+// non-expired window surfaces them. After end_time the window is
+// lazily flipped to "expired" on the next read.
+
+export interface ActivateAvailabilityInput {
+  date: string;
+  start_time: string;
+  end_time: string;
+  location_mode: TherapistAvailability["location_mode"];
+  latitude?: number | null;
+  longitude?: number | null;
+  manual_area?: string | null;
+  approximate_area?: string | null;
+  service_radius_km: number;
+}
+
+function computeExpiresAt(date: string, endTime: string): string {
+  const d = new Date(`${date}T${endTime}:00`);
+  if (Number.isNaN(d.getTime())) {
+    // Fallback: 8h from now if the inputs are malformed.
+    return new Date(Date.now() + 8 * 3600_000).toISOString();
+  }
+  return d.toISOString();
+}
+
+function availabilityIsLive(
+  a: TherapistAvailability,
+  nowMs: number
+): boolean {
+  return (
+    a.status === "active" && new Date(a.expires_at).getTime() > nowMs
+  );
+}
+
+// In-memory: flip stale active rows to "expired" so they stop showing.
+function expireStaleMem(): void {
+  const now = Date.now();
+  for (const a of store().therapistAvailability) {
+    if (a.status === "active" && new Date(a.expires_at).getTime() <= now) {
+      a.status = "expired";
+      a.updated_at = nowIso();
+    }
+  }
+}
+
+export async function getActiveAvailability(
+  profileId: string
+): Promise<TherapistAvailability | null> {
+  if (useSupabase) {
+    const sb = getServiceClient();
+    if (!sb) return null;
+    const { data } = await sb
+      .from("therapist_availability")
+      .select("*")
+      .eq("profile_id", profileId)
+      .eq("status", "active")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1);
+    return (data?.[0] as TherapistAvailability) ?? null;
+  }
+  expireStaleMem();
+  return (
+    store().therapistAvailability.find(
+      (a) =>
+        a.profile_id === profileId && availabilityIsLive(a, Date.now())
+    ) ?? null
+  );
+}
+
+// Most recent window for the owner dashboard (any status).
+export async function getLatestAvailability(
+  profileId: string
+): Promise<TherapistAvailability | null> {
+  if (useSupabase) {
+    const sb = getServiceClient();
+    if (!sb) return null;
+    const { data } = await sb
+      .from("therapist_availability")
+      .select("*")
+      .eq("profile_id", profileId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    return (data?.[0] as TherapistAvailability) ?? null;
+  }
+  expireStaleMem();
+  return (
+    [...store().therapistAvailability]
+      .filter((a) => a.profile_id === profileId)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))[0] ?? null
+  );
+}
+
+export async function activateAvailability(
+  profileId: string,
+  input: ActivateAvailabilityInput
+): Promise<TherapistAvailability> {
+  const now = nowIso();
+  const row: TherapistAvailability = {
+    id: newId(),
+    profile_id: profileId,
+    date: input.date,
+    start_time: input.start_time,
+    end_time: input.end_time,
+    status: "active",
+    location_mode: input.location_mode,
+    latitude: input.latitude ?? null,
+    longitude: input.longitude ?? null,
+    approximate_area: input.approximate_area ?? null,
+    manual_area: input.manual_area ?? null,
+    service_radius_km: input.service_radius_km,
+    created_at: now,
+    updated_at: now,
+    expires_at: computeExpiresAt(input.date, input.end_time),
+  };
+  if (useSupabase) {
+    const sb = getServiceClient();
+    if (sb) {
+      await sb
+        .from("therapist_availability")
+        .update({ status: "inactive", updated_at: now })
+        .eq("profile_id", profileId)
+        .eq("status", "active");
+      const { data } = await sb
+        .from("therapist_availability")
+        .insert(row)
+        .select()
+        .single();
+      return (data as TherapistAvailability) ?? row;
+    }
+  }
+  // Only one active window per therapist.
+  for (const a of store().therapistAvailability) {
+    if (a.profile_id === profileId && a.status === "active") {
+      a.status = "inactive";
+      a.updated_at = now;
+    }
+  }
+  store().therapistAvailability.push(row);
+  return row;
+}
+
+export async function deactivateAvailability(
+  profileId: string
+): Promise<boolean> {
+  const now = nowIso();
+  if (useSupabase) {
+    const sb = getServiceClient();
+    if (!sb) return false;
+    const { data } = await sb
+      .from("therapist_availability")
+      .update({ status: "inactive", updated_at: now })
+      .eq("profile_id", profileId)
+      .eq("status", "active")
+      .select("id");
+    return Boolean(data && data.length);
+  }
+  let changed = false;
+  for (const a of store().therapistAvailability) {
+    if (a.profile_id === profileId && a.status === "active") {
+      a.status = "inactive";
+      a.updated_at = now;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+// All currently-live windows joined with their (verified, published)
+// profile. Used by the public nearby search and the admin view.
+export async function listLiveAvailability(): Promise<
+  { availability: TherapistAvailability; profile: Profile }[]
+> {
+  if (useSupabase) {
+    const sb = getServiceClient();
+    if (!sb) return [];
+    const { data: rows } = await sb
+      .from("therapist_availability")
+      .select("*")
+      .eq("status", "active")
+      .gt("expires_at", new Date().toISOString());
+    const list = (rows as TherapistAvailability[]) ?? [];
+    const out: { availability: TherapistAvailability; profile: Profile }[] =
+      [];
+    for (const a of list) {
+      const p = await getRawProfileById(a.profile_id);
+      if (p && p.is_published && p.moderation_status === "approved") {
+        out.push({ availability: a, profile: p });
+      }
+    }
+    return out;
+  }
+  expireStaleMem();
+  const now = Date.now();
+  const out: { availability: TherapistAvailability; profile: Profile }[] =
+    [];
+  for (const a of store().therapistAvailability) {
+    if (!availabilityIsLive(a, now)) continue;
+    const p = store().profiles.find((x) => x.id === a.profile_id);
+    if (p && p.is_published && p.moderation_status === "approved") {
+      out.push({ availability: a, profile: p });
+    }
+  }
+  return out;
 }
 
 // ---------- Clients CRM ----------

@@ -6,7 +6,9 @@ import type {
   Plan,
   Profile,
   SupportRequest,
+  TherapistAvailability,
 } from "../types";
+import { findArea } from "../geo";
 import { PLANS } from "../plans";
 
 // Demo data — professional wellness / therapeutic massage only.
@@ -78,6 +80,9 @@ export function seedProfiles(): Profile[] {
     transport_fee: over.transport_fee ?? null,
     timezone: over.timezone ?? "Europe/Moscow",
     languages: over.languages ?? ["Русский"],
+    home_base_area: over.home_base_area ?? over.district ?? null,
+    default_service_radius_km: over.default_service_radius_km ?? 5,
+    allow_location_visibility: over.allow_location_visibility ?? false,
     price_from: over.price_from ?? null,
     session_durations: over.session_durations ?? [60, 90],
     whatsapp: over.whatsapp ?? null,
@@ -556,4 +561,71 @@ export function seedAvailability(): AvailabilitySlot[] {
     }
   });
   return slots;
+}
+
+// Demo "live now" windows. Therapists are NEVER live by default — these
+// two are seeded active so the /nearby preview has data; the third
+// demo profile is intentionally left offline to show that an inactive
+// therapist does not appear. The window spans the rest of today so the
+// preview shows results whenever it is opened during the day.
+export function seedTherapistAvailability(
+  profiles: Profile[]
+): TherapistAvailability[] {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const date = `${yyyy}-${mm}-${dd}`;
+  const createdAt = now.toISOString();
+  const expires = new Date(now);
+  expires.setHours(23, 59, 0, 0);
+  const expiresAt = expires.toISOString();
+
+  const pick = (id: string) => profiles.find((p) => p.id === id);
+  const out: TherapistAvailability[] = [];
+
+  const anna = pick("11111111-1111-1111-1111-111111111111");
+  if (anna) {
+    const area = findArea(anna.district);
+    out.push({
+      id: "ta-demo-anna",
+      profile_id: anna.id,
+      date,
+      start_time: "09:00",
+      end_time: "23:59",
+      status: "active",
+      location_mode: "current_location",
+      latitude: area?.lat ?? null,
+      longitude: area?.lng ?? null,
+      approximate_area: anna.district,
+      manual_area: null,
+      service_radius_km: anna.default_service_radius_km ?? 6,
+      created_at: createdAt,
+      updated_at: createdAt,
+      expires_at: expiresAt,
+    });
+  }
+
+  const marina = pick("33333333-3333-3333-3333-333333333333");
+  if (marina) {
+    out.push({
+      id: "ta-demo-marina",
+      profile_id: marina.id,
+      date,
+      start_time: "10:00",
+      end_time: "23:59",
+      status: "active",
+      location_mode: "manual_area",
+      latitude: null,
+      longitude: null,
+      approximate_area: marina.district,
+      manual_area: marina.district,
+      service_radius_km: marina.default_service_radius_km ?? 5,
+      created_at: createdAt,
+      updated_at: createdAt,
+      expires_at: expiresAt,
+    });
+  }
+
+  return out;
 }
