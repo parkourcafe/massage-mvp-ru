@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { NearbyMap, type MapArea } from "@/components/NearbyMap";
+import { NearbyMap } from "@/components/NearbyMap";
 import { citiesWithAreas } from "@/lib/geo";
+import { MODALITIES } from "@/lib/catalog";
 import { buildWhatsAppLink, formatRub } from "@/lib/util";
 import type { NearbyCard } from "@/lib/nearby";
 
@@ -11,6 +12,7 @@ type GeoState = "idle" | "asking" | "granted" | "denied";
 
 interface Filters {
   availableNow: boolean;
+  massageType: string;
   gender: "" | "female" | "male";
   visit: "" | "villa" | "hotel" | "home" | "own";
   language: string;
@@ -19,6 +21,7 @@ interface Filters {
 
 const EMPTY: Filters = {
   availableNow: false,
+  massageType: "",
   gender: "",
   visit: "",
   language: "",
@@ -56,6 +59,7 @@ export function NearbyExplorer() {
             ...body,
             filters: {
               availableNow: f.availableNow || undefined,
+              massageType: f.massageType || undefined,
               gender: f.gender || undefined,
               visit: f.visit || undefined,
               language: f.language || undefined,
@@ -109,26 +113,6 @@ export function NearbyExplorer() {
     else if (area) search({ area }, filters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
-
-  const mapAreas: MapArea[] = useMemo(() => {
-    if (!cards) return [];
-    const byKey = new Map<string, MapArea>();
-    for (const c of cards) {
-      if (!c.area_center) continue;
-      const key = c.area_label;
-      const ex = byKey.get(key);
-      if (ex) ex.count += 1;
-      else
-        byKey.set(key, {
-          key,
-          label: c.area_label,
-          lat: c.area_center.lat,
-          lng: c.area_center.lng,
-          count: 1,
-        });
-    }
-    return Array.from(byKey.values());
-  }, [cards]);
 
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) =>
     setFilters((p) => ({ ...p, [k]: v }));
@@ -212,6 +196,19 @@ export function NearbyExplorer() {
             </label>
             <select
               className="input w-auto"
+              value={filters.massageType}
+              onChange={(e) => set("massageType", e.target.value)}
+              aria-label="Услуга"
+            >
+              <option value="">Услуга: любая</option>
+              {MODALITIES.map((m) => (
+                <option key={m.key} value={m.key}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+            <select
+              className="input w-auto"
               value={filters.gender}
               onChange={(e) =>
                 set("gender", e.target.value as Filters["gender"])
@@ -249,6 +246,7 @@ export function NearbyExplorer() {
               onChange={(e) => set("priceMax", e.target.value)}
             />
             {(filters.availableNow ||
+              filters.massageType ||
               filters.gender ||
               filters.visit ||
               filters.language ||
@@ -264,7 +262,7 @@ export function NearbyExplorer() {
 
           {/* Map */}
           <div className="mb-6 h-[300px]">
-            <NearbyMap client={coords} areas={mapAreas} />
+            <NearbyMap client={coords} cards={cards} />
           </div>
 
           {error && (
@@ -327,6 +325,11 @@ function NearbyCardView({ c }: { c: NearbyCard }) {
           <p className="mt-0.5 truncate text-xs text-ink-muted">
             {c.massage_types.join(" · ") || "Профессиональный массаж"}
           </p>
+          {c.years_experience > 0 && (
+            <p className="mt-0.5 text-xs text-ink-muted">
+              {c.years_experience} лет опыта
+            </p>
+          )}
           <p className="mt-1 text-xs text-ink-soft">
             {c.available_now ? (
               <span className="font-medium text-brand-700">

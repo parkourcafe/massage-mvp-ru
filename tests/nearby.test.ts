@@ -165,6 +165,21 @@ describe("nearby — search & sort", () => {
     expect(cards.some((c) => c.profile_id === ANNA)).toBe(false);
   });
 
+  it("service (massageType) filter matches by modality", async () => {
+    const live = await listLiveAvailability();
+    const lymph = buildNearbyResults(live, {
+      area: "Хамовники",
+      filters: { massageType: "lymphatic" },
+    });
+    expect(lymph.some((c) => c.profile_id === ANNA)).toBe(true);
+    const sports = buildNearbyResults(live, {
+      area: "Хамовники",
+      filters: { massageType: "sports" },
+    });
+    // Anna offers classic/back/lymphatic, not sports.
+    expect(sports.some((c) => c.profile_id === ANNA)).toBe(false);
+  });
+
   it("gender filter narrows results", async () => {
     const live = await listLiveAvailability();
     const cards = buildNearbyResults(live, {

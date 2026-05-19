@@ -37,6 +37,7 @@ export interface NearbyCard {
   full_name: string;
   gender: "female" | "male" | null;
   verified: boolean;
+  years_experience: number;
   massage_types: string[];
   price_from: number | null;
   languages: string[];
@@ -233,6 +234,7 @@ export function buildNearbyResults(
       full_name: p.full_name,
       gender: p.show_gender ? p.gender ?? null : null,
       verified: p.moderation_status === "approved",
+      years_experience: p.years_experience ?? 0,
       massage_types: (p.services ?? [])
         .filter((s) => s.is_published)
         .map((s) => s.title)
