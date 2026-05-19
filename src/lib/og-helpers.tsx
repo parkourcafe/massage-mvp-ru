@@ -53,11 +53,13 @@ export function createOGImage(title: string, subtitle: string) {
           }}
         />
 
-        {/* Заголовок */}
+        {/* Заголовок. PT Sans-сабсет содержит только 400/700; запрошенный
+            light (300) недоступен, берём ближайший 400 — визуально лёгкий
+            заголовок, как в макете (не bold 700). */}
         <div
           style={{
             fontSize: "64px",
-            fontWeight: 700,
+            fontWeight: 400,
             lineHeight: 1.1,
             marginBottom: "20px",
             color: "#ffffff",
@@ -82,49 +84,29 @@ export function createOGImage(title: string, subtitle: string) {
           {subtitle}
         </div>
 
-        {/* Бренд — текстовый логотип (без SVG, Satori не гарантирует рендер) */}
+        {/* Бренд. Простой инлайн-SVG (solid fill/stroke, без градиентов и
+            фильтров) Satori рендерит надёжно — проверено на сборке. */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "10px",
+            gap: "12px",
           }}
         >
-          {/* Сердце нарисовано на CSS: PT Sans не содержит глиф ♥, а
-              вложенный SVG Satori рендерит ненадёжно. */}
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              width: "22px",
-              height: "20px",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                left: "11px",
-                width: "11px",
-                height: "17px",
-                background: "#ec4889",
-                borderRadius: "11px 11px 0 0",
-                transform: "rotate(-45deg)",
-                transformOrigin: "0 100%",
-              }}
+          <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+            <circle
+              cx="20"
+              cy="20"
+              r="19"
+              stroke="#7ec8b8"
+              strokeWidth="0.75"
+              opacity="0.5"
             />
-            <div
-              style={{
-                position: "absolute",
-                left: "0px",
-                width: "11px",
-                height: "17px",
-                background: "#ec4889",
-                borderRadius: "11px 11px 0 0",
-                transform: "rotate(45deg)",
-                transformOrigin: "100% 100%",
-              }}
+            <path
+              d="M11 14c0 6 4 9 9 11 5-2 9-5 9-11 0-3-2-5-5-5-2 0-3 1-4 2-1-1-2-2-4-2-3 0-5 2-5 5z"
+              fill="#ec4889"
             />
-          </div>
+          </svg>
           <div
             style={{
               fontSize: "22px",
