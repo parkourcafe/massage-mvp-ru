@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import { DirectoryView } from "@/components/DirectoryView";
 import { CITY_BY_SLUG, MODALITY_BY_SLUG } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
-import { landingContent, relatedLinks } from "@/lib/landing-content";
+import {
+  landingContent,
+  modalityMetaDescription,
+  relatedLinks,
+} from "@/lib/landing-content";
 import { serviceJsonLd } from "@/lib/jsonld";
 import { MIN_INDEXABLE_RESULTS, pageMetadata } from "@/lib/seo";
 
@@ -38,7 +42,10 @@ export async function generateMetadata({
   if (r.kind === "modality") {
     return pageMetadata({
       title: `${r.modality.label} — массажисты`,
-      description: `Профессиональные специалисты: ${r.modality.label}.`,
+      description: modalityMetaDescription(
+        r.modality.key,
+        r.modality.label
+      ),
       path: `/therapists/${params.seg1}`,
       noindex,
     });
@@ -87,7 +94,10 @@ export default function TherapistsFilterPage({
           serviceJsonLd({
             serviceType: r.modality.label,
             path: `/therapists/${params.seg1}`,
-            description: `Профессиональные специалисты: ${r.modality.label}.`,
+            description: modalityMetaDescription(
+              r.modality.key,
+              r.modality.label
+            ),
           }),
         ]}
       />
