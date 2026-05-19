@@ -37,48 +37,44 @@ export async function ProfileCard({
           <img
             src={photo.url}
             alt={photo.alt_text ?? profile.full_name}
-            className="h-20 w-20 rounded-xl object-cover bg-sand-100 ring-1 ring-sand-200"
+            className="h-20 w-20 shrink-0 rounded-xl2 object-cover ring-1 ring-line-strong"
           />
         ) : (
-          <div className="h-20 w-20 rounded-xl bg-brand-100 flex items-center justify-center text-brand-700 text-xl font-serif font-semibold">
+          <div className="img-ph h-20 w-20 shrink-0 rounded-xl2 font-serif !text-xl !tracking-normal text-heading">
             {profile.full_name.slice(0, 1)}
           </div>
         )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/therapist/${profile.slug}`}
-              className="font-serif text-lg font-semibold text-ink hover:text-brand-700"
+              className="font-serif text-lg text-heading transition-colors hover:text-accent"
             >
               {profile.full_name}
             </Link>
             {profile.plan_id === "expert" && (
-              <span className="badge bg-clay-100 text-clay-600">ТОП</span>
+              <span className="badge">★ ТОП</span>
             )}
             {typeof matchScore === "number" && (
-              <span className="badge bg-brand-100 text-brand-800">
-                Совпадение {matchScore}%
-              </span>
+              <span className="chip-brand">Совпадение {matchScore}%</span>
             )}
             {availableToday && (
-              <span className="badge bg-brand-600 text-white">
-                Свободно сегодня
-              </span>
+              <span className="badge">Свободно сегодня</span>
             )}
           </div>
-          <p className="text-sm text-ink-muted mt-0.5">
+          <p className="mt-1 text-sm text-secondary">
             {[profile.city, profile.district].filter(Boolean).join(", ")}
             {profile.years_experience
               ? ` · опыт ${profile.years_experience} лет`
               : ""}
           </p>
           {profile.headline && (
-            <p className="text-sm text-ink-soft mt-1.5 line-clamp-2">
+            <p className="mt-1.5 line-clamp-2 text-sm text-body">
               {profile.headline}
             </p>
           )}
           {upcomingSlot && (
-            <p className="text-xs font-medium text-brand-700 mt-2">
+            <p className="mt-2 font-serif text-sm text-accent">
               Ближайшее окно: {formatSlot(upcomingSlot.starts_at)}
             </p>
           )}
@@ -87,26 +83,31 @@ export async function ProfileCard({
 
       <div className="flex flex-wrap gap-1.5">
         {services.map((s) => (
-          <span key={s.id} className="chip">
+          <span key={s.id} className="chip-brand">
             {modalityLabel(s.modality)}
           </span>
         ))}
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-sand-200 pt-4">
-        <span className="text-sm text-ink-soft">
+      <hr className="rule" />
+
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-secondary">
           от{" "}
-          <strong className="font-serif text-base text-ink">
+          <strong className="font-serif text-lg text-heading">
             {formatRub(Number.isFinite(priceFrom) ? priceFrom : null)}
           </strong>
         </span>
         <div className="flex gap-2">
-          <Link href={`/therapist/${profile.slug}`} className="btn-ghost">
+          <Link
+            href={`/therapist/${profile.slug}`}
+            className="btn-secondary btn-sm"
+          >
             Профиль
           </Link>
           <Link
             href={`/therapist/${profile.slug}/booking`}
-            className="btn-primary"
+            className="btn-primary btn-sm"
           >
             Записаться
           </Link>

@@ -8,6 +8,7 @@ export default function SchedulePage() {
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [now, setNow] = useState(0);
 
   async function load() {
     const res = await fetch("/api/dashboard/schedule");
@@ -16,6 +17,7 @@ export default function SchedulePage() {
   }
   useEffect(() => {
     load();
+    setNow(Date.now());
   }, []);
 
   async function add(e: React.FormEvent<HTMLFormElement>) {
@@ -63,15 +65,32 @@ export default function SchedulePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Расписание</h1>
-      <p className="text-sm text-slate-600">
-        Опубликуйте свободные окна — клиенты смогут забронировать конкретное
-        время в один клик, и оно сразу подтвердится. Занятые слоты удалить
-        нельзя.
-      </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="eyebrow">Календарь · свободные окна</p>
+          <h1 className="h1 mt-3">Расписание</h1>
+          <p className="small mt-3 max-w-xl">
+            Опубликуйте свободные окна — клиенты смогут забронировать конкретное
+            время в один клик, и оно сразу подтвердится. Занятые слоты удалить
+            нельзя.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <div className="card px-5 py-4 text-center">
+            <p className="eyebrow text-secondary">Окон</p>
+            <p className="num-label text-3xl mt-1">{slots.length}</p>
+          </div>
+          <div className="card px-5 py-4 text-center bg-accent-soft border-accent">
+            <p className="eyebrow text-secondary">Свободно</p>
+            <p className="num-label text-3xl mt-1 text-accent">
+              {slots.filter((s) => s.status === "open").length}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {error && (
-        <p className="rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+        <p className="rounded-xl bg-accent-soft text-mag-300 text-sm px-4 py-3 border border-line">
           {error}
         </p>
       )}
@@ -103,39 +122,67 @@ export default function SchedulePage() {
         </div>
       </form>
 
-      <div className="space-y-2">
-        {slots.map((s) => (
-          <div
-            key={s.id}
-            className="card flex items-center justify-between py-3"
-          >
-            <div>
-              <p className="text-sm font-medium text-slate-900">
-                {formatSlot(s.starts_at)}
-              </p>
-              <p className="text-xs text-slate-500">
-                {s.duration} мин ·{" "}
-                {s.status === "booked" ? (
-                  <span className="text-amber-700">забронировано</span>
-                ) : (
-                  <span className="text-brand-700">свободно</span>
-                )}
-              </p>
+      <div className="card p-0 overflow-hidden">
+        {slots.map((s, i) => {
+          const booked = s.status === "booked";
+          const start = new Date(s.starts_at).getTime();
+          const end = start + (s.duration ?? 0) * 60_000;
+          const isNow = booked && now >= start && now < end;
+          return (
+            <div
+              key={s.id}
+              className={`relative flex items-center justify-between gap-4 px-6 py-5 ${
+                i === slots.length - 1 ? "" : "border-b border-line"
+              } ${
+                isNow
+                  ? "bg-accent-soft border-l-2 border-accent"
+                  : booked
+                    ? "bg-surface"
+                    : ""
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <span
+                  className={`chip ${
+                    isNow
+                      ? "bg-accent text-white"
+                      : booked
+                        ? "bg-surface text-secondary line-through"
+                        : ""
+                  }`}
+                >
+                  {formatSlot(s.starts_at)}
+                </span>
+                <div>
+                  <p className="text-sm text-heading serif">
+                    {s.duration} мин
+                  </p>
+                  <p className="text-xs">
+                    {isNow ? (
+                      <span className="text-accent font-semibold">сейчас</span>
+                    ) : booked ? (
+                      <span className="text-secondary">забронировано</span>
+                    ) : (
+                      <span className="text-accent">свободно</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              {s.status === "open" ? (
+                <button
+                  onClick={() => remove(s.id)}
+                  className="text-mag-300 text-xs hover:underline"
+                >
+                  Удалить
+                </button>
+              ) : (
+                <span className="text-xs text-secondary">занят клиентом</span>
+              )}
             </div>
-            {s.status === "open" ? (
-              <button
-                onClick={() => remove(s.id)}
-                className="text-red-600 text-xs"
-              >
-                Удалить
-              </button>
-            ) : (
-              <span className="text-xs text-slate-400">занят клиентом</span>
-            )}
-          </div>
-        ))}
+          );
+        })}
         {slots.length === 0 && (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-secondary px-6 py-10 text-center">
             Пока нет опубликованных окон. Добавьте первое — и вы появитесь в
             фильтре «Доступны сегодня».
           </p>

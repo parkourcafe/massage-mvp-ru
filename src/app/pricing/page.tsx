@@ -27,57 +27,96 @@ const FEATURE_LABELS: Record<string, string> = {
 export default function PricingPage() {
   const plans = [PLANS.free, PLANS.pro, PLANS.expert];
   return (
-    <div className="container-px py-10">
-      <h1 className="text-2xl font-bold text-slate-900">Тарифы</h1>
-      <p className="mt-1 text-slate-600">
+    <div className="container-px py-24">
+      <div className="eyebrow">
+        <span className="num-label">01</span> Тарифы
+      </div>
+      <h1 className="h1 mt-6">Один профиль — две скорости.</h1>
+      <p className="body-lg mt-6 max-w-xl">
         Платформа монетизируется через подписку специалиста. Оплата клиентом
         сеансов в MVP не реализуется.
       </p>
-      <div className="mt-8 grid gap-6 md:grid-cols-3">
-        {plans.map((plan) => (
-          <div
-            key={plan.id}
-            className={`card flex flex-col ${
-              plan.id === "pro" ? "ring-2 ring-brand-500" : ""
-            }`}
-          >
-            <h2 className="text-lg font-semibold">{plan.title}</h2>
-            <p className="mt-2 text-3xl font-bold">
-              {plan.price_rub === 0 ? "0 ₽" : formatRub(plan.price_rub)}
-              {plan.price_rub > 0 && (
-                <span className="text-sm font-normal text-slate-500">
-                  {" "}
-                  / мес
-                </span>
-              )}
-            </p>
-            <ul className="mt-4 space-y-1.5 text-sm flex-1">
-              {Object.keys(FEATURE_LABELS).map((k) => (
-                <li
-                  key={k}
-                  className={
-                    plan.features[k] ? "text-slate-700" : "text-slate-400"
-                  }
-                >
-                  {plan.features[k] ? "✓" : "—"} {FEATURE_LABELS[k]}
-                </li>
-              ))}
-              {plan.id === "expert" && (
-                <li className="text-slate-700">
-                  ✓ Приоритетное размещение, PDF-профиль, расширенная аналитика
-                </li>
-              )}
-            </ul>
-            <Link
-              href="/dashboard/billing"
-              className={`mt-6 ${
-                plan.id === "free" ? "btn-secondary" : "btn-primary"
+      <div className="mt-16 grid gap-6 md:grid-cols-3">
+        {plans.map((plan) => {
+          const featured = plan.id === "pro";
+          return (
+            <div
+              key={plan.id}
+              className={`relative flex flex-col rounded-[var(--r-card)] p-6 ${
+                featured
+                  ? "bg-gradient-to-br from-accent to-plum-700 text-white"
+                  : "card"
               }`}
             >
-              {plan.id === "free" ? "Начать бесплатно" : `Подключить ${plan.title}`}
-            </Link>
-          </div>
-        ))}
+              {featured && (
+                <span className="absolute right-6 top-6 text-[10px] uppercase tracking-[0.14em] text-white/70">
+                  ★ Рекомендуем
+                </span>
+              )}
+              <h2
+                className={`eyebrow ${
+                  featured ? "text-white/70" : ""
+                }`}
+              >
+                {plan.title}
+              </h2>
+              <p
+                className={`serif mt-3 text-[40px] leading-none ${
+                  featured ? "text-white" : "text-heading"
+                }`}
+              >
+                {plan.price_rub === 0 ? "0 ₽" : formatRub(plan.price_rub)}
+                {plan.price_rub > 0 && (
+                  <span
+                    className={`text-sm font-normal ${
+                      featured ? "text-white/60" : "text-secondary"
+                    }`}
+                  >
+                    {" "}
+                    / мес
+                  </span>
+                )}
+              </p>
+              <ul className="mt-6 space-y-2 text-sm flex-1">
+                {Object.keys(FEATURE_LABELS).map((k) => (
+                  <li
+                    key={k}
+                    className={
+                      featured
+                        ? plan.features[k]
+                          ? "text-white"
+                          : "text-white/45"
+                        : plan.features[k]
+                          ? "text-body"
+                          : "text-secondary"
+                    }
+                  >
+                    {plan.features[k] ? "✓" : "—"} {FEATURE_LABELS[k]}
+                  </li>
+                ))}
+                {plan.id === "expert" && (
+                  <li className="text-body">
+                    ✓ Приоритетное размещение, PDF-профиль, расширенная аналитика
+                  </li>
+                )}
+              </ul>
+              <Link
+                href="/dashboard/billing"
+                className={`mt-8 ${
+                  featured
+                    ? "btn bg-white text-obsidian-0 hover:brightness-95"
+                    : plan.id === "free"
+                      ? "btn-secondary"
+                      : "btn-primary"
+                }`}
+              >
+                {plan.id === "free"
+                  ? "Начать бесплатно"
+                  : `Подключить ${plan.title}`}
+              </Link>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

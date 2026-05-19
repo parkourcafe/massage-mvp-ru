@@ -49,17 +49,17 @@ export function FavoritesView() {
     }).catch(() => {});
   }
 
-  if (loading) return <p className="text-slate-500">Загрузка…</p>;
+  if (loading) return <p className="text-secondary">Загрузка…</p>;
 
   if (profiles.length === 0)
     return (
-      <p className="text-slate-600">
+      <p className="text-body">
         В избранном пока пусто.{" "}
-        <Link href="/therapists" className="text-brand-700 underline">
+        <Link href="/therapists" className="text-accent hover:underline">
           Открыть каталог
         </Link>{" "}
         или{" "}
-        <Link href="/match" className="text-brand-700 underline">
+        <Link href="/match" className="text-accent hover:underline">
           подобрать с AI
         </Link>
         .
@@ -77,10 +77,10 @@ export function FavoritesView() {
               <img
                 src={photo.url}
                 alt={p.full_name}
-                className="h-20 w-20 rounded-lg object-cover bg-slate-100"
+                className="h-20 w-20 rounded-lg object-cover bg-surface"
               />
             ) : (
-              <div className="h-20 w-20 rounded-lg bg-brand-100 flex items-center justify-center text-xl font-semibold text-brand-700">
+              <div className="h-20 w-20 rounded-lg bg-accent-soft flex items-center justify-center text-xl font-semibold text-accent">
                 {p.full_name.slice(0, 1)}
               </div>
             )}
@@ -88,17 +88,17 @@ export function FavoritesView() {
               <div className="flex items-center gap-2">
                 <Link
                   href={`/therapist/${p.slug}`}
-                  className="font-semibold hover:text-brand-700"
+                  className="h3 hover:text-accent transition-colors"
                 >
                   {p.full_name}
                 </Link>
                 {scores[p.id] != null && (
-                  <span className="badge bg-brand-100 text-brand-800">
+                  <span className="badge">
                     {scores[p.id]}%
                   </span>
                 )}
               </div>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-secondary mt-1">
                 {[p.city, p.district].filter(Boolean).join(", ")}
               </p>
               <div className="mt-1 flex flex-wrap gap-1">
@@ -108,25 +108,25 @@ export function FavoritesView() {
                   </span>
                 ))}
               </div>
-              <p className="text-sm mt-1">от {formatRub(p.price_from)}</p>
+              <p className="text-sm text-body mt-1">от {formatRub(p.price_from)}</p>
               {p.headline && (
-                <p className="text-xs text-slate-500 line-clamp-2 mt-1">
+                <p className="text-xs text-secondary line-clamp-2 mt-1">
                   {p.headline}
                 </p>
               )}
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Link href={`/therapist/${p.slug}`} className="btn-ghost">
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href={`/therapist/${p.slug}`} className="btn-ghost btn-sm">
                   Открыть профиль
                 </Link>
                 <Link
                   href={`/therapist/${p.slug}/booking`}
-                  className="btn-primary"
+                  className="btn-primary btn-sm"
                 >
                   Записаться
                 </Link>
                 <button
                   onClick={() => remove(p.id)}
-                  className="btn-ghost text-red-600"
+                  className="btn-ghost btn-sm text-accent"
                 >
                   Удалить
                 </button>

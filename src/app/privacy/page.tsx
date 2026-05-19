@@ -12,22 +12,22 @@ export function generateMetadata(): Metadata {
 
 export default function PrivacyPage() {
   return (
-    <div className="container-px py-10 max-w-3xl space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">
-        Политика конфиденциальности
-      </h1>
-      <p className="text-sm text-slate-500">Редакция от 17.05.2026</p>
+    <div className="container-px py-24 max-w-3xl">
+      <div className="eyebrow">Документы</div>
+      <h1 className="h1 mt-6">Политика конфиденциальности</h1>
+      <p className="small mt-4 text-secondary">Редакция от 17.05.2026</p>
+      <hr className="rule my-10" />
 
-      <h2 className="font-semibold mt-6">1. Какие данные обрабатываются</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">1. Какие данные обрабатываются</h2>
+      <p className="text-body">
         Данные аккаунта (email), данные профиля специалиста, заявки на
         запись (имя клиента, контакт, пожелания), переписка по заявке,
         приватные заметки специалиста и обратная связь клиента, данные
         о подписке и платежах.
       </p>
 
-      <h2 className="font-semibold mt-6">2. Принципы приватности</h2>
-      <ul className="list-disc pl-6 text-slate-700 space-y-1">
+      <h2 className="h3 mt-10 mb-3">2. Принципы приватности</h2>
+      <ul className="list-disc pl-6 text-body space-y-1">
         <li>
           Точный адрес специалиста и клиента, контактные данные клиента
           публично <strong>никогда</strong> не раскрываются.
@@ -43,22 +43,22 @@ export default function PrivacyPage() {
         </li>
       </ul>
 
-      <h2 className="font-semibold mt-6">3. Передача третьим лицам</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">3. Передача третьим лицам</h2>
+      <p className="text-body">
         Данные передаются только инфраструктурным провайдерам, необходимым
         для работы сервиса (хостинг, база данных, платёжный провайдер
         YooKassa). Платёжные реквизиты карт платформа не хранит.
       </p>
 
-      <h2 className="font-semibold mt-6">4. Права пользователя</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">4. Права пользователя</h2>
+      <p className="text-body">
         Вы можете запросить удаление аккаунта и связанных данных через
         форму поддержки в личном кабинете.
       </p>
 
-      <p className="text-slate-700">
+      <p className="text-body mt-6">
         См. также{" "}
-        <Link className="text-brand-700 underline" href="/terms">
+        <Link className="text-accent hover:underline" href="/terms">
           Пользовательское соглашение
         </Link>
         .

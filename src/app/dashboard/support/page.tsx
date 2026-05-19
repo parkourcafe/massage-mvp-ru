@@ -29,27 +29,35 @@ export default function SupportPage() {
 
   if (done)
     return (
-      <div className="card">
-        <h1 className="text-xl font-bold">Помощь менеджера</h1>
-        <p className="mt-2 text-emerald-700">
+      <div className="card bg-gradient-to-br from-accent to-plum-700 border-line-strong max-w-xl">
+        <p className="eyebrow text-white/65">Поддержка</p>
+        <h1 className="h2 mt-2 text-white">Помощь менеджера</h1>
+        <p className="mt-3 text-white/85">
           Заявка отправлена. Менеджер свяжется с вами в указанное время.
         </p>
       </div>
     );
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">Помощь менеджера</h1>
-      <p className="text-sm text-slate-600">
-        Поможем заполнить профиль, загрузить сертификаты, оформить услуги и
-        подключить тариф.
-      </p>
+    <div className="space-y-10">
+      <div>
+        <p className="eyebrow">Кабинет · поддержка</p>
+        <h1 className="h1 mt-3">Помощь менеджера</h1>
+        <p className="mt-3 text-body body-lg">
+          Поможем заполнить профиль, загрузить сертификаты, оформить услуги и
+          подключить тариф.
+        </p>
+      </div>
       {error && (
-        <p className="rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+        <p className="rounded-lg bg-accent-soft border border-line text-accent text-sm px-4 py-3">
           {error}
         </p>
       )}
-      <form onSubmit={submit} className="card grid sm:grid-cols-2 gap-3">
+      <form onSubmit={submit} className="card grid sm:grid-cols-2 gap-5">
+        <div className="sm:col-span-2">
+          <p className="eyebrow text-secondary">Заявка в поддержку</p>
+          <hr className="rule mt-4" />
+        </div>
         <div>
           <label className="label">Имя</label>
           <input name="name" required className="input" />

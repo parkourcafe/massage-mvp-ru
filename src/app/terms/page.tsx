@@ -12,14 +12,14 @@ export function generateMetadata(): Metadata {
 
 export default function TermsPage() {
   return (
-    <div className="container-px py-10 max-w-3xl space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">
-        Пользовательское соглашение
-      </h1>
-      <p className="text-sm text-slate-500">Редакция от 17.05.2026</p>
+    <div className="container-px py-24 max-w-3xl">
+      <div className="eyebrow">Документы</div>
+      <h1 className="h1 mt-6">Пользовательское соглашение</h1>
+      <p className="small mt-4 text-secondary">Редакция от 17.05.2026</p>
+      <hr className="rule my-10" />
 
-      <h2 className="font-semibold mt-6">1. Предмет</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">1. Предмет</h2>
+      <p className="text-body">
         {SITE_NAME} — информационная платформа, позволяющая независимым
         специалистам по профессиональному оздоровительному массажу
         размещать профиль и принимать заявки на запись от клиентов.
@@ -27,8 +27,8 @@ export default function TermsPage() {
         специалистов и стороной расчётов между специалистом и клиентом.
       </p>
 
-      <h2 className="font-semibold mt-6">2. Допустимый контент</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">2. Допустимый контент</h2>
+      <p className="text-body">
         Разрешён только профессиональный wellness / лечебный / спортивный /
         СПА массаж. Эротический, интимный, сексуальный контент и «спец-
         услуги» категорически запрещены и удаляются, аккаунт блокируется.
@@ -36,34 +36,34 @@ export default function TermsPage() {
         профилях не является медицинской консультацией.
       </p>
 
-      <h2 className="font-semibold mt-6">3. Аккаунт специалиста</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">3. Аккаунт специалиста</h2>
+      <p className="text-body">
         Специалист отвечает за достоверность данных профиля, наличие
         необходимого образования и права вести деятельность, за соблюдение
         санитарных норм и профессиональных границ, а также за налоговые
         обязательства. Профиль публикуется после прохождения модерации.
       </p>
 
-      <h2 className="font-semibold mt-6">4. Ответственность</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">4. Ответственность</h2>
+      <p className="text-body">
         Платформа предоставляется «как есть». {SITE_NAME} не несёт
         ответственности за качество услуг специалистов и за договорённости
         между специалистом и клиентом. Споры решаются сторонами
         самостоятельно.
       </p>
 
-      <h2 className="font-semibold mt-6">5. Документы</h2>
-      <p className="text-slate-700">
+      <h2 className="h3 mt-10 mb-3">5. Документы</h2>
+      <p className="text-body">
         См. также{" "}
-        <Link className="text-brand-700 underline" href="/privacy">
+        <Link className="text-accent hover:underline" href="/privacy">
           Политику конфиденциальности
         </Link>
         ,{" "}
-        <Link className="text-brand-700 underline" href="/offer">
+        <Link className="text-accent hover:underline" href="/offer">
           Публичную оферту
         </Link>{" "}
         и{" "}
-        <Link className="text-brand-700 underline" href="/subscription-terms">
+        <Link className="text-accent hover:underline" href="/subscription-terms">
           Условия подписки
         </Link>
         .

@@ -33,7 +33,7 @@ export async function DirectoryView({
     { name: "Каталог специалистов", path: "/therapists" },
   ];
   return (
-    <div className="container-px py-10">
+    <div>
       {profiles.length > 0 && (
         <JsonLd
           data={[
@@ -46,135 +46,196 @@ export async function DirectoryView({
           ]}
         />
       )}
-      <span className="eyebrow">Каталог</span>
-      <h1 className="mt-3 text-3xl sm:text-4xl font-bold">{title}</h1>
-      {subtitle && (
-        <p className="mt-2 text-lg text-ink-soft">{subtitle}</p>
-      )}
-      <p className="mt-3 text-sm font-medium text-brand-700">
-        {PLATFORM_NOTICE}
-      </p>
 
-      <div className="mt-6">
-        <Link
-          href={toggleHref}
-          className={
-            todayActive
-              ? "btn bg-brand-700 text-white shadow-soft hover:bg-brand-800"
-              : "btn border border-brand-300 bg-white text-brand-800 hover:border-brand-400 hover:bg-brand-50"
-          }
-        >
-          <span
-            aria-hidden
-            className={
-              todayActive
-                ? "h-2 w-2 rounded-full bg-white"
-                : "h-2 w-2 rounded-full bg-brand-500"
-            }
-          />
-          {todayActive ? "Доступны сегодня — сбросить" : "Доступны сегодня"}
-        </Link>
-      </div>
-
-      {content && (
-        <section className="mt-8 max-w-3xl space-y-3">
-          <h2 className="text-xl font-semibold">{content.heading}</h2>
-          {content.paragraphs.map((t, i) => (
-            <p key={i} className="leading-relaxed text-ink-soft">
-              {t}
-            </p>
-          ))}
-        </section>
-      )}
-
-      <div className="mt-8 flex flex-wrap gap-2">
-        <Link href="/therapists" className="chip-brand hover:bg-brand-100">
-          Все
-        </Link>
-        {MODALITIES.slice(0, 10).map((m) => (
-          <Link
-            key={m.key}
-            href={`/therapists/${m.slug}`}
-            className="chip hover:bg-sand-200"
-          >
-            {m.label}
-          </Link>
-        ))}
-      </div>
-      <div className="mt-2.5 flex flex-wrap gap-2">
-        {CITIES.map((c) => (
-          <Link
-            key={c.slug}
-            href={`/therapists/${c.slug}`}
-            className="chip hover:bg-sand-200"
-          >
-            {c.label}
-          </Link>
-        ))}
-      </div>
-
-      {profiles.length === 0 ? (
-        <div className="surface mt-10 text-center text-ink-muted">
-          По заданным условиям специалисты не найдены. Попробуйте изменить
-          фильтры или{" "}
-          <Link
-            href="/match"
-            className="font-medium text-brand-700 underline underline-offset-2"
-          >
-            подобрать с помощью AI
-          </Link>
-          .
-        </div>
-      ) : (
-        <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {profiles.map((p) => (
-            <ProfileCard key={p.id} profile={p} source="directory" />
-          ))}
-        </div>
-      )}
-
-      {content && content.faq.length > 0 && (
-        <section className="mt-14 max-w-3xl">
-          <span className="eyebrow">FAQ</span>
-          <h2 className="mt-3 text-xl font-semibold">Частые вопросы</h2>
-          <div className="mt-4 space-y-4">
-            {content.faq.map((f, i) => (
-              <div key={i} className="surface">
-                <p className="font-medium text-ink">{f.q}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-                  {f.a}
-                </p>
-              </div>
-            ))}
+      {/* HEADER */}
+      <section className="border-b border-line">
+        <div className="container-px py-10">
+          <span className="eyebrow">
+            Каталог · {profiles.length} специалистов
+          </span>
+          <div className="mt-4 grid items-end gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
+            <h1 className="h1 m-0">{title}</h1>
+            {subtitle && (
+              <p className="body-lg mb-2">{subtitle}</p>
+            )}
           </div>
-        </section>
-      )}
+          <p className="hot mt-4 text-sm font-medium">{PLATFORM_NOTICE}</p>
+        </div>
+      </section>
 
-      {related && related.length > 0 && (
-        <nav
-          aria-label="Смотрите также"
-          className="mt-14 border-t border-sand-200 pt-8 space-y-5"
-        >
-          {related.map((g) => (
-            <div key={g.title}>
-              <h2 className="text-sm font-semibold text-ink">
-                {g.title}
-              </h2>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {g.links.map((l) => (
+      {/* SPECIALTY CHIPS */}
+      <section className="border-b border-line">
+        <div className="container-px flex gap-2 overflow-x-auto py-6">
+          <Link
+            href="/therapists"
+            className="chip-brand flex-shrink-0 whitespace-nowrap"
+          >
+            Все
+          </Link>
+          {MODALITIES.slice(0, 10).map((m) => (
+            <Link
+              key={m.key}
+              href={`/therapists/${m.slug}`}
+              className="chip flex-shrink-0 whitespace-nowrap"
+            >
+              {m.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* BODY */}
+      <section className="container-px py-10 pb-20">
+        <div className="grid items-start gap-10 lg:grid-cols-[260px_1fr]">
+          {/* Sidebar filters */}
+          <aside className="lg:sticky lg:top-24 space-y-6">
+            <div className="eyebrow">Фильтры</div>
+
+            <div className="border-b border-line pb-6">
+              <div className="mb-3 text-xs font-semibold tracking-wide text-heading">
+                Доступность
+              </div>
+              <Link
+                href={toggleHref}
+                className={
+                  todayActive ? "btn-primary btn-sm w-full" : "btn-ghost btn-sm w-full"
+                }
+              >
+                <span
+                  aria-hidden
+                  className={
+                    todayActive
+                      ? "h-2 w-2 rounded-full bg-white"
+                      : "h-2 w-2 rounded-full bg-accent"
+                  }
+                />
+                {todayActive ? "Сегодня — сбросить" : "Доступны сегодня"}
+              </Link>
+            </div>
+
+            <div className="border-b border-line pb-6">
+              <div className="mb-3 text-xs font-semibold tracking-wide text-heading">
+                Города
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {CITIES.map((c) => (
                   <Link
-                    key={l.href}
-                    href={l.href}
-                    className="chip hover:bg-brand-100"
+                    key={c.slug}
+                    href={`/therapists/${c.slug}`}
+                    className="chip flex-shrink-0 whitespace-nowrap"
                   >
-                    {l.label}
+                    {c.label}
                   </Link>
                 ))}
               </div>
             </div>
-          ))}
-        </nav>
-      )}
+
+            <Link href="/therapists" className="btn-secondary btn-sm w-full">
+              Сбросить
+            </Link>
+          </aside>
+
+          {/* Results */}
+          <div>
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div className="small">
+                Показываем{" "}
+                <span className="serif text-base text-heading">
+                  {profiles.length}
+                </span>{" "}
+                {profiles.length === 1 ? "специалиста" : "специалистов"}
+              </div>
+            </div>
+
+            {content && (
+              <section className="mb-8 max-w-3xl space-y-3">
+                <h2 className="h3">{content.heading}</h2>
+                {content.paragraphs.map((t, i) => (
+                  <p key={i} className="leading-relaxed text-body">
+                    {t}
+                  </p>
+                ))}
+              </section>
+            )}
+
+            {profiles.length === 0 ? (
+              <div className="surface text-center text-secondary">
+                По заданным условиям специалисты не найдены. Попробуйте изменить
+                фильтры или{" "}
+                <Link
+                  href="/match"
+                  className="hot font-medium underline underline-offset-2"
+                >
+                  подобрать с помощью AI
+                </Link>
+                .
+              </div>
+            ) : (
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {profiles.map((p) => (
+                  <ProfileCard key={p.id} profile={p} source="directory" />
+                ))}
+              </div>
+            )}
+
+            {/* See services link */}
+            <div className="surface mt-14 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+              <div>
+                <span className="eyebrow">Не уверены, что вам нужно?</span>
+                <h3 className="h3 mt-3">
+                  Сначала выберите вид массажа — мы покажем специалистов
+                </h3>
+              </div>
+              <Link href="/match" className="btn-primary whitespace-nowrap">
+                Подобрать с помощью AI
+              </Link>
+            </div>
+
+            {content && content.faq.length > 0 && (
+              <section className="mt-14 max-w-3xl">
+                <span className="eyebrow">FAQ</span>
+                <h2 className="h3 mt-3">Частые вопросы</h2>
+                <div className="mt-4 space-y-4">
+                  {content.faq.map((f, i) => (
+                    <div key={i} className="card">
+                      <p className="font-medium text-heading">{f.q}</p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-secondary">
+                        {f.a}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {related && related.length > 0 && (
+              <nav
+                aria-label="Смотрите также"
+                className="mt-14 space-y-5 border-t border-line pt-8"
+              >
+                {related.map((g) => (
+                  <div key={g.title}>
+                    <h2 className="text-sm font-semibold text-heading">
+                      {g.title}
+                    </h2>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {g.links.map((l) => (
+                        <Link
+                          key={l.href}
+                          href={l.href}
+                          className="chip"
+                        >
+                          {l.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </nav>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

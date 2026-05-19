@@ -41,22 +41,22 @@ export function MatchResultsView() {
 
   if (empty)
     return (
-      <p className="text-slate-600">
+      <p className="text-body">
         Нет результатов.{" "}
-        <Link href="/match" className="text-brand-700 underline">
+        <Link href="/match" className="text-accent hover:underline">
           Пройти анкету
         </Link>
         .
       </p>
     );
 
-  if (!data) return <p className="text-slate-500">Загрузка…</p>;
+  if (!data) return <p className="text-secondary">Загрузка…</p>;
 
   if (data.results.length === 0)
     return (
-      <p className="text-slate-600">
+      <p className="text-body">
         Подходящих специалистов не найдено. Попробуйте смягчить условия в{" "}
-        <Link href="/match" className="text-brand-700 underline">
+        <Link href="/match" className="text-accent hover:underline">
           анкете
         </Link>
         .
@@ -65,37 +65,35 @@ export function MatchResultsView() {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-slate-500">{data.disclaimer}</p>
+      <p className="text-xs text-secondary">{data.disclaimer}</p>
       {data.results.map((r) => (
         <div key={r.profileId} className="card space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <Link
               href={`/therapist/${r.slug}`}
-              className="text-lg font-semibold text-slate-900 hover:text-brand-700"
+              className="h3 hover:text-accent transition-colors"
             >
               {r.name}
             </Link>
-            <span className="badge bg-brand-100 text-brand-800">
-              Совпадение {r.score}%
-            </span>
+            <span className="badge">Совпадение {r.score}%</span>
           </div>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-secondary">
             {[r.city, r.district].filter(Boolean).join(", ")} · от{" "}
             {formatRub(r.price)}
           </p>
-          <p className="text-sm text-slate-700">{r.why}</p>
+          <p className="text-sm text-body">{r.why}</p>
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="font-medium text-emerald-700">Почему подходит</p>
-              <ul className="list-disc list-inside text-slate-600">
+              <p className="font-medium text-accent">Почему подходит</p>
+              <ul className="list-disc list-inside text-body">
                 {r.reasons.map((x, i) => (
                   <li key={i}>{x}</li>
                 ))}
               </ul>
             </div>
             <div>
-              <p className="font-medium text-amber-700">Что уточнить</p>
-              <ul className="list-disc list-inside text-slate-600">
+              <p className="font-medium text-secondary">Что уточнить</p>
+              <ul className="list-disc list-inside text-body">
                 {r.risks.length ? (
                   r.risks.map((x, i) => <li key={i}>{x}</li>)
                 ) : (
@@ -104,8 +102,8 @@ export function MatchResultsView() {
               </ul>
             </div>
           </div>
-          <p className="text-sm">
-            <span className="text-slate-500">Рекомендуемая услуга:</span>{" "}
+          <p className="text-sm text-body">
+            <span className="text-secondary">Рекомендуемая услуга:</span>{" "}
             {r.serviceRecommendation}
           </p>
           <div className="flex flex-wrap gap-2">
