@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
+  deactivateAvailability,
   resolveModerationFlag,
   setModerationStatus,
   updateSupportRequest,
@@ -15,6 +16,7 @@ const schema = z.object({
     "resolve_flag",
     "set_moderation",
     "update_support",
+    "deactivate_availability",
   ]),
   id: z.string().optional(),
   profileId: z.string().optional(),
@@ -40,6 +42,11 @@ export async function POST(req: Request) {
         d.profileId,
         d.status as "pending" | "approved" | "flagged" | "rejected"
       );
+      return NextResponse.json({ ok: true });
+    case "deactivate_availability":
+      if (!d.profileId)
+        return NextResponse.json({ error: "Нет profileId" }, { status: 400 });
+      await deactivateAvailability(d.profileId);
       return NextResponse.json({ ok: true });
     case "update_support":
       if (!d.id || !d.status)

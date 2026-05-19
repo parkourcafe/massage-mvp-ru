@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 const NAV = [
   { href: "/admin/users", label: "Пользователи" },
   { href: "/admin/profiles", label: "Профили" },
+  { href: "/admin/nearby", label: "Активны «Рядом»" },
   { href: "/admin/moderation", label: "Модерация" },
   { href: "/admin/payments", label: "Платежи" },
   { href: "/admin/subscriptions", label: "Подписки" },

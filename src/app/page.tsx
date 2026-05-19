@@ -108,6 +108,15 @@ export default async function HomePage() {
               </Link>
             </div>
 
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href="/nearby" className="btn-accent btn-sm">
+                Найти массаж рядом
+              </Link>
+              <Link href="/match" className="btn-secondary btn-sm">
+                Подобрать с AI
+              </Link>
+            </div>
+
             <div className="mt-5 flex flex-wrap gap-2">
               {HERO_TAGS.map((m) => (
                 <Link

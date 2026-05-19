@@ -46,6 +46,18 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));
 }
 
+// wa.me deep link with a prefilled message. Phone is normalised to
+// digits only; returns null when there is no usable number.
+export function buildWhatsAppLink(
+  phone: string | null | undefined,
+  message: string
+): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/[^\d]/g, "");
+  if (digits.length < 10) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
 // Human-readable slot time, e.g. "пн, 18 мая, 18:00".
 export function formatSlot(iso: string): string {
   const d = new Date(iso);

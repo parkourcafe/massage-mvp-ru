@@ -18,6 +18,7 @@ const NAV = [
   { href: "/dashboard/media", label: "Медиа" },
   { href: "/dashboard/bookings", label: "Заявки" },
   { href: "/dashboard/schedule", label: "Расписание" },
+  { href: "/dashboard/availability", label: "Доступность «Рядом»" },
   { href: "/dashboard/clients", label: "Клиенты (CRM)" },
   { href: "/dashboard/matches", label: "Подборы" },
   { href: "/dashboard/analytics", label: "Аналитика" },
