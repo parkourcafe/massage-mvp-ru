@@ -1,13 +1,11 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { MODALITIES, SAFETY_RULES } from "@/lib/catalog";
+import { MODALITIES } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
-import { ProfileCard } from "@/components/ProfileCard";
 import {
   Counter,
   CursorGlow,
-  HoverCursor,
   LivePulse,
   Magnetic,
   MeshBlob,
@@ -66,6 +64,66 @@ const NEEDS: { label: string; slug: string }[] = [
   { label: "Массаж для беременных", slug: "dlya-beremennyh" },
 ];
 
+const PERSONAS = [
+  {
+    tag: "Сидячая работа",
+    text: "Устали от сидячей работы и ищете проверенного мастера рядом — без салонной текучки.",
+    cta: "Найти классический",
+    href: "/therapists/klassicheskiy",
+  },
+  {
+    tag: "Спорт и нагрузки",
+    text: "Восстанавливаетесь после тренировок и нуждаетесь в спортивном массаже у профильного специалиста.",
+    cta: "Найти спортивный",
+    href: "/therapists/sportivnyy",
+  },
+  {
+    tag: "Регулярный уход",
+    text: "Хотите регулярный уход за телом со своим мастером — без привязки к салону и его расписанию.",
+    cta: "Все типы массажа",
+    href: "/therapists",
+  },
+];
+
+const PRINCIPLES = [
+  {
+    title: "Только профессиональные техники",
+    text: "Классический, спортивный, лимфодренажный — и ещё несколько направлений. Каждый профиль проходит модерацию.",
+  },
+  {
+    title: "Честный контент",
+    text: "Профессиональные фотографии и описания техник. Никакого сомнительного или провокационного контента.",
+  },
+  {
+    title: "Прозрачность",
+    text: "Реальные отзывы, открытые цены и понятное расписание. Вы платите напрямую мастеру.",
+  },
+];
+
+const DEMO_PROFILES = [
+  {
+    name: "Анна К.",
+    modality: "Классический массаж",
+    rating: "4.9",
+    sessions: "120+",
+    place: "Свой кабинет · м. Петроградская",
+  },
+  {
+    name: "Михаил Д.",
+    modality: "Спортивный массаж",
+    rating: "4.8",
+    sessions: "85+",
+    place: "Выезд · Василеостровский",
+  },
+  {
+    name: "Елена С.",
+    modality: "Лимфодренаж",
+    rating: "5.0",
+    sessions: "60+",
+    place: "Кабинет · м. Чернышевская",
+  },
+];
+
 export default async function HomePage() {
   const profiles = await listPublicProfiles();
   const featured = profiles.slice(0, 3);
@@ -108,13 +166,19 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Link href="/nearby" className="btn-accent btn-sm">
-                Найти массаж рядом
-              </Link>
-              <Link href="/match" className="btn-secondary btn-sm">
-                Подобрать с AI
-              </Link>
+            <div className="mt-4">
+              <OpenPalette className="group inline-flex flex-wrap items-center gap-1.5 text-sm text-body transition-colors hover:text-heading">
+                Не знаете, какой массаж вам нужен?
+                <span className="inline-flex items-center gap-1 text-accent">
+                  Подберём с помощью AI
+                  <span
+                    aria-hidden
+                    className="inline-block transition-transform group-hover:translate-x-0.5"
+                  >
+                    →
+                  </span>
+                </span>
+              </OpenPalette>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -329,12 +393,47 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* FOR WHOM */}
+      <section className="container-px border-t border-line py-24">
+        <div className="mb-12">
+          <span className="eyebrow">
+            <span className="num-label">02</span> Для кого
+          </span>
+          <ScrollBoldHeading className="h1 mt-6">
+            MassageMatch — для тех,
+            <br />
+            <span className="italic hot">кто узнаёт себя.</span>
+          </ScrollBoldHeading>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {PERSONAS.map((p) => (
+            <div
+              key={p.tag}
+              className="flex h-full flex-col justify-between rounded-xl2 border border-line bg-card p-9"
+            >
+              <div>
+                <span className="chip">{p.tag}</span>
+                <p className="mt-6 font-serif text-2xl leading-snug text-heading">
+                  {p.text}
+                </p>
+              </div>
+              <Link
+                href={p.href}
+                className="mt-8 inline-flex items-center gap-1.5 text-sm text-accent"
+              >
+                {p.cta} <span aria-hidden>→</span>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* SPECIALIZATIONS */}
       <section className="bg-gradient-to-b from-surface to-page py-24">
         <div className="container-px grid items-center gap-16 lg:grid-cols-2">
           <div>
             <span className="eyebrow">
-              <span className="num-label">02</span> Выбор по запросу
+              <span className="num-label">03</span> Выбор по запросу
             </span>
             <ScrollBoldHeading className="h1 mt-6 mb-6">
               Скажите телу,
@@ -363,81 +462,141 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="img-ph aspect-[3/4] w-full max-w-sm rounded-xl2">
-              карта тела
+            <div className="relative flex aspect-[3/4] w-full max-w-sm flex-col items-center justify-center rounded-xl2 border border-line bg-gradient-to-b from-surface to-card p-10">
+              <svg
+                viewBox="0 0 200 300"
+                className="h-full w-full text-line-strong"
+                role="img"
+                aria-label="Силуэт тела — выберите зону в списке"
+              >
+                <g fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="100" cy="40" r="24" />
+                  <path d="M76 66 Q100 80 124 66 L138 110 Q142 170 128 235 L116 296 M84 296 L72 235 Q58 170 62 110 Z" />
+                  <path d="M78 74 L36 150 M122 74 L164 150" />
+                </g>
+                <g className="fill-accent">
+                  <circle cx="100" cy="70" r="6" />
+                  <circle cx="100" cy="130" r="6" />
+                  <circle cx="100" cy="185" r="6" />
+                </g>
+              </svg>
+              <span className="small absolute bottom-6">
+                Выберите зону в списке слева
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FEATURED */}
+      {/* HOW A PROFILE LOOKS */}
       <section className="container-px py-24">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
           <div>
             <span className="eyebrow">
-              <span className="num-label">03</span> Рекомендуем
+              <span className="num-label">04</span> Примеры профилей
             </span>
             <ScrollBoldHeading className="h1 mt-6">
-              Мастера, которым
+              Как выглядит профиль
               <br />
-              <span className="italic hot">возвращаются.</span>
+              <span className="italic hot">на MassageMatch.</span>
             </ScrollBoldHeading>
           </div>
-          <Link href="/therapists" className="btn-secondary btn-sm">
-            Весь каталог →
+          <Link href="/examples" className="btn-secondary btn-sm">
+            Смотреть все примеры →
           </Link>
         </div>
-        {featured.length > 0 ? (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p, i) => {
-              const card = <ProfileCard profile={p} />;
-              return (
-                <HoverCursor
-                  key={p.id}
-                  label={`→ Записаться к ${p.full_name.split(" ")[0]}`}
-                  className="h-full"
-                >
-                  {i === 1 ? (
-                    <Tilt className="h-full">{card}</Tilt>
-                  ) : (
-                    card
-                  )}
-                </HoverCursor>
-              );
-            })}
+        <div className="grid gap-5 md:grid-cols-3">
+          {DEMO_PROFILES.map((p) => (
+            <div
+              key={p.name}
+              className="flex h-full flex-col justify-between rounded-xl2 border border-line bg-card p-7"
+            >
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="img-ph h-12 w-12 shrink-0 rounded-full text-[8px]">
+                    {p.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="font-serif text-xl text-heading">
+                      {p.name}
+                    </div>
+                    <div className="small mt-0.5">{p.modality}</div>
+                  </div>
+                </div>
+                <div className="mt-5 flex items-center gap-2 text-sm text-heading">
+                  <span className="hot">★</span> {p.rating}
+                  <span className="text-secondary">·</span>
+                  <span className="text-body">{p.sessions} сеансов</span>
+                </div>
+                <div className="small mt-2">{p.place}</div>
+              </div>
+              <div className="mt-6 border-t border-line pt-4 text-xs uppercase tracking-wide text-secondary">
+                Пример оформления профиля
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* WHY WE BUILT THIS */}
+      <section className="bg-gradient-to-b from-page to-surface py-24">
+        <div className="container-px grid items-center gap-16 lg:grid-cols-[1.3fr_1fr]">
+          <div>
+            <span className="eyebrow">
+              <span className="num-label not-italic">↳</span> Почему мы это
+              создали
+            </span>
+            <blockquote className="mt-7 font-serif text-3xl leading-snug text-heading sm:text-4xl">
+              «Я искала массажиста в Петербурге и поняла: нормального мастера
+              почти невозможно найти без сарафанного радио. Агрегаторы смешивают{" "}
+              <span className="italic hot">профессионалов</span> с «салонами на
+              час». Мы решили это исправить.»
+            </blockquote>
+            <div className="small mt-6">— Основатель MassageMatch</div>
           </div>
-        ) : (
-          <p className="body-lg text-secondary">
-            Скоро здесь появятся первые специалисты.
-          </p>
-        )}
+          <div className="grid grid-cols-3 gap-6 lg:grid-cols-1">
+            {[
+              { v: "0 ₽", l: "комиссия для клиента" },
+              { v: MODALITIES.length, l: "направлений массажа в каталоге" },
+              { v: "3", l: "шага от поиска до записи" },
+            ].map((s) => (
+              <div key={s.l} className="border-l-2 border-accent pl-5">
+                <div className="font-serif text-4xl leading-none text-heading">
+                  {s.v}
+                </div>
+                <div className="small mt-2">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* PRINCIPLES (editorial) */}
       <section className="container-px py-24">
         <span className="eyebrow">
-          <span className="num-label">04</span> Принципы платформы
+          <span className="num-label">05</span> Принципы платформы
         </span>
         <ScrollBoldHeading className="h1 mt-6 mb-14 max-w-3xl">
-          <span className="italic hot">Только профессиональный</span>{" "}
-          оздоровительный и лечебный массаж.
+          <span className="italic hot">Профессиональный</span> массаж, честный
+          контент, прозрачные цены.
         </ScrollBoldHeading>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {SAFETY_RULES.slice(0, 6).map((r, i) => (
+        <div className="grid gap-6 md:grid-cols-3">
+          {PRINCIPLES.map((p, i) => (
             <figure
-              key={r}
+              key={p.title}
               className={`m-0 flex min-h-[220px] flex-col justify-between rounded-xl2 border p-8 ${
-                i === 0
-                  ? "border-accent bg-accent-soft"
-                  : "border-line bg-card"
+                i === 0 ? "border-accent bg-accent-soft" : "border-line bg-card"
               }`}
             >
-              <div className="num-label text-5xl leading-none">
-                0{i + 1}
+              <div className="num-label text-5xl leading-none">0{i + 1}</div>
+              <div className="mt-6">
+                <h3 className="font-serif text-2xl leading-snug text-heading">
+                  {p.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-body">
+                  {p.text}
+                </p>
               </div>
-              <blockquote className="serif m-0 mt-6 text-lg leading-snug text-heading">
-                {r}
-              </blockquote>
             </figure>
           ))}
         </div>
@@ -453,7 +612,9 @@ export default async function HomePage() {
               <br />
               мастера.
               <br />
-              <em className="italic opacity-70">Или станьте им.</em>
+              <em className="italic opacity-70">
+                Или станьте первым на платформе.
+              </em>
             </h2>
           </div>
           <div className="relative z-10 flex flex-col items-start gap-4">
@@ -467,10 +628,13 @@ export default async function HomePage() {
             </Magnetic>
             <Link
               href="/dashboard/profile"
-              className="text-sm text-white/70 underline-offset-4 hover:underline"
+              className="text-sm font-medium text-white underline-offset-4 hover:underline"
             >
-              Я массажист — завести профиль →
+              Завести профиль →
             </Link>
+            <p className="max-w-xs text-xs leading-relaxed text-white/60">
+              Первые 50 мастеров получают Pro-аккаунт бесплатно на 3 месяца.
+            </p>
           </div>
           <div
             aria-hidden
