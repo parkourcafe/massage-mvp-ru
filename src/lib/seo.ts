@@ -52,7 +52,10 @@ export function pageMetadata(opts: {
 }): Metadata {
   const url = opts.path ? `${SITE_URL}${opts.path}` : SITE_URL;
   return {
-    title: `${opts.title} — ${SITE_NAME}`,
+    // Bare title — the root layout's `title.template` ("%s — SITE_NAME")
+    // appends the site name once. Returning it here too double-suffixed
+    // every page ("Тарифы — MassageMatch — MassageMatch").
+    title: opts.title,
     description: opts.description,
     alternates: { canonical: url },
     robots: opts.noindex ? NOINDEX : INDEX,

@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { MODALITIES, PLATFORM_NOTICE, SAFETY_RULES } from "@/lib/catalog";
+import { MODALITIES, SAFETY_RULES } from "@/lib/catalog";
 import { listPublicProfiles } from "@/lib/db";
 import { ProfileCard } from "@/components/ProfileCard";
 import {
@@ -438,9 +438,7 @@ export default async function HomePage() {
       <section className="container-px py-24">
         <div className="relative grid items-center gap-16 overflow-hidden rounded-xl2 bg-gradient-to-br from-accent to-plum-700 px-10 py-20 text-white sm:px-16 lg:grid-cols-[1.4fr_1fr]">
           <div className="relative z-10">
-            <span className="eyebrow !text-white/60">
-              {PLATFORM_NOTICE}
-            </span>
+            <span className="eyebrow !text-white/60">Готовы начать?</span>
             <h2 className="mt-6 font-serif text-5xl font-medium leading-none tracking-tight sm:text-6xl">
               Найдите своего
               <br />
