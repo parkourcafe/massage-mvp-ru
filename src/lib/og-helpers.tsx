@@ -37,8 +37,8 @@ export function createOGImage(title: string, subtitle: string) {
           justifyContent: "center",
           padding: "80px",
           background:
-            "linear-gradient(135deg, #0f1419 0%, #1a2a2e 50%, #0d2926 100%)",
-          color: "#e0f0ee",
+            "linear-gradient(135deg, #0c080d 0%, #1a0f1c 55%, #2a1226 100%)",
+          color: "#f6eef2",
           fontFamily: "PT Sans",
         }}
       >
@@ -47,7 +47,7 @@ export function createOGImage(title: string, subtitle: string) {
           style={{
             width: "60px",
             height: "4px",
-            background: "#5de6c8",
+            background: "#ec4889",
             borderRadius: "2px",
             marginBottom: "40px",
           }}
@@ -75,7 +75,7 @@ export function createOGImage(title: string, subtitle: string) {
           style={{
             fontSize: "28px",
             fontWeight: 400,
-            color: "#7ec8b8",
+            color: "#c4a9bb",
             marginBottom: "60px",
             maxWidth: "1000px",
             lineHeight: 1.3,
@@ -98,7 +98,7 @@ export function createOGImage(title: string, subtitle: string) {
               cx="20"
               cy="20"
               r="19"
-              stroke="#7ec8b8"
+              stroke="#9b8593"
               strokeWidth="0.75"
               opacity="0.5"
             />
@@ -111,7 +111,7 @@ export function createOGImage(title: string, subtitle: string) {
             style={{
               fontSize: "22px",
               fontWeight: 400,
-              color: "#8aa8a2",
+              color: "#9b8593",
               letterSpacing: "0.5px",
             }}
           >
