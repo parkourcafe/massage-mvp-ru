@@ -39,6 +39,19 @@ function loadLeaflet(): Promise<LeafletApi | null> {
     link.href = LEAFLET_CSS;
     document.head.appendChild(link);
   }
+  if (!document.getElementById("leaflet-drama")) {
+    const st = document.createElement("style");
+    st.id = "leaflet-drama";
+    st.textContent = `
+      .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#1d1722;color:#ebdfd5;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+      .leaflet-popup-content-wrapper{border:1px solid rgba(248,239,232,.12);border-radius:14px}
+      .leaflet-popup-content{margin:14px 16px}
+      .leaflet-container a.leaflet-popup-close-button{color:#8a7f7a}
+      .leaflet-container a.leaflet-popup-close-button:hover{color:#f8efe8}
+      .leaflet-bar a,.leaflet-bar a:hover{background:#1d1722;color:#ebdfd5;border-color:rgba(248,239,232,.12)}
+    `;
+    document.head.appendChild(st);
+  }
   return new Promise((resolve, reject) => {
     const existing = document.querySelector(
       `script[src="${LEAFLET_JS}"]`
@@ -81,7 +94,7 @@ function previewHtml(c: NearbyCard): string {
     ? `<img src="${esc(
         c.photo_url
       )}" alt="" style="width:44px;height:44px;border-radius:9999px;object-fit:cover;flex:0 0 auto" />`
-    : `<span style="width:44px;height:44px;border-radius:9999px;background:#e7ddcd;flex:0 0 auto;display:inline-block"></span>`;
+    : `<span style="width:44px;height:44px;border-radius:9999px;background:#2a2230;flex:0 0 auto;display:inline-block"></span>`;
   const trust = [
     c.verified ? "✓ проверен" : null,
     c.years_experience ? `${c.years_experience} лет опыта` : null,
@@ -97,25 +110,25 @@ function previewHtml(c: NearbyCard): string {
   const waBtn = wa
     ? `<a href="${esc(
         wa
-      )}" target="_blank" rel="noopener noreferrer" style="flex:1;text-align:center;background:#285b50;color:#fff;border-radius:8px;padding:6px 8px;font-size:12px;text-decoration:none">WhatsApp</a>`
+      )}" target="_blank" rel="noopener noreferrer" style="flex:1;text-align:center;background:#ec4889;color:#14101a;border-radius:8px;padding:6px 8px;font-size:12px;text-decoration:none">WhatsApp</a>`
     : "";
   return `
-    <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid #e7ddcd">
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(248,239,232,0.12)">
       ${photo}
       <div style="min-width:0;flex:1">
-        <div style="font-weight:600;color:#22201c;font-size:13px">${esc(
+        <div style="font-weight:600;color:#f8efe8;font-size:13px">${esc(
           c.full_name
         )}</div>
-        <div style="color:#7c766b;font-size:11px;margin-top:1px">${esc(
+        <div style="color:#8a7f7a;font-size:11px;margin-top:1px">${esc(
           trust || "профессиональный массаж"
         )}</div>
-        <div style="color:#4a463f;font-size:11px;margin-top:2px">${esc(
+        <div style="color:#ebdfd5;font-size:11px;margin-top:2px">${esc(
           dist
         )} · ${esc(price)}</div>
         <div style="display:flex;gap:6px;margin-top:6px">
           <a href="/therapist/${esc(
             c.slug
-          )}" style="flex:1;text-align:center;border:1px solid #bbdfd2;color:#234943;border-radius:8px;padding:6px 8px;font-size:12px;text-decoration:none">Профиль</a>
+          )}" style="flex:1;text-align:center;border:1px solid rgba(248,239,232,0.22);color:#f8efe8;border-radius:8px;padding:6px 8px;font-size:12px;text-decoration:none">Профиль</a>
           ${waBtn}
         </div>
       </div>
@@ -174,10 +187,13 @@ export function NearbyMap({
             scrollWheelZoom: false,
             attributionControl: true,
           }).setView(center, client ? 12 : 11);
-          L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 18,
-            attribution: "© OpenStreetMap",
-          }).addTo(map);
+          L.tileLayer(
+            "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+            {
+              maxZoom: 19,
+              attribution: "© OpenStreetMap · © CARTO",
+            }
+          ).addTo(map);
           mapRef.current = map;
         }
         const map = mapRef.current;
@@ -190,8 +206,8 @@ export function NearbyMap({
           layers.push(
             L.circleMarker([client.lat, client.lng], {
               radius: 8,
-              color: "#285b50",
-              fillColor: "#3f8d79",
+              color: "#d72a6f",
+              fillColor: "#ec4889",
               fillOpacity: 0.9,
             })
               .addTo(map)
@@ -202,7 +218,7 @@ export function NearbyMap({
         for (const a of areaList) {
           const popup = `
             <div style="max-height:280px;overflow:auto;min-width:220px">
-              <div style="font-weight:600;font-size:12px;color:#22201c;padding-bottom:2px">
+              <div style="font-weight:600;font-size:12px;color:#f8efe8;padding-bottom:2px">
                 ${esc(a.label)} · ${a.cards.length} ${
                   a.cards.length === 1 ? "мастер" : "мастеров"
                 } сейчас
@@ -213,18 +229,18 @@ export function NearbyMap({
           layers.push(
             L.circle([a.lat, a.lng], {
               radius: 1100,
-              color: "#bd7349",
+              color: "#7d3a78",
               weight: 1,
-              fillColor: "#cf8a5f",
-              fillOpacity: 0.16,
+              fillColor: "#7d3a78",
+              fillOpacity: 0.18,
             }).addTo(map)
           );
           // Clickable area marker with the profile previews.
           layers.push(
             L.circleMarker([a.lat, a.lng], {
               radius: 11,
-              color: "#a35d38",
-              fillColor: "#cf8a5f",
+              color: "#d72a6f",
+              fillColor: "#ec4889",
               fillOpacity: 0.95,
             })
               .addTo(map)
