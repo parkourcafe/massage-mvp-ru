@@ -1,12 +1,8 @@
 import { CITY_BY_SLUG, MODALITY_BY_SLUG } from "@/lib/catalog";
-import {
-  OG_CONTENT_TYPE,
-  OG_SIZE,
-  createOGImage,
-} from "@/lib/og-helpers";
+import { OG_SIZE, createOGImage } from "@/lib/og-helpers";
 
 export const size = OG_SIZE;
-export const contentType = OG_CONTENT_TYPE;
+export const contentType = "image/png";
 export const alt = "MassageMatch";
 
 // Per-modality OG copy. Keyed by modality `key`; title may differ from

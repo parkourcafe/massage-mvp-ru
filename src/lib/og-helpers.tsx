@@ -9,7 +9,6 @@ import { ImageResponse } from "next/og";
 import { PT_SANS_BOLD_B64, PT_SANS_REGULAR_B64 } from "./og/fonts";
 
 export const OG_SIZE = { width: 1200, height: 630 };
-export const OG_CONTENT_TYPE = "image/png";
 
 // next/og's bundled default font is Latin-only — with fontFamily
 // "sans-serif" every Cyrillic glyph renders as tofu (□□□), which would

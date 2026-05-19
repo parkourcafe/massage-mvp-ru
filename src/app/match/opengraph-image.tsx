@@ -1,14 +1,10 @@
-import {
-  OG_CONTENT_TYPE,
-  OG_SIZE,
-  createOGImage,
-} from "@/lib/og-helpers";
+import { OG_SIZE, createOGImage } from "@/lib/og-helpers";
 
 export const size = OG_SIZE;
-export const contentType = OG_CONTENT_TYPE;
+export const contentType = "image/png";
 export const alt = "AI-подбор массажиста — MassageMatch";
 
-export default function OgImage() {
+export default async function OGImage() {
   return createOGImage(
     "AI-подбор массажиста",
     "Опишите задачу — AI предложит подходящих специалистов"
