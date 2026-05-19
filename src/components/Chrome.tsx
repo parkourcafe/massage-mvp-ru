@@ -54,6 +54,7 @@ function LogoMark() {
 const NAV = [
   { href: "/therapists", label: "Специалисты" },
   { href: "/match", label: "AI-подбор" },
+  { href: "/app", label: "Приложение" },
   { href: "/examples", label: "Примеры" },
   { href: "/pricing", label: "Тарифы" },
   { href: "/favorites", label: "Избранное" },
@@ -100,6 +101,7 @@ const FOOTER_COLS: { title: string; links: { href: string; label: string }[] }[]
       links: [
         { href: "/therapists", label: "Найти массажиста" },
         { href: "/match", label: "AI-подбор" },
+        { href: "/app", label: "Мобильное приложение" },
         { href: "/examples", label: "Примеры профилей" },
         { href: "/favorites", label: "Избранное" },
       ],

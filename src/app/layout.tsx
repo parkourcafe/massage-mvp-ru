@@ -17,6 +17,7 @@ const sans = Inter({
   display: "swap",
 });
 import { SafetyNotice, SiteFooter, SiteHeader } from "@/components/Chrome";
+import { AIPalette } from "@/components/AIPalette";
 import { JsonLd } from "@/components/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -48,6 +49,7 @@ export default function RootLayout({
         <SafetyNotice />
         <SiteHeader />
         <main className="flex-1">{children}</main>
+        <AIPalette />
         <SiteFooter />
       </body>
     </html>
