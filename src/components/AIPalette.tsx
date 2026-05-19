@@ -49,7 +49,39 @@ function StreamingText({ text, speed = 12 }: { text: string; speed?: number }) {
     }, speed);
     return () => clearInterval(id);
   }, [text, speed]);
-  return <span>{shown}</span>;
+  const streaming = shown.length < text.length;
+  return (
+    <span>
+      {shown}
+      {streaming && (
+        <span
+          aria-hidden
+          className="ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.15em] bg-accent"
+          style={{ animation: "aip-blink 1s steps(1) infinite" }}
+        />
+      )}
+    </span>
+  );
+}
+
+// Opens the ⌘K palette from anywhere (e.g. the hero AI card) via a
+// window event the mounted palette listens for.
+export function OpenPalette({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={() => window.dispatchEvent(new Event("massaje:open-palette"))}
+    >
+      {children}
+    </button>
+  );
 }
 
 export function AIPalette() {
@@ -77,8 +109,13 @@ export function AIPalette() {
       }
       if (e.key === "Escape") setOpen(false);
     };
+    const onOpen = () => setOpen(true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("massaje:open-palette", onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("massaje:open-palette", onOpen);
+    };
   }, []);
 
   useEffect(() => {
@@ -326,6 +363,7 @@ export function AIPalette() {
             @keyframes aip-fade { from { opacity: 0 } to { opacity: 1 } }
             @keyframes aip-rise { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
             @keyframes aip-pulse { 0%,80%,100% { transform: scale(0.6); opacity: 0.5 } 40% { transform: scale(1); opacity: 1 } }
+            @keyframes aip-blink { 0%,50% { opacity: 1 } 50.01%,100% { opacity: 0 } }
           `}</style>
         </div>
       )}

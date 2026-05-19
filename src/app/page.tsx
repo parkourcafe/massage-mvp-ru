@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { MODALITIES, PLATFORM_NOTICE, SAFETY_RULES } from "@/lib/catalog";
@@ -13,6 +14,7 @@ import {
   ScrollBoldHeading,
   Tilt,
 } from "@/components/effects";
+import { OpenPalette } from "@/components/AIPalette";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -149,10 +151,7 @@ export default async function HomePage() {
                 </div>
               </div>
             )}
-            <Link
-              href="/match"
-              className="group absolute bottom-10 right-[-16px] z-10 block w-[300px] overflow-hidden rounded-xl2 border border-line-strong bg-card/80 p-5 shadow-lift backdrop-blur-md transition-transform hover:-translate-y-1"
-            >
+            <OpenPalette className="group absolute bottom-10 right-[-16px] z-10 block w-[300px] overflow-hidden rounded-xl2 border border-line-strong bg-card/80 p-5 text-left shadow-lift backdrop-blur-md transition-transform hover:-translate-y-1">
               <span
                 aria-hidden
                 className="pointer-events-none absolute inset-0 animate-shimmer motion-reduce:hidden"
@@ -168,9 +167,9 @@ export default async function HomePage() {
                 </span>
                 <span className="eyebrow !text-accent">Massaje AI</span>
               </span>
-              <p className="relative z-10 mt-2 font-serif text-[17px] leading-snug text-heading">
+              <span className="relative z-10 mt-2 block font-serif text-[17px] leading-snug text-heading">
                 Опишите задачу — подберём специалистов и техники под вас.
-              </p>
+              </span>
               <span className="relative z-10 mt-3 flex items-center gap-1.5 text-xs text-accent">
                 Подобрать с AI{" "}
                 <span
@@ -180,7 +179,7 @@ export default async function HomePage() {
                   →
                 </span>
               </span>
-            </Link>
+            </OpenPalette>
           </div>
         </div>
 
@@ -268,48 +267,56 @@ export default async function HomePage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <div
-              key={s.n}
-              className={`flex flex-col justify-between rounded-xl2 border border-line p-9 ${
-                i === 0
-                  ? "bg-gradient-to-b from-surface to-card md:row-span-2"
-                  : i === 2
-                    ? "bg-gradient-to-br from-accent to-plum-700 text-white"
-                    : "bg-card"
-              }`}
-            >
-              <div>
-                <div
-                  className={`num-label text-5xl ${i === 2 ? "!text-white/80" : ""}`}
-                >
-                  {s.n}
+          {STEPS.map((s, i) => {
+            const inner = (
+              <div
+                className={`flex h-full flex-col justify-between rounded-xl2 border border-line p-9 ${
+                  i === 0
+                    ? "bg-gradient-to-b from-surface to-card"
+                    : i === 2
+                      ? "bg-gradient-to-br from-accent to-plum-700 text-white"
+                      : "bg-card"
+                }`}
+              >
+                <div>
+                  <div
+                    className={`num-label text-5xl ${i === 2 ? "!text-white/80" : ""}`}
+                  >
+                    {s.n}
+                  </div>
+                  <h3 className="mt-6 font-serif text-3xl">
+                    {s.lead}{" "}
+                    <em className={i === 2 ? "italic" : "italic hot"}>
+                      {s.title}.
+                    </em>
+                  </h3>
+                  <p
+                    className={`mt-4 text-sm leading-relaxed ${
+                      i === 2 ? "text-white/85" : "text-body"
+                    }`}
+                  >
+                    {s.text}
+                  </p>
                 </div>
-                <h3 className="mt-6 font-serif text-3xl">
-                  {s.lead}{" "}
-                  <em className={i === 2 ? "italic" : "italic hot"}>
-                    {s.title}.
-                  </em>
-                </h3>
-                <p
-                  className={`mt-4 text-sm leading-relaxed ${
-                    i === 2 ? "text-white/85" : "text-body"
-                  }`}
-                >
-                  {s.text}
-                </p>
+                {i === 0 && (
+                  <div className="mt-8 flex flex-wrap gap-2">
+                    {["наличные", "карта", "СБП", "перевод"].map((p) => (
+                      <span key={p} className="chip">
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-              {i === 0 && (
-                <div className="mt-8 flex flex-wrap gap-2">
-                  {["наличные", "карта", "СБП", "перевод"].map((p) => (
-                    <span key={p} className="chip">
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+            );
+            return i === 0 ? (
+              <Tilt key={s.n} className="md:row-span-2">
+                {inner}
+              </Tilt>
+            ) : (
+              <Fragment key={s.n}>{inner}</Fragment>
+            );
+          })}
         </div>
       </section>
 
