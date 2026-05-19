@@ -253,6 +253,40 @@ export function landingContent(opts: {
   return { heading, paragraphs, faq };
 }
 
+// Hand-written SEO meta descriptions per modality (keyed by modality
+// `key`). Length-tuned to ~147–160 chars for Google/Yandex SERP snippets.
+// Modalities without an entry fall back to the generic phrasing below.
+const MODALITY_META_DESCRIPTION: Record<string, string> = {
+  classic:
+    "Классический массаж от проверенных частных специалистов. Расписание, отзывы, запись онлайн. Подберите массажиста вручную или с помощью AI на MassageMatch.",
+  relaxing:
+    "Расслабляющий массаж для снятия стресса и напряжения. Сертифицированные массажисты с гибким расписанием. Выбирайте по рейтингу и записывайтесь на MassageMatch.",
+  deep_tissue:
+    "Глубокотканный массаж от опытных специалистов. Работа с триггерными точками, снятие хронического напряжения. Проверенные профили с отзывами на MassageMatch.",
+  sports:
+    "Спортивный массаж для восстановления после тренировок и подготовки к соревнованиям. Частные массажисты с опытом работы со спортсменами. Запись на MassageMatch.",
+  balinese:
+    "Балийский массаж — мягкая техника с элементами акупрессуры и ароматерапии. Найдите специалиста с подтверждённым опытом и запишитесь через MassageMatch.",
+  lymphatic:
+    "Лимфодренажный массаж для снятия отёков, улучшения лимфотока и детоксикации. Квалифицированные специалисты с медицинским образованием. Запись на MassageMatch.",
+  neck_shoulders:
+    "Массаж шейно-воротниковой зоны — снятие боли и напряжения в шее и плечах. Частные массажисты с выездом или в кабинете. Онлайн-запись и AI-подбор на MassageMatch.",
+  back:
+    "Массаж спины от проверенных специалистов. Классический, лечебный или глубокотканный — подберите технику и мастера под свой запрос. Запись онлайн на MassageMatch.",
+  pregnancy:
+    "Массаж для беременных от специалистов с подтверждённой квалификацией. Безопасные техники для каждого триместра. Только проверенные профили на MassageMatch.",
+};
+
+export function modalityMetaDescription(
+  modalityKey: string,
+  modalityLabel: string
+): string {
+  return (
+    MODALITY_META_DESCRIPTION[modalityKey] ??
+    `Профессиональные специалисты: ${modalityLabel}.`
+  );
+}
+
 // Internal-linking blocks for landing pages: strengthen crawl paths and
 // give users relevant next steps (same-family services, the service in
 // other cities, other services in the same city).
