@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PLATFORM_NOTICE, SITE_NAME } from "@/lib/seo";
+import { MobileNav } from "@/components/MobileNav";
 
 export function SafetyNotice() {
   return (
@@ -88,6 +89,7 @@ export function SiteHeader() {
           <Link href="/dashboard/profile" className="btn-primary btn-sm">
             Создать профиль
           </Link>
+          <MobileNav items={NAV} />
         </div>
       </div>
     </header>
