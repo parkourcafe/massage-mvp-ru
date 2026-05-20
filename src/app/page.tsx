@@ -169,7 +169,7 @@ export default async function HomePage() {
             <div className="mt-4">
               <OpenPalette className="group inline-flex flex-wrap items-center gap-1.5 text-sm text-body transition-colors hover:text-heading">
                 Не знаете, какой массаж вам нужен?
-                <span className="inline-flex items-center gap-1 text-accent">
+                <span className="inline-flex items-center gap-1 underline underline-offset-4 decoration-1">
                   Подберём с помощью AI
                   <span
                     aria-hidden
@@ -402,7 +402,7 @@ export default async function HomePage() {
           <ScrollBoldHeading className="h1 mt-6">
             MassageMatch — для тех,
             <br />
-            <span className="italic hot">кто узнаёт себя.</span>
+            <span className="italic">кто узнаёт себя.</span>
           </ScrollBoldHeading>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
@@ -419,7 +419,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href={p.href}
-                className="mt-8 inline-flex items-center gap-1.5 text-sm text-accent"
+                className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-heading underline-offset-4 hover:underline"
               >
                 {p.cta} <span aria-hidden>→</span>
               </Link>
@@ -474,11 +474,6 @@ export default async function HomePage() {
                   <path d="M76 66 Q100 80 124 66 L138 110 Q142 170 128 235 L116 296 M84 296 L72 235 Q58 170 62 110 Z" />
                   <path d="M78 74 L36 150 M122 74 L164 150" />
                 </g>
-                <g className="fill-accent">
-                  <circle cx="100" cy="70" r="6" />
-                  <circle cx="100" cy="130" r="6" />
-                  <circle cx="100" cy="185" r="6" />
-                </g>
               </svg>
               <span className="small absolute bottom-6">
                 Выберите зону в списке слева
@@ -498,7 +493,7 @@ export default async function HomePage() {
             <ScrollBoldHeading className="h1 mt-6">
               Как выглядит профиль
               <br />
-              <span className="italic hot">на MassageMatch.</span>
+              <span className="italic">на MassageMatch.</span>
             </ScrollBoldHeading>
           </div>
           <Link href="/examples" className="btn-secondary btn-sm">
@@ -549,7 +544,7 @@ export default async function HomePage() {
             <blockquote className="mt-7 font-serif text-3xl leading-snug text-heading sm:text-4xl">
               «Я искала массажиста в Петербурге и поняла: нормального мастера
               почти невозможно найти без сарафанного радио. Агрегаторы смешивают{" "}
-              <span className="italic hot">профессионалов</span> с «салонами на
+              <span className="italic">профессионалов</span> с «салонами на
               час». Мы решили это исправить.»
             </blockquote>
             <div className="small mt-6">— Основатель MassageMatch</div>
@@ -560,7 +555,7 @@ export default async function HomePage() {
               { v: MODALITIES.length, l: "направлений массажа в каталоге" },
               { v: "3", l: "шага от поиска до записи" },
             ].map((s) => (
-              <div key={s.l} className="border-l-2 border-accent pl-5">
+              <div key={s.l} className="border-l-2 border-line-strong pl-5">
                 <div className="font-serif text-4xl leading-none text-heading">
                   {s.v}
                 </div>
