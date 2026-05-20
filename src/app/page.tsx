@@ -10,6 +10,7 @@ import {
   Magnetic,
   MeshBlob,
   ScrollBoldHeading,
+  ScrollReveal,
   Tilt,
 } from "@/components/effects";
 import { OpenPalette } from "@/components/AIPalette";
@@ -321,6 +322,7 @@ export default async function HomePage() {
       </div>
 
       {/* HOW IT WORKS — bento */}
+      <ScrollReveal>
       <section className="container-px border-t border-line py-24">
         <div className="mb-12 grid items-end gap-12 lg:grid-cols-[1fr_1.5fr]">
           <div>
@@ -392,8 +394,10 @@ export default async function HomePage() {
           })}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* FOR WHOM */}
+      <ScrollReveal>
       <section className="container-px border-t border-line py-24">
         <div className="mb-12">
           <span className="eyebrow">
@@ -427,8 +431,10 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* SPECIALIZATIONS */}
+      <ScrollReveal>
       <section className="bg-gradient-to-b from-surface to-page py-24">
         <div className="container-px grid items-center gap-16 lg:grid-cols-2">
           <div>
@@ -482,8 +488,10 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* HOW A PROFILE LOOKS */}
+      <ScrollReveal>
       <section className="container-px py-24">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
           <div>
@@ -532,8 +540,10 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* WHY WE BUILT THIS */}
+      <ScrollReveal>
       <section className="bg-gradient-to-b from-page to-surface py-24">
         <div className="container-px grid items-center gap-16 lg:grid-cols-[1.3fr_1fr]">
           <div>
@@ -565,8 +575,10 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* PRINCIPLES (editorial) */}
+      <ScrollReveal>
       <section className="container-px py-24">
         <span className="eyebrow">
           <span className="num-label">05</span> Принципы платформы
@@ -596,8 +608,10 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* FINAL CTA */}
+      <ScrollReveal>
       <section className="container-px py-24">
         <div className="relative grid items-center gap-16 overflow-hidden rounded-xl2 bg-gradient-to-br from-accent to-plum-700 px-10 py-20 text-white sm:px-16 lg:grid-cols-[1.4fr_1fr]">
           <div className="relative z-10">
@@ -641,6 +655,7 @@ export default async function HomePage() {
           />
         </div>
       </section>
+      </ScrollReveal>
     </div>
   );
 }
