@@ -18,6 +18,7 @@ const sans = Inter({
 });
 import { SafetyNotice, SiteFooter, SiteHeader } from "@/components/Chrome";
 import { AIPalette } from "@/components/AIPalette";
+import { Analytics } from "@/components/analytics";
 import { Grain } from "@/components/effects";
 import { JsonLd } from "@/components/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
@@ -57,6 +58,7 @@ export default function RootLayout({
     <html lang="ru" className={`${serif.variable} ${sans.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+        <Analytics />
         <Grain />
         <SafetyNotice />
         <SiteHeader />

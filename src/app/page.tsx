@@ -14,6 +14,7 @@ import {
   Tilt,
 } from "@/components/effects";
 import { OpenPalette } from "@/components/AIPalette";
+import { TrackedLink } from "@/components/analytics";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -156,12 +157,13 @@ export default async function HomePage() {
               <span className="flex flex-1 items-center gap-2 px-5 py-3 text-sm text-body">
                 <span className="hot">✦</span> Любой массаж · Санкт-Петербург
               </span>
-              <Link
+              <TrackedLink
                 href="/therapists"
+                event="cta_click_catalog"
                 className="btn-primary btn-sm shrink-0"
               >
                 Показать <span aria-hidden>→</span>
-              </Link>
+              </TrackedLink>
             </div>
 
             <div className="mt-4">
