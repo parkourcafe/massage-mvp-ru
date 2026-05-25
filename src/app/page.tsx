@@ -636,7 +636,7 @@ export default async function HomePage() {
               </Link>
             </Magnetic>
             <Link
-              href="/dashboard/profile"
+              href="/signup"
               className="text-sm font-medium text-white underline-offset-4 hover:underline"
             >
               Завести профиль →

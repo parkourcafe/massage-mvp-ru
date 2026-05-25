@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -33,9 +33,19 @@ export const metadata: Metadata = {
   },
   description:
     "AI-платформа для независимых профессиональных массажистов и клиентов. Только оздоровительный и лечебный массаж.",
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
   ...(yandexVerification
     ? { verification: { yandex: yandexVerification } }
     : {}),
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0c080d",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublicProfileBySlug, listOpenSlots } from "@/lib/db";
+import { modalityLabel } from "@/lib/catalog";
 import { pageMetadata } from "@/lib/seo";
 import { formatSlot } from "@/lib/util";
 import { BookingForm } from "@/components/BookingForm";
@@ -113,7 +114,7 @@ export default async function BookingPage({ params, searchParams }: Params) {
                 >
                   <span className="small">{s.title}</span>
                   <span className="serif text-heading text-sm">
-                    {s.modality}
+                    {modalityLabel(s.modality)}
                   </span>
                 </li>
               ))}

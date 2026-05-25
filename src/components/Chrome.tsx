@@ -86,7 +86,7 @@ export function SiteHeader() {
           >
             Войти
           </Link>
-          <Link href="/dashboard/profile" className="btn-primary btn-sm">
+          <Link href="/signup" className="btn-primary btn-sm">
             Создать профиль
           </Link>
           <MobileNav items={NAV} />

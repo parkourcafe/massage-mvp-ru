@@ -299,7 +299,7 @@ export function NearbyExplorer() {
 function NearbyCardView({ c }: { c: NearbyCard }) {
   const wa = buildWhatsAppLink(
     c.whatsapp,
-    `Здравствуйте! Хочу записаться на массаж.\n\nМастер: ${c.full_name}\nЗона: ${c.area_label}\nПлатформа: Massage MVP`
+    `Здравствуйте! Хочу записаться на массаж.\n\nМастер: ${c.full_name}\nЗона: ${c.area_label}\nПлатформа: MassageMatch`
   );
   return (
     <article className="card flex flex-col gap-3">
