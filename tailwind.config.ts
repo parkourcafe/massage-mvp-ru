@@ -178,6 +178,13 @@ const config: Config = {
         shimmer: "shimmer 4s ease infinite",
         "live-pulse": "live-pulse 1.6s ease infinite",
       },
+      transitionTimingFunction: {
+        elegant: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
+      transitionDuration: {
+        "600": "600ms",
+        "900": "900ms",
+      },
     },
   },
   plugins: [],

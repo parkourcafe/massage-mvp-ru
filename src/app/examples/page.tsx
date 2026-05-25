@@ -22,6 +22,25 @@ export default async function ExamplesPage() {
       <p className="body-lg mt-6 max-w-xl">
         Чем выше показатель качества, тем выше позиции и SEO-видимость.
       </p>
+      {profiles.length === 0 && (
+        <div className="mt-16 rounded-xl2 border border-line bg-card p-10">
+          <p className="font-serif text-2xl text-heading">
+            Каталог только наполняется.
+          </p>
+          <p className="body-lg mt-3 max-w-xl">
+            Сильный профиль на MassageMatch — это фото кабинета и портфолио,
+            описание техник и противопоказаний, честный прайс, расписание
+            свободных окон и реальные отзывы. Чем полнее профиль, тем выше его
+            позиции в каталоге и SEO-видимость.
+          </p>
+          <Link
+            href="/signup"
+            className="btn-primary btn-sm mt-6 inline-flex"
+          >
+            Завести профиль <span aria-hidden>→</span>
+          </Link>
+        </div>
+      )}
       <div className="mt-16 grid gap-6 md:grid-cols-2">
         {profiles.map((p) => {
           const q = computeQualityScore(p);

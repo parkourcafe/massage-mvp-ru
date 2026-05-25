@@ -31,7 +31,7 @@ export default function PricingPage() {
       <div className="eyebrow">
         <span className="num-label">01</span> Тарифы
       </div>
-      <h1 className="h1 mt-6">Один профиль — две скорости.</h1>
+      <h1 className="h1 mt-6">Один профиль — три тарифа.</h1>
       <p className="body-lg mt-6 max-w-xl">
         Платформа монетизируется через подписку специалиста. Оплата клиентом
         сеансов в MVP не реализуется.

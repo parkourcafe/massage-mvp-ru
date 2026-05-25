@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -18,6 +18,7 @@ const sans = Inter({
 });
 import { SafetyNotice, SiteFooter, SiteHeader } from "@/components/Chrome";
 import { AIPalette } from "@/components/AIPalette";
+import { Grain } from "@/components/effects";
 import { JsonLd } from "@/components/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -32,9 +33,19 @@ export const metadata: Metadata = {
   },
   description:
     "AI-платформа для независимых профессиональных массажистов и клиентов. Только оздоровительный и лечебный массаж.",
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
   ...(yandexVerification
     ? { verification: { yandex: yandexVerification } }
     : {}),
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0c080d",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -46,6 +57,7 @@ export default function RootLayout({
     <html lang="ru" className={`${serif.variable} ${sans.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+        <Grain />
         <SafetyNotice />
         <SiteHeader />
         <main className="flex-1">{children}</main>

@@ -139,11 +139,17 @@ export async function DirectoryView({
           <div>
             <div className="mb-6 flex items-center justify-between gap-4">
               <div className="small">
-                Показываем{" "}
-                <span className="serif text-base text-heading">
-                  {profiles.length}
-                </span>{" "}
-                {profiles.length === 1 ? "специалиста" : "специалистов"}
+                {profiles.length === 0 ? (
+                  "Каталог пополняется — новые мастера появляются регулярно"
+                ) : (
+                  <>
+                    Показываем{" "}
+                    <span className="serif text-base text-heading">
+                      {profiles.length}
+                    </span>{" "}
+                    {profiles.length === 1 ? "специалиста" : "специалистов"}
+                  </>
+                )}
               </div>
             </div>
 
@@ -160,13 +166,13 @@ export async function DirectoryView({
 
             {profiles.length === 0 ? (
               <div className="surface text-center text-secondary">
-                По заданным условиям специалисты не найдены. Попробуйте изменить
-                фильтры или{" "}
+                Мы только запускаемся — каталог наполняется каждый день.
+                Загляните чуть позже, измените фильтры или{" "}
                 <Link
                   href="/match"
                   className="hot font-medium underline underline-offset-2"
                 >
-                  подобрать с помощью AI
+                  подберите с помощью AI
                 </Link>
                 .
               </div>

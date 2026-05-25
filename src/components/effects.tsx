@@ -116,7 +116,7 @@ export function CursorGlow({
             background:
               "radial-gradient(circle, var(--accent) 0%, transparent 60%)",
             opacity: pos.on ? intensity : 0,
-            transition: "opacity 0.3s ease",
+            transition: "opacity 0.5s cubic-bezier(0.22,1,0.36,1)",
             mixBlendMode: "screen",
             filter: "blur(20px)",
             zIndex: 0,
@@ -166,7 +166,7 @@ export function Tilt({
         style={{
           height: "100%",
           transform: `rotateX(${t.x}deg) rotateY(${t.y}deg)`,
-          transition: "transform 0.2s cubic-bezier(0.2,0.8,0.2,1)",
+          transition: "transform 0.35s cubic-bezier(0.22,1,0.36,1)",
         }}
       >
         {children}
@@ -196,7 +196,7 @@ export function Magnetic({
       style={{
         display: "inline-flex",
         transform: `translate(${o.x}px, ${o.y}px)`,
-        transition: "transform 0.2s cubic-bezier(0.2,0.8,0.2,1)",
+        transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
       }}
       onMouseMove={
         enabled
@@ -417,7 +417,8 @@ export function HoverCursor({
             pointerEvents: "none",
             transform: `translate(-50%,-50%) scale(${pos.on ? 1 : 0.4})`,
             opacity: pos.on ? 1 : 0,
-            transition: "opacity 0.2s ease, transform 0.2s ease",
+            transition:
+              "opacity 0.3s cubic-bezier(0.22,1,0.36,1), transform 0.3s cubic-bezier(0.22,1,0.36,1)",
             background: "var(--accent)",
             color: "var(--on-accent)",
             padding: "10px 18px",
@@ -433,5 +434,113 @@ export function HoverCursor({
         </div>
       )}
     </div>
+  );
+}
+
+/* Fade + 12px translateY when the element enters the viewport.
+   Server renders content normally; the reveal only runs for elements
+   that are below the fold at mount, so above-the-fold content shows
+   instantly with no flash. Reduced motion is honoured. */
+export function ScrollReveal({
+  children,
+  delay = 0,
+  className,
+  style,
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState<"initial" | "hidden" | "visible">(
+    "initial"
+  );
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setState("visible");
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const vh = window.innerHeight || 800;
+    if (r.top < vh) {
+      setState("visible");
+      return;
+    }
+    setState("hidden");
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setState("visible");
+            obs.disconnect();
+            break;
+          }
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const dyn: CSSProperties =
+    state === "hidden"
+      ? {
+          opacity: 0,
+          transform: "translateY(12px)",
+          transition:
+            "opacity 700ms cubic-bezier(0.22,1,0.36,1), transform 700ms cubic-bezier(0.22,1,0.36,1)",
+          transitionDelay: `${delay}ms`,
+          willChange: "opacity, transform",
+        }
+      : state === "visible"
+        ? {
+            opacity: 1,
+            transform: "translateY(0)",
+            transition:
+              "opacity 700ms cubic-bezier(0.22,1,0.36,1), transform 700ms cubic-bezier(0.22,1,0.36,1)",
+            transitionDelay: `${delay}ms`,
+          }
+        : {};
+
+  return (
+    <div ref={ref} className={className} style={{ ...style, ...dyn }}>
+      {children}
+    </div>
+  );
+}
+
+/* Subtle film-grain overlay. Static SVG turbulence noise rendered once
+   at the root; pointer-events: none so it never blocks interaction.
+   Sits at a low z-index so floating UI (modals, palette) stays above. */
+const GRAIN_SVG = encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>" +
+    "<filter id='n'>" +
+    "<feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/>" +
+    "<feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/>" +
+    "</filter>" +
+    "<rect width='100%' height='100%' filter='url(#n)'/>" +
+    "</svg>"
+);
+
+export function Grain({ opacity = 0.05 }: { opacity?: number }) {
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "fixed",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 1,
+        backgroundImage: `url("data:image/svg+xml,${GRAIN_SVG}")`,
+        backgroundSize: "180px 180px",
+        mixBlendMode: "soft-light",
+        opacity,
+      }}
+    />
   );
 }

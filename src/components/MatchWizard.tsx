@@ -99,7 +99,7 @@ export function MatchWizard() {
         </div>
         <div>
           <label className="label">Город</label>
-          <select name="city" className="input" defaultValue="Москва">
+          <select name="city" className="input" defaultValue="Санкт-Петербург">
             {CITIES.map((c) => (
               <option key={c.slug} value={c.label}>
                 {c.label}
