@@ -5,6 +5,7 @@ import { listOpenSlots, listPublicProfiles } from "@/lib/db";
 import type { Profile } from "@/lib/types";
 import { formatRub, formatSlot, isSameDay } from "@/lib/util";
 import { pageMetadata } from "@/lib/seo";
+import { InstallPWA } from "@/components/InstallPWA";
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +118,7 @@ export default async function MobileAppPage() {
           </span>
           <span className="text-left">
             <span className="block text-[10px] tracking-[0.16em] text-secondary">
-              САНКТ-ПЕТЕРБУРГ
+              МОСКВА · САНКТ-ПЕТЕРБУРГ
             </span>
             <span className="block text-[13px] font-medium text-heading">
               Все районы ▾
@@ -132,6 +133,9 @@ export default async function MobileAppPage() {
           <span className="font-serif text-sm">Я</span>
         </Link>
       </div>
+
+      {/* Install app */}
+      <InstallPWA />
 
       {/* Greeting */}
       <div className="px-5 pb-2 pt-5">

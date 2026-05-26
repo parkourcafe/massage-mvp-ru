@@ -155,7 +155,7 @@ export default async function HomePage() {
 
             <div className="mt-10 flex max-w-xl items-center gap-2 rounded-full border border-line-strong bg-surface p-2 shadow-soft">
               <span className="flex flex-1 items-center gap-2 px-5 py-3 text-sm text-body">
-                <span className="hot">✦</span> Любой массаж · Санкт-Петербург
+                <span className="hot">✦</span> Любой массаж · Москва и Санкт-Петербург
               </span>
               <TrackedLink
                 href="/therapists"

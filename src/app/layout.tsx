@@ -20,6 +20,7 @@ import { SafetyNotice, SiteFooter, SiteHeader } from "@/components/Chrome";
 import { AIPalette } from "@/components/AIPalette";
 import { Analytics } from "@/components/analytics";
 import { Grain } from "@/components/effects";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { JsonLd } from "@/components/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -57,6 +58,7 @@ export default function RootLayout({
   return (
     <html lang="ru" className={`${serif.variable} ${sans.variable}`}>
       <body className="min-h-screen flex flex-col">
+        <ServiceWorkerRegister />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <Analytics />
         <Grain />
