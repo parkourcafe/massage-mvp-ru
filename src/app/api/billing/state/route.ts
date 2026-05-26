@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
-import { getOwnerProfile, getSubscription } from "@/lib/db";
-import { PLANS } from "@/lib/plans";
+import {
+  listBillingHistory,
+  listClientSubscriptions,
+} from "@/lib/strand/repository";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const owner = await getOwnerProfile();
-  const sub = await getSubscription(owner.id);
+  const [subscriptions, billingHistory] = await Promise.all([
+    listClientSubscriptions(),
+    listBillingHistory(),
+  ]);
+
   return NextResponse.json({
-    plan: owner.plan_id,
-    subscription: sub
-      ? {
-          status: sub.status,
-          plan_id: sub.plan_id,
-          expires_at: sub.expires_at,
-        }
-      : null,
-    proPrice: PLANS.pro.price_rub,
+    subscriptions,
+    billingHistory,
   });
 }

@@ -9,6 +9,7 @@ const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const isSupabaseConfigured = Boolean(url && (anon || service));
+export const isSupabaseAuthConfigured = Boolean(url && anon && service);
 
 export function getServiceClient(): SupabaseClient | null {
   if (!url || !service) return null;

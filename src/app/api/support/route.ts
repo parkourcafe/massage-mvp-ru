@@ -1,47 +1,30 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createSupportRequest, getOwnerProfile } from "@/lib/db";
-import { SUPPORT_TOPICS } from "@/lib/catalog";
-import { moderateText } from "@/lib/moderation";
+import { parseJsonBody } from "@/lib/strand/api";
+import { createModerationCase } from "@/lib/strand/repository";
 
 export const dynamic = "force-dynamic";
 
 const schema = z.object({
-  name: z.string().min(1).max(120),
-  contact_method: z.string().max(40).optional(),
-  contact_value: z.string().max(200).optional(),
-  preferred_contact_time: z.string().max(120).optional(),
-  topic: z.string().min(1),
-  message: z.string().max(2000).optional(),
+  targetType: z.enum(["profile", "media", "message"]),
+  reason: z.string().min(1),
+  details: z.string().min(1),
 });
 
-export async function POST(req: Request) {
-  const owner = await getOwnerProfile();
-  const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success)
-    return NextResponse.json({ error: "Заполните форму" }, { status: 400 });
-
-  if (!SUPPORT_TOPICS.includes(parsed.data.topic)) {
-    return NextResponse.json({ error: "Неизвестная тема" }, { status: 400 });
+export async function POST(request: Request) {
+  const parsed = schema.safeParse(await parseJsonBody(request));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid report payload." }, { status: 400 });
   }
 
-  const mod = moderateText(parsed.data.message);
-  if (!mod.ok) {
-    return NextResponse.json(
-      { error: "Сообщение содержит недопустимый контент." },
-      { status: 422 }
-    );
-  }
-
-  const sr = await createSupportRequest({
-    user_id: owner.user_id ?? null,
-    profile_id: owner.id,
-    name: parsed.data.name,
-    contact_method: parsed.data.contact_method ?? null,
-    contact_value: parsed.data.contact_value ?? null,
-    preferred_contact_time: parsed.data.preferred_contact_time ?? null,
-    topic: parsed.data.topic,
-    message: parsed.data.message ?? null,
-  });
-  return NextResponse.json({ ok: true, id: sr.id });
+  const result = await createModerationCase(parsed.data);
+  return NextResponse.json(
+    {
+      ...result,
+      message: result.ok
+        ? "Concern submitted into the moderation case queue."
+        : result.message,
+    },
+    { status: result.ok ? 200 : 400 },
+  );
 }

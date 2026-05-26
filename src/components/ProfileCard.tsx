@@ -1,124 +1,95 @@
 import Link from "next/link";
+import { getI18n } from "@/lib/i18n/server";
+import { getPublicationStatusLabel } from "@/lib/i18n/labels";
 import type { Profile } from "@/lib/types";
-import { modalityLabel } from "@/lib/catalog";
-import { formatRub, formatSlot, isSameDay } from "@/lib/util";
-import { listOpenSlots } from "@/lib/db";
-import { FavoriteButton } from "./FavoriteButton";
+import type { DirectoryProfile } from "@/lib/strand/types";
+import { StatusBadge } from "./StatusBadge";
 
-export async function ProfileCard({
-  profile,
-  source = "directory",
-  matchScore,
-}: {
-  profile: Profile;
-  source?: "directory" | "profile" | "match";
-  matchScore?: number;
-}) {
-  const photo = (profile.media ?? []).find((m) => m.type === "profile_photo");
-  const openSlots = await listOpenSlots(profile.id);
-  const upcomingSlot = openSlots[0] ?? null;
-  const availableToday = openSlots.some((s) =>
-    isSameDay(new Date(s.starts_at), new Date())
-  );
-  const services = (profile.services ?? []).slice(0, 4);
-  const priceFrom =
-    profile.price_from ??
-    Math.min(
-      ...(profile.services ?? [])
-        .map((s) => s.price ?? Infinity)
-        .filter((n) => Number.isFinite(n))
+type ProfileCardProps = {
+  profile: DirectoryProfile | Profile;
+  source?: string;
+};
+
+function isStrandProfile(profile: DirectoryProfile | Profile): profile is DirectoryProfile {
+  return "displayName" in profile;
+}
+
+export async function ProfileCard({ profile }: ProfileCardProps) {
+  const { locale, messages } = await getI18n();
+
+  if (!isStrandProfile(profile)) {
+    return (
+      <article className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-soft transition-transform hover:-translate-y-1">
+        <div className="relative h-72 bg-[radial-gradient(circle_at_top,_rgba(215,195,162,0.18),_transparent_55%),linear-gradient(180deg,_rgba(255,255,255,0.06),_rgba(255,255,255,0.02))]">
+          <div className="absolute inset-6 rounded-[22px] border border-white/10 bg-[radial-gradient(circle_at_30%_20%,_rgba(255,255,255,0.14),_transparent_30%),radial-gradient(circle_at_70%_40%,_rgba(215,195,162,0.12),_transparent_28%),linear-gradient(180deg,_rgba(255,255,255,0.08),_rgba(255,255,255,0.02))]" />
+        </div>
+        <div className="space-y-4 p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-3xl text-heading">{profile.full_name}</h3>
+              <p className="mt-2 text-sm text-body">{profile.headline ?? "Professional profile"}</p>
+            </div>
+            <StatusBadge tone={profile.moderation_status === "approved" ? "success" : "warning"}>
+              {profile.moderation_status}
+            </StatusBadge>
+          </div>
+          <p className="text-sm leading-7 text-body">
+            {profile.professional_description ?? "Legacy prototype profile card preserved for compatibility."}
+          </p>
+          <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-4 text-sm text-body">
+            <span>{profile.city ?? "Australia"}</span>
+            <Link href={`/therapist/${profile.slug}`} className="btn-secondary !px-5 !py-2.5">
+              {messages.common.viewProfile}
+            </Link>
+          </div>
+        </div>
+      </article>
     );
+  }
+
+  const verified = profile.kycStatus === "approved";
 
   return (
-    <div className="card-interactive flex flex-col gap-4">
-      <div className="flex gap-4">
-        {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photo.url}
-            alt={photo.alt_text ?? profile.full_name}
-            className="h-20 w-20 shrink-0 rounded-xl2 object-cover ring-1 ring-line-strong"
-          />
-        ) : (
-          <div className="img-ph h-20 w-20 shrink-0 rounded-xl2 font-serif !text-xl !tracking-normal text-heading">
-            {profile.full_name.slice(0, 1)}
+    <article className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-soft transition-transform hover:-translate-y-1">
+      <div className="relative h-72 bg-[radial-gradient(circle_at_top,_rgba(215,195,162,0.18),_transparent_55%),linear-gradient(180deg,_rgba(255,255,255,0.06),_rgba(255,255,255,0.02))]">
+        <div className="absolute inset-6 rounded-[22px] border border-white/10 bg-[radial-gradient(circle_at_30%_20%,_rgba(255,255,255,0.14),_transparent_30%),radial-gradient(circle_at_70%_40%,_rgba(215,195,162,0.12),_transparent_28%),linear-gradient(180deg,_rgba(255,255,255,0.08),_rgba(255,255,255,0.02))]" />
+        <div className="absolute bottom-5 left-5 flex flex-wrap gap-2">
+          {verified ? (
+            <StatusBadge tone="success">{messages.common.verified}</StatusBadge>
+          ) : (
+            <StatusBadge tone="warning">{messages.common.kycPending}</StatusBadge>
+          )}
+          <StatusBadge tone="accent">{profile.city}</StatusBadge>
+        </div>
+      </div>
+      <div className="space-y-4 p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-3xl text-heading">{profile.displayName}</h3>
+            <p className="mt-2 text-sm text-body">{profile.headline}</p>
           </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/therapist/${profile.slug}`}
-              className="font-serif text-lg text-heading transition-colors hover:text-accent"
+          <StatusBadge tone={profile.publicationStatus === "live" ? "success" : "warning"}>
+            {getPublicationStatusLabel(locale, profile.publicationStatus)}
+          </StatusBadge>
+        </div>
+        <p className="text-sm leading-7 text-body">{profile.shortBio}</p>
+        <div className="flex flex-wrap gap-2">
+          {profile.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-white/10 px-3 py-1 text-xs text-secondary"
             >
-              {profile.full_name}
-            </Link>
-            {profile.plan_id === "expert" && (
-              <span className="badge">★ ТОП</span>
-            )}
-            {typeof matchScore === "number" && (
-              <span className="chip-brand">Совпадение {matchScore}%</span>
-            )}
-            {availableToday && (
-              <span className="badge">Свободно сегодня</span>
-            )}
-          </div>
-          <p className="mt-1 text-sm text-secondary">
-            {[profile.city, profile.district].filter(Boolean).join(", ")}
-            {profile.years_experience
-              ? ` · опыт ${profile.years_experience} лет`
-              : ""}
-          </p>
-          {profile.headline && (
-            <p className="mt-1.5 line-clamp-2 text-sm text-body">
-              {profile.headline}
-            </p>
-          )}
-          {upcomingSlot && (
-            <p className="mt-2 font-serif text-sm text-accent">
-              Ближайшее окно: {formatSlot(upcomingSlot.starts_at)}
-            </p>
-          )}
+              {tag}
+            </span>
+          ))}
         </div>
-      </div>
-
-      <div className="flex flex-wrap gap-1.5">
-        {services.map((s) => (
-          <span key={s.id} className="chip-brand">
-            {modalityLabel(s.modality)}
-          </span>
-        ))}
-      </div>
-
-      <hr className="rule" />
-
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm text-secondary">
-          от{" "}
-          <strong className="font-serif text-lg text-heading">
-            {formatRub(Number.isFinite(priceFrom) ? priceFrom : null)}
-          </strong>
-        </span>
-        <div className="flex gap-2">
-          <Link
-            href={`/therapist/${profile.slug}`}
-            className="btn-secondary btn-sm"
-          >
-            Профиль
-          </Link>
-          <Link
-            href={`/therapist/${profile.slug}/booking`}
-            className="btn-primary btn-sm"
-          >
-            Записаться
+        <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-4 text-sm text-body">
+          <span>${profile.subscriptionPrice}/month</span>
+          <Link href={`/models/${profile.slug}`} className="btn-secondary !px-5 !py-2.5">
+            {messages.common.viewProfile}
           </Link>
         </div>
       </div>
-      <FavoriteButton
-        profileId={profile.id}
-        source={source}
-        matchScore={matchScore}
-        className="w-full"
-      />
-    </div>
+    </article>
   );
 }

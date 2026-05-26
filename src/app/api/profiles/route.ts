@@ -1,29 +1,19 @@
 import { NextResponse } from "next/server";
-import { getPublicProfileBySlug, listPublicProfiles } from "@/lib/db";
-import { getRawProfileById, toPublicProfile } from "@/lib/db";
+import {
+  getDirectoryProfile,
+  listDirectoryProfiles,
+} from "@/lib/strand/repository";
 
 export const dynamic = "force-dynamic";
 
-// Hydration endpoint for the localStorage-backed favorites page.
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const ids = url.searchParams.get("ids");
-  if (ids) {
-    const list = (
-      await Promise.all(
-        ids.split(",").map((id) => getRawProfileById(id.trim()))
-      )
-    )
-      .filter(
-        (p): p is NonNullable<typeof p> =>
-          !!p && p.is_published && p.moderation_status === "approved"
-      )
-      .map(toPublicProfile);
-    return NextResponse.json({ profiles: list });
-  }
   const slug = url.searchParams.get("slug");
+
   if (slug) {
-    return NextResponse.json({ profile: await getPublicProfileBySlug(slug) });
+    const profile = await getDirectoryProfile(slug);
+    return NextResponse.json({ profile: profile ?? null }, { status: profile ? 200 : 404 });
   }
-  return NextResponse.json({ profiles: await listPublicProfiles() });
+
+  return NextResponse.json({ profiles: await listDirectoryProfiles() });
 }

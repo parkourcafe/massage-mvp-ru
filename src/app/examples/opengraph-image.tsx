@@ -2,11 +2,9 @@ import { OG_SIZE, createOGImage } from "@/lib/og-helpers";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const alt = "Примеры профилей — MassageMatch";
+export const alt = "STRAND profiles";
 
 export default async function OGImage() {
-  return createOGImage(
-    "Примеры профилей",
-    "Как выглядит сильный профиль специалиста"
-  );
+  return createOGImage("Profiles", "Editorial profile presentation for STRAND");
 }
+

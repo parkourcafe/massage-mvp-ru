@@ -1,23 +1,26 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/seo";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/therapists", "/therapist/", "/pricing", "/examples"],
-        disallow: [
-          "/dashboard",
-          "/admin",
-          "/favorites",
-          "/match/results",
-          "/booking/",
-          "/client/",
-          "/api/",
+        allow: [
+          "/",
+          "/age-gate",
+          "/directory",
+          "/directory/",
+          "/models/",
+          "/legal/",
+          "/auth",
         ],
+        disallow: ["/account", "/studio", "/admin", "/api/"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
+
