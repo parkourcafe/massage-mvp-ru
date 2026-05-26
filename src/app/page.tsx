@@ -238,7 +238,7 @@ export default async function HomePage() {
                 <span aria-hidden className="hot text-xs">
                   ✦
                 </span>
-                <span className="eyebrow !text-accent">Massaje AI</span>
+                <span className="eyebrow !text-accent">Liza AI</span>
               </span>
               <span className="relative z-10 mt-2 block font-serif text-[17px] leading-snug text-heading">
                 Опишите задачу — подберём специалистов и техники под вас.

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Massaje SPB — Drama design tokens.
+   MassageMatch — Drama design tokens.
    Palette pivot: dramatic plum / magenta / obsidian-black with warm bone
    text. Blush (light) and Sage (original spa) kept as alternate tones via
    [data-tone]; Drama is the shipped default.

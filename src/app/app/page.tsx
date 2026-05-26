@@ -163,7 +163,7 @@ export default async function MobileAppPage() {
             }}
           />
           <div className="relative z-10">
-            <div className="eyebrow !text-white/70">↳ Massaje AI</div>
+            <div className="eyebrow !text-white/70">↳ Liza AI</div>
             <div className="mt-1.5 font-serif text-2xl leading-tight">
               Опишите задачу — подберём мастера
             </div>
