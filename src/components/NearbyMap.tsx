@@ -88,7 +88,7 @@ function rub(n: number): string {
 function previewHtml(c: NearbyCard): string {
   const wa = buildWhatsAppLink(
     c.whatsapp,
-    `Здравствуйте! Хочу записаться на массаж.\n\nМастер: ${c.full_name}\nЗона: ${c.area_label}\nПлатформа: Massage MVP`
+    `Здравствуйте! Хочу записаться на массаж.\n\nМастер: ${c.full_name}\nЗона: ${c.area_label}\nПлатформа: MassageMatch`
   );
   const photo = c.photo_url
     ? `<img src="${esc(
