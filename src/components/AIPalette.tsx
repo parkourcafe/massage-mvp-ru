@@ -211,7 +211,7 @@ export function AIPalette() {
           >
             <div className="flex items-center gap-3 px-6 pt-5">
               <span className="chip">
-                <span aria-hidden>✦</span> Massaje AI
+                <span aria-hidden>✦</span> Liza AI
               </span>
               <span className="ml-auto text-[11px] text-secondary">
                 ⌘K · ESC чтобы закрыть

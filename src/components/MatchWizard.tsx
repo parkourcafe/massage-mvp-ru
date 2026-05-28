@@ -8,6 +8,7 @@ import {
   MODALITIES,
   PRESSURE_OPTIONS,
 } from "@/lib/catalog";
+import { trackEvent } from "@/lib/analytics";
 
 export function MatchWizard() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export function MatchWizard() {
     setError(null);
     const fd = new FormData(e.currentTarget);
     const payload = Object.fromEntries(fd.entries());
+    trackEvent("cta_click_match", { goal: payload.massage_goal });
     try {
       const res = await fetch("/api/match", {
         method: "POST",

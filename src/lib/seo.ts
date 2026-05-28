@@ -4,7 +4,8 @@ export { PLATFORM_NOTICE, MEDICAL_DISCLAIMER } from "./catalog";
 
 export const SITE_NAME = "STRAND";
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://massage-mvp-ru.netlify.app";
 
 // Routes that must NEVER be indexed (dashboard, admin, private tokens, etc.)
 const NOINDEX_PREFIXES = [
