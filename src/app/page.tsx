@@ -1,660 +1,216 @@
-import { Fragment } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { MODALITIES } from "@/lib/catalog";
-import { listPublicProfiles } from "@/lib/db";
-import {
-  Counter,
-  CursorGlow,
-  LivePulse,
-  Magnetic,
-  MeshBlob,
-  ScrollBoldHeading,
-  ScrollReveal,
-  Tilt,
-} from "@/components/effects";
-import { OpenPalette } from "@/components/AIPalette";
-import { TrackedLink } from "@/components/analytics";
-import { pageMetadata } from "@/lib/seo";
+import { ComplianceDisclaimer } from "@/components/ComplianceDisclaimer";
+import { ProfileCard } from "@/components/ProfileCard";
+import { TrustStrip } from "@/components/TrustStrip";
+import { getI18n } from "@/lib/i18n/server";
+import { states } from "@/lib/strand/data";
+import { listDirectoryProfiles } from "@/lib/strand/repository";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Профессиональный массаж — подбор специалиста",
+export const metadata: Metadata = {
+  title: "Premium private directory",
   description:
-    "AI-платформа для независимых профессиональных массажистов. Найдите проверенного специалиста или подберите с помощью AI.",
-  path: "/",
-});
-
-const HERO_TAGS = MODALITIES.slice(0, 6);
-
-const MARQUEE = [
-  "независимая практика",
-  "0 посредников",
-  "свой почерк",
-  "онлайн-бронь",
-];
-
-const STEPS = [
-  {
-    n: "01",
-    title: "по руке",
-    lead: "Выберите",
-    text: "Не по адресу и не по картинке. Портфолио, описание техники, профессиональные границы и модерация у каждого специалиста.",
-  },
-  {
-    n: "02",
-    title: "в один тап",
-    lead: "Запись",
-    text: "Свободные окна видно в реальном времени. Бронь подтверждается без долгих переписок и перезвонов.",
-  },
-  {
-    n: "03",
-    title: "мастеру",
-    lead: "Платите",
-    text: "Никаких предоплат платформе. Вы платите ровно столько, сколько указано у специалиста в прайсе.",
-  },
-];
-
-const NEEDS: { label: string; slug: string }[] = [
-  { label: "Шея и шейно-воротниковая зона", slug: "shei-i-plech" },
-  { label: "Спина и поясница", slug: "spiny" },
-  { label: "Глубокотканная проработка", slug: "glubokotkannyy" },
-  { label: "Спортивное восстановление", slug: "sportivnyy" },
-  { label: "Лимфодренаж и отёки", slug: "limfodrenazhnyy" },
-  { label: "Массаж для беременных", slug: "dlya-beremennyh" },
-];
-
-const PERSONAS = [
-  {
-    tag: "Сидячая работа",
-    text: "Устали от сидячей работы и ищете проверенного мастера рядом — без салонной текучки.",
-    cta: "Найти классический",
-    href: "/therapists/klassicheskiy",
-  },
-  {
-    tag: "Спорт и нагрузки",
-    text: "Восстанавливаетесь после тренировок и нуждаетесь в спортивном массаже у профильного специалиста.",
-    cta: "Найти спортивный",
-    href: "/therapists/sportivnyy",
-  },
-  {
-    tag: "Регулярный уход",
-    text: "Хотите регулярный уход за телом со своим мастером — без привязки к салону и его расписанию.",
-    cta: "Все типы массажа",
-    href: "/therapists",
-  },
-];
-
-const PRINCIPLES = [
-  {
-    title: "Только профессиональные техники",
-    text: "Классический, спортивный, лимфодренажный — и ещё несколько направлений. Каждый профиль проходит модерацию.",
-  },
-  {
-    title: "Честный контент",
-    text: "Профессиональные фотографии и описания техник. Никакого сомнительного или провокационного контента.",
-  },
-  {
-    title: "Прозрачность",
-    text: "Реальные отзывы, открытые цены и понятное расписание. Вы платите напрямую мастеру.",
-  },
-];
-
-const DEMO_PROFILES = [
-  {
-    name: "Анна К.",
-    modality: "Классический массаж",
-    rating: "4.9",
-    sessions: "120+",
-    place: "Свой кабинет · м. Петроградская",
-  },
-  {
-    name: "Михаил Д.",
-    modality: "Спортивный массаж",
-    rating: "4.8",
-    sessions: "85+",
-    place: "Выезд · Василеостровский",
-  },
-  {
-    name: "Елена С.",
-    modality: "Лимфодренаж",
-    rating: "5.0",
-    sessions: "60+",
-    place: "Кабинет · м. Чернышевская",
-  },
-];
+    "Subscription-first Australian 18+ companion marketplace foundation with editorial presentation, moderation states, and compliance structure.",
+};
 
 export default async function HomePage() {
-  const profiles = await listPublicProfiles();
-  const featured = profiles.slice(0, 3);
+  const { locale, messages } = await getI18n();
+  const featuredProfiles = await listDirectoryProfiles({ featuredOnly: true });
+  const copy =
+    locale === "ru"
+      ? {
+          eyebrow: "Премиальный editorial marketplace",
+          title: "Приватный просмотр verified 18+ профилей.",
+          intro:
+            "STRAND - это subscription-first MVP foundation для премиального австралийского companion marketplace. До chat или booking здесь в приоритете публичный каталог, презентация профилей, онбординг, модерация и privacy controls.",
+          searchEntry: "Точка входа в поиск",
+          searchPlaceholder: "Искать по городу, штату или verified-профилю",
+          trust: "Trust",
+          trustText:
+            "KYC approval обязателен до того, как профиль сможет отображаться как verified или live.",
+          accessModel: "Модель доступа",
+          accessText:
+            "Private galleries остаются закрытыми, пока не активировано entitlement по подписке.",
+          editorial: "Editorial presentation",
+          editorialItems: ["Hero профиля", "Абстрактная галерея", "Блок compliance"],
+          editorialBody:
+            "Премиальная placeholder-стилистика без explicit imagery и explicit copy.",
+          featuredEyebrow: "Избранные профили",
+          featuredTitle: "Editorial-карточки профилей",
+          seeAll: "Смотреть все профили",
+          steps: [
+            [
+              "1. Смотреть публично",
+              "Поиск по всей Австралии, фильтрация по штатам и городам и проверка verified-статуса до оформления подписки.",
+            ],
+            [
+              "2. Подписываться приватно",
+              "Состояния private gallery и access labels понятны, а entitlement-aware UI отрабатывает до показа чувствительных медиа.",
+            ],
+            [
+              "3. Управлять безопасно",
+              "Модели проходят онбординг, KYC и media review, а admin tools сфокусированы на moderation, risk и payment control.",
+            ],
+          ],
+          complianceBody:
+            "Страницы каталогов по штатам и городам подготовлены для локализованных compliance-placeholder блоков. Финальные раскрытия, правила модерации и операционные ограничения должны быть подтверждены с австралийским юристом до запуска.",
+          ctas: "Основные CTA",
+          deferred:
+            "Booking и chat намеренно отложены. Этот MVP построен вокруг листингов, профилей, статусов подписки, модерации и compliance-контролей.",
+        }
+      : {
+          eyebrow: "Premium editorial marketplace",
+          title: "Private browsing for verified 18+ profiles.",
+          intro:
+            "STRAND is a subscription-first MVP foundation for a premium Australian companion marketplace. Public directory access, profile presentation, onboarding, moderation, and privacy controls are prioritised before chat or booking.",
+          searchEntry: "Search entry",
+          searchPlaceholder: "Search city, state or verified profile",
+          trust: "Trust",
+          trustText:
+            "KYC approval is required before a profile can appear as verified or live.",
+          accessModel: "Access model",
+          accessText:
+            "Private galleries remain locked until subscription entitlement is active.",
+          editorial: "Editorial presentation",
+          editorialItems: ["Profile hero", "Abstract gallery", "Compliance block"],
+          editorialBody:
+            "Premium placeholder styling without explicit imagery or copy.",
+          featuredEyebrow: "Featured profiles",
+          featuredTitle: "Editorial profile cards",
+          seeAll: "See all profiles",
+          steps: [
+            [
+              "1. Browse publicly",
+              "Search Australia-wide, narrow by state and city, and review verified status before subscribing.",
+            ],
+            [
+              "2. Subscribe privately",
+              "Private gallery states and access labels are clear, with entitlement-aware UI before any sensitive media is shown.",
+            ],
+            [
+              "3. Manage safely",
+              "Models complete onboarding, KYC, and media review while admin tools focus on moderation, risk, and payment control.",
+            ],
+          ],
+          complianceBody:
+            "State and city level directory pages are structured to render localised compliance placeholders. Final disclosures, moderation rules, and operational constraints must be confirmed with Australian counsel before launch.",
+          ctas: "Primary CTAs",
+          deferred:
+            "Booking and chat are intentionally deferred. This MVP is built around listings, profiles, subscription states, moderation, and compliance controls.",
+        };
 
   return (
-    <div>
-      {/* HERO */}
-      <section className="bg-calm-hero">
-       <CursorGlow>
-        <div className="container-px grid items-center gap-16 py-16 sm:py-24 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="relative z-10">
-            <span className="eyebrow">
-              <span className="num-label not-italic">↳</span> Платформа
-              независимых массажистов
-            </span>
-            <h1 className="display mt-7 text-balance">
-              Не салон.
-              <br />
-              <span className="italic hot">Частная</span>
-              <br />
-              практика.
-            </h1>
-            <p className="body-lg mt-9 max-w-md text-xl leading-snug">
-              Массажисты, у которых вас знают по имени.{" "}
-              <em className="text-heading">
-                Свой кабинет, своя кушетка, свой ритм
-              </em>{" "}
-              — и календарь, который реально работает.
-            </p>
-
-            <div className="mt-10 flex max-w-xl items-center gap-2 rounded-full border border-line-strong bg-surface p-2 shadow-soft">
-              <span className="flex flex-1 items-center gap-2 px-5 py-3 text-sm text-body">
-                <span className="hot">✦</span> Любой массаж · Москва и Санкт-Петербург
-              </span>
-              <TrackedLink
-                href="/therapists"
-                event="cta_click_catalog"
-                className="btn-primary btn-sm shrink-0"
-              >
-                Показать <span aria-hidden>→</span>
-              </TrackedLink>
-            </div>
-
-            <div className="mt-4">
-              <OpenPalette className="group inline-flex flex-wrap items-center gap-1.5 text-sm text-body transition-colors hover:text-heading">
-                Не знаете, какой массаж вам нужен?
-                <span className="inline-flex items-center gap-1 underline underline-offset-4 decoration-1">
-                  Подберём с помощью AI
-                  <span
-                    aria-hidden
-                    className="inline-block transition-transform group-hover:translate-x-0.5"
-                  >
-                    →
-                  </span>
-                </span>
-              </OpenPalette>
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              {HERO_TAGS.map((m) => (
-                <Link
-                  key={m.key}
-                  href={`/therapists/${m.slug}`}
-                  className="rounded-full border border-line px-3.5 py-2 text-xs text-body transition-colors hover:border-line-strong hover:text-heading"
-                >
-                  {m.label.replace(" массаж", "")}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Photo cluster + floating cards */}
-          <div className="relative hidden h-[560px] lg:block">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute right-[18%] top-[26%] z-0"
-            >
-              <MeshBlob size={560} />
-            </div>
-            <div className="img-ph absolute right-10 top-0 h-[440px] w-[300px] rounded-xl2 shadow-lift">
-              портрет / руки
-            </div>
-            <div className="img-ph absolute bottom-0 left-0 h-[260px] w-[210px] rounded-xl2 shadow-lift">
-              кабинет
-            </div>
-            {featured[0] && (
-              <div className="absolute left-[-16px] top-14 z-10 flex w-[250px] items-center gap-3 rounded-xl2 border border-line-strong bg-card p-4 shadow-lift">
-                <div className="img-ph h-12 w-12 shrink-0 rounded-full text-[8px]">
-                  {featured[0].full_name.charAt(0)}
-                </div>
-                <div className="min-w-0">
-                  <div className="truncate font-serif text-[17px] text-heading">
-                    {featured[0].full_name}
-                  </div>
-                  <div className="small mt-0.5 flex items-center gap-1">
-                    <span className="hot">★</span>
-                    {featured[0].city ?? "Санкт-Петербург"}
-                  </div>
-                </div>
-              </div>
-            )}
-            <OpenPalette className="group absolute bottom-10 right-[-16px] z-10 block w-[300px] overflow-hidden rounded-xl2 border border-line-strong bg-card/80 p-5 text-left shadow-lift backdrop-blur-md transition-transform hover:-translate-y-1">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 animate-shimmer motion-reduce:hidden"
-                style={{
-                  background:
-                    "linear-gradient(120deg, transparent 35%, rgba(236,72,137,0.18) 50%, transparent 65%)",
-                  backgroundSize: "200% 100%",
-                }}
-              />
-              <span className="relative z-10 flex items-center gap-2">
-                <span aria-hidden className="hot text-xs">
-                  ✦
-                </span>
-                <span className="eyebrow !text-accent">Liza AI</span>
-              </span>
-              <span className="relative z-10 mt-2 block font-serif text-[17px] leading-snug text-heading">
-                Опишите задачу — подберём специалистов и техники под вас.
-              </span>
-              <span className="relative z-10 mt-3 flex items-center gap-1.5 text-xs text-accent">
-                Подобрать с AI{" "}
-                <span
-                  aria-hidden
-                  className="transition-transform group-hover:translate-x-0.5"
-                >
-                  →
-                </span>
-              </span>
-            </OpenPalette>
-          </div>
-        </div>
-
-        {/* Stats strip */}
-        <div className="container-px">
-          <div className="grid gap-8 border-t border-line py-10 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                v:
-                  profiles.length > 0 ? (
-                    <Counter value={profiles.length} />
-                  ) : (
-                    "Проверенные"
-                  ),
-                l: "специалистов в каталоге",
-              },
-              { v: "0 ₽", l: "комиссия для клиента · оплата только мастеру" },
-              {
-                v: (
-                  <span className="inline-flex items-center gap-3">
-                    <LivePulse />
-                    Онлайн
-                  </span>
-                ),
-                l: "бронь свободных окон без перезвонов",
-              },
-              { v: "AI", l: "подбор специалиста под вашу задачу" },
-            ].map((s) => (
-              <div key={s.l}>
-                <div className="font-serif text-5xl leading-none tracking-tight text-heading">
-                  {s.v}
-                </div>
-                <div className="small mt-3 max-w-[220px]">{s.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-       </CursorGlow>
-      </section>
-
-      {/* MARQUEE BAND */}
-      <div
-        className="overflow-hidden border-y border-line bg-surface py-5"
-        style={{
-          WebkitMaskImage:
-            "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
-          maskImage:
-            "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
-        }}
-      >
-        <div className="flex w-max animate-marquee whitespace-nowrap motion-reduce:animate-none">
-          {[...MARQUEE, ...MARQUEE].map((m, i) => (
-            <span
-              key={i}
-              className={`inline-flex items-center px-6 font-serif text-3xl tracking-tight sm:text-4xl ${
-                i % 3 === 1 ? "italic" : ""
-              } ${i % 4 === 0 ? "text-accent" : "text-heading"}`}
-            >
-              {m}
-              <span aria-hidden className="ml-8 text-2xl text-secondary/40">
-                ·
-              </span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* HOW IT WORKS — bento */}
-      <ScrollReveal>
-      <section className="container-px border-t border-line py-24">
-        <div className="mb-12 grid items-end gap-12 lg:grid-cols-[1fr_1.5fr]">
+    <div className="pb-16">
+      <section className="container-px py-12 sm:py-16">
+        <div className="hero-grid grid gap-10 rounded-[36px] border border-white/10 px-6 py-10 shadow-lift sm:px-10 sm:py-14 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
-            <span className="eyebrow">
-              <span className="num-label">01</span> Как это работает
-            </span>
-            <ScrollBoldHeading className="h1 mt-6">
-              Три шага.
-              <br />
-              Без перезвонов.
-            </ScrollBoldHeading>
-          </div>
-          <p className="body-lg max-w-lg lg:justify-self-end">
-            Мы не записываем «на услугу в студию». Мы соединяем вас с конкретным
-            человеком — со своим расписанием, своими ценами, своим почерком.
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          {STEPS.map((s, i) => {
-            const inner = (
-              <div
-                className={`flex h-full flex-col justify-between rounded-xl2 border border-line p-9 ${
-                  i === 0
-                    ? "bg-gradient-to-b from-surface to-card"
-                    : i === 2
-                      ? "bg-gradient-to-br from-accent to-plum-700 text-white"
-                      : "bg-card"
-                }`}
-              >
-                <div>
-                  <div
-                    className={`num-label text-5xl ${i === 2 ? "!text-white/80" : ""}`}
-                  >
-                    {s.n}
-                  </div>
-                  <h3 className="mt-6 font-serif text-3xl">
-                    {s.lead}{" "}
-                    <em className={i === 2 ? "italic" : "italic hot"}>
-                      {s.title}.
-                    </em>
-                  </h3>
-                  <p
-                    className={`mt-4 text-sm leading-relaxed ${
-                      i === 2 ? "text-white/85" : "text-body"
-                    }`}
-                  >
-                    {s.text}
-                  </p>
-                </div>
-                {i === 0 && (
-                  <div className="mt-8 flex flex-wrap gap-2">
-                    {["наличные", "карта", "СБП", "перевод"].map((p) => (
-                      <span key={p} className="chip">
-                        {p}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-            return i === 0 ? (
-              <Tilt key={s.n} className="md:row-span-2">
-                {inner}
-              </Tilt>
-            ) : (
-              <Fragment key={s.n}>{inner}</Fragment>
-            );
-          })}
-        </div>
-      </section>
-      </ScrollReveal>
-
-      {/* FOR WHOM */}
-      <ScrollReveal>
-      <section className="container-px border-t border-line py-24">
-        <div className="mb-12">
-          <span className="eyebrow">
-            <span className="num-label">02</span> Для кого
-          </span>
-          <ScrollBoldHeading className="h1 mt-6">
-            MassageMatch — для тех,
-            <br />
-            <span className="italic">кто узнаёт себя.</span>
-          </ScrollBoldHeading>
-        </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {PERSONAS.map((p) => (
-            <div
-              key={p.tag}
-              className="flex h-full flex-col justify-between rounded-xl2 border border-line bg-card p-9"
-            >
-              <div>
-                <span className="chip">{p.tag}</span>
-                <p className="mt-6 font-serif text-2xl leading-snug text-heading">
-                  {p.text}
-                </p>
-              </div>
-              <Link
-                href={p.href}
-                className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-heading underline-offset-4 hover:underline"
-              >
-                {p.cta} <span aria-hidden>→</span>
+            <p className="eyebrow">{copy.eyebrow}</p>
+            <h1 className="display mt-6 max-w-3xl text-balance">
+              {copy.title}
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-body sm:text-lg">
+              {copy.intro}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/directory" className="btn-primary">
+                Browse directory
+              </Link>
+              <Link href="/studio" className="btn-secondary">
+                Join as model
               </Link>
             </div>
-          ))}
-        </div>
-      </section>
-      </ScrollReveal>
-
-      {/* SPECIALIZATIONS */}
-      <ScrollReveal>
-      <section className="bg-gradient-to-b from-surface to-page py-24">
-        <div className="container-px grid items-center gap-16 lg:grid-cols-2">
-          <div>
-            <span className="eyebrow">
-              <span className="num-label">03</span> Выбор по запросу
-            </span>
-            <ScrollBoldHeading className="h1 mt-6 mb-6">
-              Скажите телу,
-              <br />
-              где болит.
-            </ScrollBoldHeading>
-            <p className="body-lg mb-8 max-w-md">
-              Выберите зону или задачу — увидите специалистов, которые работают
-              именно с этим. Можно сразу уточнить технику, формат и район.
-            </p>
-            <div className="flex flex-col">
-              {NEEDS.map((n) => (
-                <Link
-                  key={n.slug}
-                  href={`/therapists/${n.slug}`}
-                  className="flex items-center justify-between gap-4 border-b border-line px-4 py-3.5 transition-colors hover:bg-accent-soft"
-                >
-                  <span className="font-serif text-xl text-heading">
-                    {n.label}
-                  </span>
-                  <span className="small" aria-hidden>
-                    →
-                  </span>
+            <div className="mt-8 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-secondary">
+                {copy.searchEntry}
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-[1.3fr_0.9fr_auto]">
+                <input className="field" placeholder={copy.searchPlaceholder} />
+                <select className="field">
+                  <option>{messages.common.allStates}</option>
+                  {states.map((state) => (
+                    <option key={state.slug}>{state.name}</option>
+                  ))}
+                </select>
+                <Link href="/directory" className="btn-primary justify-center">
+                  Open directory
                 </Link>
-              ))}
+              </div>
             </div>
           </div>
-          <div className="flex justify-center">
-            <div className="relative flex aspect-[3/4] w-full max-w-sm flex-col items-center justify-center rounded-xl2 border border-line bg-gradient-to-b from-surface to-card p-10">
-              <svg
-                viewBox="0 0 200 300"
-                className="h-full w-full text-line-strong"
-                role="img"
-                aria-label="Силуэт тела — выберите зону в списке"
-              >
-                <g fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="100" cy="40" r="24" />
-                  <path d="M76 66 Q100 80 124 66 L138 110 Q142 170 128 235 L116 296 M84 296 L72 235 Q58 170 62 110 Z" />
-                  <path d="M78 74 L36 150 M122 74 L164 150" />
-                </g>
-              </svg>
-              <span className="small absolute bottom-6">
-                Выберите зону в списке слева
-              </span>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+              <p className="eyebrow">{copy.trust}</p>
+              <p className="mt-4 font-serif text-3xl text-heading">
+                {copy.trustText}
+              </p>
+            </div>
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+              <p className="eyebrow">{copy.accessModel}</p>
+              <p className="mt-4 font-serif text-3xl text-heading">
+                {copy.accessText}
+              </p>
+            </div>
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 sm:col-span-2">
+              <p className="eyebrow">{copy.editorial}</p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                {copy.editorialItems.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(215,195,162,0.14),_transparent_42%),linear-gradient(180deg,_rgba(255,255,255,0.08),_rgba(255,255,255,0.02))] p-5"
+                  >
+                    <p className="font-serif text-2xl text-heading">{item}</p>
+                    <p className="mt-3 text-sm leading-7 text-body">
+                      {copy.editorialBody}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
-      </ScrollReveal>
-
-      {/* HOW A PROFILE LOOKS */}
-      <ScrollReveal>
-      <section className="container-px py-24">
-        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+      <TrustStrip messages={messages} />
+      <section className="container-px py-14">
+        <div className="flex items-end justify-between gap-6">
           <div>
-            <span className="eyebrow">
-              <span className="num-label">04</span> Примеры профилей
-            </span>
-            <ScrollBoldHeading className="h1 mt-6">
-              Как выглядит профиль
-              <br />
-              <span className="italic">на MassageMatch.</span>
-            </ScrollBoldHeading>
+            <p className="eyebrow">{copy.featuredEyebrow}</p>
+            <h2 className="mt-3 text-4xl text-heading">{copy.featuredTitle}</h2>
           </div>
-          <Link href="/examples" className="btn-secondary btn-sm">
-            Смотреть все примеры →
+          <Link href="/directory" className="btn-ghost hidden sm:inline-flex">
+            {copy.seeAll}
           </Link>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {DEMO_PROFILES.map((p) => (
-            <div
-              key={p.name}
-              className="flex h-full flex-col justify-between rounded-xl2 border border-line bg-card p-7"
-            >
-              <div>
-                <div className="flex items-center gap-3">
-                  <div className="img-ph h-12 w-12 shrink-0 rounded-full text-[8px]">
-                    {p.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-serif text-xl text-heading">
-                      {p.name}
-                    </div>
-                    <div className="small mt-0.5">{p.modality}</div>
-                  </div>
-                </div>
-                <div className="mt-5 flex items-center gap-2 text-sm text-heading">
-                  <span className="hot">★</span> {p.rating}
-                  <span className="text-secondary">·</span>
-                  <span className="text-body">{p.sessions} сеансов</span>
-                </div>
-                <div className="small mt-2">{p.place}</div>
-              </div>
-              <div className="mt-6 border-t border-line pt-4 text-xs uppercase tracking-wide text-secondary">
-                Пример оформления профиля
-              </div>
-            </div>
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          {featuredProfiles.map((profile) => (
+            <ProfileCard key={profile.id} profile={profile} />
           ))}
         </div>
       </section>
-      </ScrollReveal>
-
-      {/* WHY WE BUILT THIS */}
-      <ScrollReveal>
-      <section className="bg-gradient-to-b from-page to-surface py-24">
-        <div className="container-px grid items-center gap-16 lg:grid-cols-[1.3fr_1fr]">
-          <div>
-            <span className="eyebrow">
-              <span className="num-label not-italic">↳</span> Почему мы это
-              создали
-            </span>
-            <blockquote className="mt-7 font-serif text-3xl leading-snug text-heading sm:text-4xl">
-              «Я искала массажиста в Петербурге и поняла: нормального мастера
-              почти невозможно найти без сарафанного радио. Агрегаторы смешивают{" "}
-              <span className="italic">профессионалов</span> с «салонами на
-              час». Мы решили это исправить.»
-            </blockquote>
-            <div className="small mt-6">— Основатель MassageMatch</div>
+      <section className="container-px grid gap-6 py-8 lg:grid-cols-3">
+        {copy.steps.map(([title, text]) => (
+          <div key={title} className="panel p-6">
+            <h3 className="text-3xl text-heading">{title}</h3>
+            <p className="mt-3 text-sm leading-7 text-body">{text}</p>
           </div>
-          <div className="grid grid-cols-3 gap-6 lg:grid-cols-1">
-            {[
-              { v: "0 ₽", l: "комиссия для клиента" },
-              { v: MODALITIES.length, l: "направлений массажа в каталоге" },
-              { v: "3", l: "шага от поиска до записи" },
-            ].map((s) => (
-              <div key={s.l} className="border-l-2 border-line-strong pl-5">
-                <div className="font-serif text-4xl leading-none text-heading">
-                  {s.v}
-                </div>
-                <div className="small mt-2">{s.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
       </section>
-      </ScrollReveal>
-
-      {/* PRINCIPLES (editorial) */}
-      <ScrollReveal>
-      <section className="container-px py-24">
-        <span className="eyebrow">
-          <span className="num-label">05</span> Принципы платформы
-        </span>
-        <ScrollBoldHeading className="h1 mt-6 mb-14 max-w-3xl">
-          <span className="italic hot">Профессиональный</span> массаж, честный
-          контент, прозрачные цены.
-        </ScrollBoldHeading>
-        <div className="grid gap-6 md:grid-cols-3">
-          {PRINCIPLES.map((p, i) => (
-            <figure
-              key={p.title}
-              className={`m-0 flex min-h-[220px] flex-col justify-between rounded-xl2 border p-8 ${
-                i === 0 ? "border-accent bg-accent-soft" : "border-line bg-card"
-              }`}
-            >
-              <div className="num-label text-5xl leading-none">0{i + 1}</div>
-              <div className="mt-6">
-                <h3 className="font-serif text-2xl leading-snug text-heading">
-                  {p.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-body">
-                  {p.text}
-                </p>
-              </div>
-            </figure>
-          ))}
-        </div>
-      </section>
-      </ScrollReveal>
-
-      {/* FINAL CTA */}
-      <ScrollReveal>
-      <section className="container-px py-24">
-        <div className="relative grid items-center gap-16 overflow-hidden rounded-xl2 bg-gradient-to-br from-accent to-plum-700 px-10 py-20 text-white sm:px-16 lg:grid-cols-[1.4fr_1fr]">
-          <div className="relative z-10">
-            <span className="eyebrow !text-white/60">Готовы начать?</span>
-            <h2 className="mt-6 font-serif text-5xl font-medium leading-none tracking-tight sm:text-6xl">
-              Найдите своего
-              <br />
-              мастера.
-              <br />
-              <em className="italic opacity-70">
-                Или станьте первым на платформе.
-              </em>
-            </h2>
-          </div>
-          <div className="relative z-10 flex flex-col items-start gap-4">
-            <Magnetic>
-              <Link
-                href="/therapists"
-                className="inline-flex items-center gap-3 rounded-full bg-white px-9 py-5 text-base font-medium text-obsidian-1"
-              >
-                Найти мастера <span aria-hidden>→</span>
-              </Link>
-            </Magnetic>
-            <Link
-              href="/signup"
-              className="text-sm font-medium text-white underline-offset-4 hover:underline"
-            >
-              Завести профиль →
+      <section className="container-px grid gap-6 py-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <ComplianceDisclaimer body={copy.complianceBody} />
+        <div className="panel p-6">
+          <p className="eyebrow">{copy.ctas}</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/directory" className="btn-primary">
+              Browse directory
             </Link>
-            <p className="max-w-xs text-xs leading-relaxed text-white/60">
-              Первые 50 мастеров получают Pro-аккаунт бесплатно на 3 месяца.
-            </p>
+            <Link href="/studio" className="btn-secondary">
+              Join as model
+            </Link>
           </div>
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-[500px] w-[500px] rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,255,255,0.25), transparent 60%)",
-            }}
-          />
+          <p className="mt-4 text-sm leading-7 text-body">
+            {copy.deferred}
+          </p>
         </div>
       </section>
-      </ScrollReveal>
     </div>
   );
 }

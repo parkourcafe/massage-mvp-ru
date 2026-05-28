@@ -1,29 +1,11 @@
-/**
- * lib/og-helpers.tsx
- *
- * Хелпер для генерации OG-image в стиле MassageMatch.
- * Используется из opengraph-image.tsx на каждой странице.
- */
-
 import { ImageResponse } from "next/og";
 import { PT_SANS_BOLD_B64, PT_SANS_REGULAR_B64 } from "./og/fonts";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
-// next/og's bundled default font is Latin-only — with fontFamily
-// "sans-serif" every Cyrillic glyph renders as tofu (□□□), which would
-// break ~80% of these cards. We hand Satori a base64-embedded PT Sans
-// (latin+cyrillic) subset instead. Inlined (not fs/fetch) so it ships
-// in the bundle for both build-time and the runtime dynamic route.
 const fontRegular = Buffer.from(PT_SANS_REGULAR_B64, "base64");
 const fontBold = Buffer.from(PT_SANS_BOLD_B64, "base64");
 
-/**
- * Генерирует OG-image в фирменном стиле MassageMatch.
- *
- * @param title — крупный заголовок (название страницы / типа массажа)
- * @param subtitle — подзаголовок (краткое описание / теги через ·)
- */
 export function createOGImage(title: string, subtitle: string) {
   return new ImageResponse(
     (
@@ -36,25 +18,20 @@ export function createOGImage(title: string, subtitle: string) {
           justifyContent: "center",
           padding: "80px",
           background:
-            "linear-gradient(135deg, #0c080d 0%, #1a0f1c 55%, #2a1226 100%)",
-          color: "#f6eef2",
+            "radial-gradient(circle at top left, rgba(215, 195, 162, 0.16), transparent 25%), linear-gradient(135deg, #090806 0%, #11100d 55%, #1c1712 100%)",
+          color: "#f4ead8",
           fontFamily: "PT Sans",
         }}
       >
-        {/* Акцентная полоска */}
         <div
           style={{
-            width: "60px",
+            width: "72px",
             height: "4px",
-            background: "#ec4889",
+            background: "#d7c3a2",
             borderRadius: "2px",
             marginBottom: "40px",
           }}
         />
-
-        {/* Заголовок. PT Sans-сабсет содержит только 400/700; запрошенный
-            light (300) недоступен, берём ближайший 400 — визуально лёгкий
-            заголовок, как в макете (не bold 700). */}
         <div
           style={{
             fontSize: "64px",
@@ -68,13 +45,11 @@ export function createOGImage(title: string, subtitle: string) {
         >
           {title}
         </div>
-
-        {/* Подзаголовок */}
         <div
           style={{
             fontSize: "28px",
             fontWeight: 400,
-            color: "#c4a9bb",
+            color: "#ddcfb7",
             marginBottom: "60px",
             maxWidth: "1000px",
             lineHeight: 1.3,
@@ -82,9 +57,6 @@ export function createOGImage(title: string, subtitle: string) {
         >
           {subtitle}
         </div>
-
-        {/* Бренд. Простой инлайн-SVG (solid fill/stroke, без градиентов и
-            фильтров) Satori рендерит надёжно — проверено на сборке. */}
         <div
           style={{
             display: "flex",
@@ -97,24 +69,24 @@ export function createOGImage(title: string, subtitle: string) {
               cx="20"
               cy="20"
               r="19"
-              stroke="#9b8593"
+              stroke="#d7c3a2"
               strokeWidth="0.75"
               opacity="0.5"
             />
             <path
-              d="M11 14c0 6 4 9 9 11 5-2 9-5 9-11 0-3-2-5-5-5-2 0-3 1-4 2-1-1-2-2-4-2-3 0-5 2-5 5z"
-              fill="#ec4889"
+              d="M12 27c2-8 7-14 16-16-2 8-7 14-16 16z"
+              fill="#d7c3a2"
             />
           </svg>
           <div
             style={{
               fontSize: "22px",
               fontWeight: 400,
-              color: "#9b8593",
-              letterSpacing: "0.5px",
+              color: "#d7c3a2",
+              letterSpacing: "3px",
             }}
           >
-            MassageMatch
+            STRAND
           </div>
         </div>
       </div>
@@ -125,6 +97,7 @@ export function createOGImage(title: string, subtitle: string) {
         { name: "PT Sans", data: fontRegular, weight: 400, style: "normal" },
         { name: "PT Sans", data: fontBold, weight: 700, style: "normal" },
       ],
-    }
+    },
   );
 }
+

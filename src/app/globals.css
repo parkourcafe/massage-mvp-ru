@@ -2,119 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ──────────────────────────────────────────────────────────────────────────
-   MassageMatch — Drama design tokens.
-   Palette pivot: dramatic plum / magenta / obsidian-black with warm bone
-   text. Blush (light) and Sage (original spa) kept as alternate tones via
-   [data-tone]; Drama is the shipped default.
-   ────────────────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: dark;
-
-  /* plum (depth) */
-  --plum-50:#faf4fa; --plum-100:#f1dcef; --plum-200:#e0b6dc; --plum-300:#c587be;
-  --plum-400:#a35a9c; --plum-500:#7d3a78; --plum-600:#5c2858; --plum-700:#421e40;
-  --plum-800:#2d152d; --plum-900:#1c0e1c;
-
-  /* magenta (accent / hot) */
-  --mag-50:#fdeef4; --mag-100:#fbd2e4; --mag-200:#f7a4c8; --mag-300:#f372a8;
-  --mag-400:#ec4889; --mag-500:#d72a6f; --mag-600:#b41a58; --mag-700:#821443;
-
-  /* blush (soft cream/pink surface) */
-  --blush-50:#fbf5f1; --blush-100:#f6e8e1; --blush-200:#efd6cd; --blush-300:#e4bbb0;
-
-  /* obsidian (near-black canvas) */
-  --ink-0:#0c080d; --ink-1:#14101a; --ink-2:#1d1722; --ink-3:#2a2230; --ink-4:#3d3344;
-
-  /* warm text on dark */
-  --bone-0:#f8efe8; --bone-1:#ebdfd5; --bone-2:#beb2ab; --bone-3:#8a7f7a;
-
-  /* legacy sand (sage tone only) */
-  --sand-50:#faf7f2; --sand-100:#f3ede3; --sand-200:#e7ddcd;
-
-  /* semantic — DRAMA (default) */
-  --page:var(--ink-0);
-  --surface:var(--ink-1);
-  --card:var(--ink-2);
-  --muted:var(--ink-1);
-  --border:rgba(248,239,232,0.10);
-  --border-strong:rgba(248,239,232,0.22);
-
-  --heading:var(--bone-0);
-  --body:var(--bone-1);
-  --secondary:var(--bone-3);
-
-  --accent:var(--mag-400);
-  --accent-soft:rgba(236,72,137,0.12);
-  --accent-strong:var(--mag-300);
-  --on-accent:#ffffff;
-
-  --plum:var(--plum-400);
-  --plum-on:#ffffff;
-
-  --serif:var(--font-serif), "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --sans:var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-
-  --r-control:12px;
-  --r-card:20px;
-  --r-pill:9999px;
-
-  --shadow-soft:0 1px 2px rgba(0,0,0,0.4), 0 16px 32px -12px rgba(0,0,0,0.55);
-  --shadow-lift:0 8px 24px rgba(0,0,0,0.4), 0 40px 80px -24px rgba(0,0,0,0.75);
-  --glow:0 0 0 1px rgba(236,72,137,0.35), 0 18px 60px -12px rgba(236,72,137,0.4);
-}
-
-/* ALT TONE — blush (light, soft, still violet/magenta) */
-[data-tone="blush"] {
-  color-scheme: light;
-  --page:var(--blush-50); --surface:#ffffff; --card:#ffffff;
-  --muted:var(--blush-100); --border:var(--blush-200); --border-strong:var(--plum-200);
-  --heading:var(--plum-900); --body:var(--plum-700); --secondary:var(--plum-500);
-  --accent:var(--mag-500); --accent-soft:var(--mag-50); --accent-strong:var(--plum-700);
-  --on-accent:#ffffff; --plum:var(--plum-700); --plum-on:#ffffff;
-  --shadow-soft:0 1px 2px rgba(66,30,64,0.06), 0 12px 32px -12px rgba(66,30,64,0.18);
-  --shadow-lift:0 4px 12px rgba(66,30,64,0.08), 0 32px 64px -24px rgba(66,30,64,0.28);
-  --glow:0 0 0 1px var(--mag-200), 0 18px 60px -12px rgba(236,72,137,0.25);
-}
-
-/* ALT TONE — sage (original spa palette) */
-[data-tone="sage"] {
-  color-scheme: light;
-  --page:var(--sand-50); --surface:#ffffff; --card:#ffffff;
-  --muted:var(--sand-100); --border:var(--sand-200); --border-strong:#d5c7b0;
-  --heading:#22201c; --body:#4a463f; --secondary:#7c766b;
-  --accent:#285b50; --accent-soft:#dcefe7; --accent-strong:#1f3d39;
-  --on-accent:#ffffff; --plum:#285b50; --plum-on:#ffffff;
-  --shadow-soft:0 1px 2px rgba(34,32,28,0.04), 0 8px 24px -12px rgba(34,32,28,0.12);
-  --shadow-lift:0 4px 12px rgba(34,32,28,0.06), 0 24px 48px -24px rgba(34,32,28,0.22);
-  --glow:0 0 0 1px rgba(40,91,80,0.25), 0 18px 60px -12px rgba(40,91,80,0.3);
+  --page: #090806;
+  --surface: #11100d;
+  --card: #181612;
+  --muted: #13110f;
+  --border: rgba(241, 227, 205, 0.1);
+  --border-strong: rgba(241, 227, 205, 0.24);
+  --heading: #f4ead8;
+  --body: #ddcfb7;
+  --secondary: #9f927f;
+  --accent: #d7c3a2;
+  --accent-soft: rgba(215, 195, 162, 0.12);
+  --accent-strong: #efe1c6;
+  --on-accent: #1b150e;
+  --plum: #8d6d58;
+  --plum-on: #fbf7f0;
+  --serif: var(--font-serif), "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --sans: var(--font-sans), "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --r-pill: 9999px;
+  --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.28);
+  --shadow-lift: 0 24px 80px rgba(0, 0, 0, 0.42);
+  --glow: 0 0 0 1px rgba(215, 195, 162, 0.32), 0 18px 60px -16px rgba(215, 195, 162, 0.3);
 }
 
 @layer base {
+  html {
+    background:
+      radial-gradient(circle at top left, rgba(215, 195, 162, 0.08), transparent 28%),
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.04), transparent 24%),
+      linear-gradient(180deg, #090806 0%, #0d0b08 100%);
+  }
+
   body {
-    background: var(--page);
+    min-height: 100vh;
+    background: transparent;
     color: var(--body);
     font-family: var(--sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  h1, h2, h3, h4 {
+
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--serif);
     color: var(--heading);
     font-weight: 500;
     letter-spacing: -0.02em;
   }
-  h1 {
-    @apply text-balance;
-  }
+
   a {
     color: inherit;
     text-decoration: none;
   }
+
   ::selection {
     background: var(--accent);
     color: var(--on-accent);
   }
+
   *,
   *::before,
   *::after {
@@ -125,258 +74,82 @@
 @layer components {
   .container-px {
     @apply mx-auto w-full px-5 sm:px-8;
-    max-width: 1240px;
+    max-width: 1280px;
   }
 
-  /* type primitives (mirror the design's tokens.css) */
   .eyebrow {
     @apply inline-flex items-center gap-2 text-[11px] font-semibold uppercase;
-    letter-spacing: 0.22em;
     color: var(--secondary);
     font-family: var(--sans);
+    letter-spacing: 0.22em;
   }
-  .serif {
-    font-family: var(--serif);
-    font-weight: 500;
-    letter-spacing: -0.015em;
-  }
+
   .display {
     font-family: var(--serif);
-    font-weight: 500;
-    font-size: clamp(56px, 9vw, 128px);
+    font-size: clamp(52px, 10vw, 118px);
     line-height: 0.92;
     letter-spacing: -0.03em;
     color: var(--heading);
   }
-  .h1 {
-    font-family: var(--serif);
-    font-weight: 500;
-    font-size: clamp(40px, 5.4vw, 72px);
-    line-height: 1;
-    letter-spacing: -0.025em;
-    color: var(--heading);
-  }
-  .h2 {
-    font-family: var(--serif);
-    font-weight: 500;
-    font-size: clamp(28px, 3.4vw, 44px);
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    color: var(--heading);
-  }
-  .h3 {
-    font-family: var(--serif);
-    font-weight: 500;
-    font-size: 22px;
-    line-height: 1.2;
-    color: var(--heading);
-  }
-  .italic {
-    font-style: italic;
-  }
-  .body-lg {
-    font-size: 18px;
-    line-height: 1.6;
-    color: var(--body);
-  }
-  .small {
-    font-size: 13px;
-    line-height: 1.55;
-    color: var(--secondary);
-  }
-  .num-label {
-    font-family: var(--serif);
-    font-style: italic;
-    color: var(--accent);
-  }
-  .hot {
-    color: var(--accent);
-  }
-  .plumc {
-    color: var(--plum);
-  }
-  .rule {
-    height: 1px;
-    background: var(--border);
-    border: 0;
-    margin: 0;
-  }
 
-  /* buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2.5 whitespace-nowrap transition-all duration-200 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 disabled:opacity-50;
     padding: 14px 24px;
     border-radius: var(--r-pill);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.02em;
     border: 1px solid transparent;
     font-family: var(--sans);
   }
+
   .btn:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--accent-soft);
   }
+
   .btn-primary {
     @apply btn;
     background: var(--accent);
     color: var(--on-accent);
     box-shadow: var(--glow);
   }
+
   .btn-primary:hover {
     transform: translateY(-1px);
-    filter: brightness(1.1);
+    filter: brightness(1.04);
   }
-  .btn-accent {
-    @apply btn;
-    background: var(--plum);
-    color: var(--plum-on);
-  }
-  .btn-accent:hover {
-    filter: brightness(1.12);
-  }
-  .btn-secondary {
-    @apply btn;
-    background: transparent;
-    color: var(--heading);
-    border-color: var(--border-strong);
-  }
-  .btn-secondary:hover {
-    border-color: var(--heading);
-  }
+
+  .btn-secondary,
   .btn-ghost {
     @apply btn;
     background: transparent;
     color: var(--heading);
     border-color: var(--border-strong);
   }
+
+  .btn-secondary:hover,
   .btn-ghost:hover {
     border-color: var(--heading);
   }
-  .btn-text {
-    @apply btn;
-    background: transparent;
-    color: var(--heading);
-    padding: 8px 0;
-    border-radius: 0;
-    border-bottom: 1px solid currentColor;
-  }
+
   .btn-sm {
     padding: 10px 18px;
     font-size: 13px;
   }
-  .btn-lg {
-    padding: 18px 32px;
-    font-size: 15px;
+
+  .panel {
+    @apply rounded-[28px] border border-white/10 bg-white/5 shadow-soft;
   }
 
-  /* surfaces */
-  .card {
-    background: var(--card);
-    border-radius: var(--r-card);
-    padding: 24px;
-    border: 1px solid var(--border);
-  }
-  .card-interactive {
-    @apply card transition-all duration-200;
-  }
-  .card-interactive:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow-lift);
-  }
-  .surface {
-    background: var(--muted);
-    border-radius: var(--r-card);
-    padding: 24px;
-    border: 1px solid var(--border);
+  .field {
+    @apply w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-heading outline-none transition-colors placeholder:text-secondary focus:border-[#d7c3a2]/35;
   }
 
-  /* forms */
-  .label {
-    @apply block text-sm font-medium mb-1.5;
-    color: var(--secondary);
-  }
-  .input {
-    @apply w-full text-sm;
-    font-family: var(--sans);
-    background: var(--surface);
-    color: var(--heading);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--r-control);
-    padding: 14px 16px;
-    outline: none;
-  }
-  .input::placeholder {
-    color: var(--secondary);
-  }
-  .input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-
-  /* tags / chips */
-  .chip {
-    @apply inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase;
-    padding: 6px 12px;
-    border-radius: var(--r-pill);
-    letter-spacing: 0.12em;
-    background: var(--accent-soft);
-    color: var(--accent);
-    border: 1px solid var(--border);
-  }
-  .chip-brand {
-    @apply chip;
-    background: rgba(163, 90, 156, 0.15);
-    color: var(--plum-300);
-    border-color: transparent;
-  }
-  .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
-    background: var(--accent-soft);
-    color: var(--accent);
-  }
-
-  /* image placeholder — dark gradient with subtle texture */
-  .img-ph {
-    @apply relative flex items-center justify-center overflow-hidden text-[11px] uppercase;
-    letter-spacing: 0.18em;
-    color: var(--secondary);
-    font-family: var(--sans);
-    background: radial-gradient(
-        circle at 30% 20%,
-        rgba(236, 72, 137, 0.18),
-        transparent 55%
-      ),
-      radial-gradient(
-        circle at 70% 80%,
-        rgba(125, 58, 120, 0.35),
-        transparent 55%
-      ),
-      linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
-  }
-  .img-ph::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.02) 0 1px,
-      transparent 1px 4px
-    );
-    pointer-events: none;
-  }
-  [data-tone="blush"] .img-ph {
-    background: radial-gradient(
-        circle at 30% 20%,
-        rgba(236, 72, 137, 0.18),
-        transparent 55%
-      ),
-      radial-gradient(
-        circle at 70% 80%,
-        rgba(125, 58, 120, 0.18),
-        transparent 55%
-      ),
-      linear-gradient(135deg, var(--blush-100) 0%, var(--blush-200) 100%);
+  .hero-grid {
+    background:
+      radial-gradient(circle at 12% 18%, rgba(215, 195, 162, 0.14), transparent 30%),
+      radial-gradient(circle at 84% 12%, rgba(255, 255, 255, 0.05), transparent 22%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
   }
 }

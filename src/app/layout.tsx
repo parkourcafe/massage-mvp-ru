@@ -1,72 +1,35 @@
-import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import type { Metadata } from "next";
+import { LocaleProvider } from "@/components/LocaleProvider";
+import { PublicFooter } from "@/components/PublicFooter";
+import { PublicHeader } from "@/components/PublicHeader";
+import { getI18n } from "@/lib/i18n/server";
 import "./globals.css";
 
-const serif = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const sans = Inter({
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-});
-import { SafetyNotice, SiteFooter, SiteHeader } from "@/components/Chrome";
-import { AIPalette } from "@/components/AIPalette";
-import { Analytics } from "@/components/analytics";
-import { Grain } from "@/components/effects";
-import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
-import { JsonLd } from "@/components/JsonLd";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
-
-const yandexVerification = process.env.YANDEX_VERIFICATION;
-
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL("https://strand.example"),
   title: {
-    default: `${SITE_NAME} — профессиональный массаж`,
-    template: `%s — ${SITE_NAME}`,
+    default: "STRAND",
+    template: `%s | STRAND`,
   },
   description:
-    "AI-платформа для независимых профессиональных массажистов и клиентов. Только оздоровительный и лечебный массаж.",
-  appleWebApp: {
-    capable: true,
-    title: SITE_NAME,
-    statusBarStyle: "black-translucent",
-  },
-  ...(yandexVerification
-    ? { verification: { yandex: yandexVerification } }
-    : {}),
+    "Premium, privacy-first Australian 18+ companion marketplace MVP foundation.",
 };
 
-export const viewport: Viewport = {
-  themeColor: "#0c080d",
-  colorScheme: "dark",
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { locale, messages } = await getI18n();
+
   return (
-    <html lang="ru" className={`${serif.variable} ${sans.variable}`}>
+    <html lang={locale}>
       <body className="min-h-screen flex flex-col">
-        <ServiceWorkerRegister />
-        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
-        <Analytics />
-        <Grain />
-        <SafetyNotice />
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <AIPalette />
-        <SiteFooter />
+        <LocaleProvider locale={locale} messages={messages}>
+          <PublicHeader messages={messages} />
+          <main className="flex-1">{children}</main>
+          <PublicFooter messages={messages} />
+        </LocaleProvider>
       </body>
     </html>
   );
